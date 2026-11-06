@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setState({ user: null, profile: null, loading: false });
         return;
       }
+      setState((s) => ({ ...s, loading: true }));
       // Live listener so a role set in the Firebase console applies without re-login.
       stopProfile = onSnapshot(
         doc(db, "profiles", user.uid),
@@ -42,6 +43,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+/** For login/register pages: once signed in, go home. Waits for auth state, so there's no race after sign-in. */
+export function useRedirectIfSignedIn() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (!loading && user) router.replace("/");
+  }, [loading, user, router]);
 }
 
 export function homeFor(role: Role) {

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRedirectIfSignedIn } from "@/lib/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase/config";
@@ -10,7 +10,7 @@ import { friendlyError } from "@/lib/firebase/errors";
 import { AuthCard, Field, ErrorText, buttonClass } from "@/components/auth-card";
 
 export default function RegisterPage() {
-  const router = useRouter();
+  useRedirectIfSignedIn();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -25,7 +25,6 @@ export default function RegisterPage() {
       const { user } = await createUserWithEmailAndPassword(auth, email, String(form.get("password")));
       // Everyone signs up as a student; the admin makes teachers in the Firebase console.
       await setDoc(doc(db, "profiles", user.uid), { name, email, role: "student" });
-      router.replace("/");
     } catch (err) {
       setError(friendlyError(err));
       setBusy(false);

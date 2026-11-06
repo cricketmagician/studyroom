@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRedirectIfSignedIn } from "@/lib/auth";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
 import { AuthCard, Field, ErrorText, buttonClass } from "@/components/auth-card";
 
 export default function LoginPage() {
-  const router = useRouter();
+  useRedirectIfSignedIn();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -20,7 +20,6 @@ export default function LoginPage() {
     setError("");
     try {
       await signInWithEmailAndPassword(auth, String(form.get("email")).trim(), String(form.get("password")));
-      router.replace("/");
     } catch (err) {
       setError(friendlyError(err));
       setBusy(false);
