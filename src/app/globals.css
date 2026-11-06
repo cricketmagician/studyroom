@@ -1,26 +1,85 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #F6F4EF;
+  --bg-surface: #FFFFFF;
+  --bg-surface-subtle: #FAF9F5;
+  --bg-card: #FFFFFF;
+  --text-primary: #20201E;
+  --text-secondary: #77756F;
+  --text-muted: #9D9B94;
+  --accent: #C58B51;
+  --accent-hover: #B47A40;
+  --accent-light: #F7EFE6;
+  --accent-text: #8E5B23;
+  --border-color: #E6E3DC;
+  --border-subtle: #EFECE6;
+  --ring-color: rgba(197, 139, 81, 0.35);
+  --shadow-sm: 0 1px 2px 0 rgba(32, 32, 30, 0.04);
+  --shadow-md: 0 4px 12px 0 rgba(32, 32, 30, 0.06);
+  --shadow-lg: 0 12px 24px -4px rgba(32, 32, 30, 0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --bg-primary: #171715;
+  --bg-surface: #20201E;
+  --bg-surface-subtle: #262623;
+  --bg-card: #20201E;
+  --text-primary: #F6F4EF;
+  --text-secondary: #9E9C95;
+  --text-muted: #6B6963;
+  --accent: #D79F65;
+  --accent-hover: #E4AF77;
+  --accent-light: #2A241D;
+  --accent-text: #F2C18C;
+  --border-color: #2E2E2A;
+  --border-subtle: #262623;
+  --ring-color: rgba(215, 159, 101, 0.35);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.5);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border-color);
+}
+
+html {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  min-height: 100vh;
+  transition: background-color 200ms ease, color 200ms ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.025em;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
