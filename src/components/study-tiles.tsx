@@ -3,8 +3,9 @@
 // These tiles only render after sign-in (client side), so reading localStorage in useState is safe.
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CirclePlay, Clock, FileText, Pause, Play, RotateCcw, Sparkles } from "lucide-react";
+import { ArrowRight, CirclePlay, Clock, FileText, Pause, Play, RotateCcw, Sparkles, Trophy, X } from "lucide-react";
 import { Material } from "@/lib/materials";
+import type { Entry } from "@/lib/hooks";
 import { dayKey, recordVisit, Streak, weekKeys } from "@/lib/streak";
 import { MaterialIcon } from "@/components/material-icon";
 import { cardClass, pillButton } from "@/components/ui";
@@ -61,6 +62,27 @@ export function StatTiles({ items }: { items: Material[] }) {
           <p className="text-xs text-[var(--text-secondary)] leading-tight">{s.label}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+export function ProgressTile({ items, entries }: { items: Material[]; entries: Record<string, Entry> }) {
+  const done = items.filter((m) => entries[m.id]?.done).length;
+  const percent = Math.round((done / items.length) * 100);
+  return (
+    <div className={`${tile} space-y-3`}>
+      <div className="flex items-center justify-between gap-2">
+        <TileHeader icon={<Trophy className="w-4 h-4" />} title="Your progress" sub="Mark files as done when you finish them" />
+        <span className="font-heading font-black text-2xl tracking-tight">
+          {percent}<span className="text-[var(--accent)] text-lg">%</span>
+        </span>
+      </div>
+      <div className="h-2.5 rounded-full bg-[var(--bg-surface-subtle)] overflow-hidden" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label="Files done">
+        <div className="h-full rounded-full bg-[var(--accent)] transition-all duration-500" style={{ width: `${percent}%` }} />
+      </div>
+      <p className="text-xs text-[var(--text-secondary)]">
+        {done === items.length ? "🎉 You've finished every file. Great work!" : `${done} of ${items.length} files done`}
+      </p>
     </div>
   );
 }
@@ -167,16 +189,21 @@ export function StreakTile() {
       <ol className="flex justify-between" aria-label="This week">
         {week.map((k, i) => {
           const visited = streak.days.includes(k);
+          const missed = !visited && k < today; // YYYY-MM-DD strings sort by date
           return (
             <li key={k} className="flex flex-col items-center gap-1">
               <span className={`text-[10px] font-semibold ${k === today ? "text-[var(--accent)]" : "text-[var(--text-muted)]"}`}>{"MTWTFSS"[i]}</span>
               <span
-                aria-label={visited ? "studied" : "not studied"}
+                aria-label={visited ? "studied" : missed ? "missed" : "coming up"}
                 className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold ${
-                  visited ? "bg-[var(--accent)] text-white" : "bg-[var(--bg-surface-subtle)] text-[var(--text-muted)]"
+                  visited
+                    ? "bg-[var(--accent)] text-white"
+                    : missed
+                      ? "bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400"
+                      : "bg-[var(--bg-surface-subtle)] text-[var(--text-muted)]"
                 }`}
               >
-                {visited ? "✓" : ""}
+                {visited ? "✓" : missed ? <X className="w-3.5 h-3.5" strokeWidth={3} aria-hidden /> : ""}
               </span>
             </li>
           );

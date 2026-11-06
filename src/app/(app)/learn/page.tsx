@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { db } from "@/lib/firebase/config";
-import { friendlyError } from "@/lib/firebase/errors";
+import React, { useState } from "react";
+import { ArrowRight, Search, Sparkles, X } from "lucide-react";
 import { RequireRole, useAuth } from "@/lib/auth";
 import { Kind } from "@/lib/files";
-import { Material, toMaterial } from "@/lib/materials";
+import { useMaterials, useMyLibrary } from "@/lib/hooks";
 import { ErrorText } from "@/components/auth-card";
 import { MaterialIcon } from "@/components/material-icon";
 import { FileRow, PageTitle, PhotoHero, pillButton } from "@/components/ui";
-import { ContinueTile, FocusTimer, StatTiles, StreakTile } from "@/components/study-tiles";
+import { ContinueTile, FocusTimer, ProgressTile, StatTiles, StreakTile } from "@/components/study-tiles";
 
 export default function LearnPage() {
   return (
@@ -29,22 +26,16 @@ const FILTERS: { value: Kind | "all"; label: string }[] = [
 
 function Library() {
   const { profile } = useAuth();
-  const [items, setItems] = useState<Material[] | null>(null);
+  const { items, error } = useMaterials();
+  const entries = useMyLibrary();
   const [filter, setFilter] = useState<Kind | "all">("all");
-  const [error, setError] = useState("");
-
-  useEffect(
-    () =>
-      onSnapshot(
-        query(collection(db, "materials"), orderBy("createdAt", "desc")),
-        (snap) => setItems(snap.docs.map(toMaterial)),
-        (err) => setError(friendlyError(err))
-      ),
-    []
-  );
+  const [search, setSearch] = useState("");
 
   const latest = items?.[0];
-  const shown = items?.filter((m) => filter === "all" || m.type === filter);
+  const q = search.trim().toLowerCase();
+  const shown = items?.filter(
+    (m) => (filter === "all" || m.type === filter) && (!q || m.title.toLowerCase().includes(q) || m.teacherName.toLowerCase().includes(q))
+  );
 
   return (
     <div className="space-y-6">
@@ -79,6 +70,7 @@ function Library() {
       <ErrorText>{error}</ErrorText>
 
       {items && <ContinueTile items={items} />}
+      {items && items.length > 0 && <ProgressTile items={items} entries={entries} />}
       {items && items.length > 0 && <StatTiles items={items} />}
       <div className="grid sm:grid-cols-2 gap-4">
         <FocusTimer />
@@ -86,8 +78,26 @@ function Library() {
       </div>
 
       {items && items.length > 0 && (
-        <>
+        <section className="space-y-3">
           <h2 className="pt-2 px-1 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">All class files</h2>
+
+          <label className="relative block">
+            <span className="sr-only">Search files</span>
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" aria-hidden />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by file or teacher name"
+              className="w-full h-12 pl-11 pr-11 rounded-full bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-[var(--shadow-sm)] text-sm outline-none focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--ring-color)] [&::-webkit-search-cancel-button]:hidden"
+            />
+            {search && (
+              <button onClick={() => setSearch("")} aria-label="Clear search" className={`${pillButton} absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 text-[var(--text-muted)] hover:bg-[var(--bg-surface-subtle)]`}>
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </label>
+
           <div role="group" aria-label="Show" className="flex items-center gap-2 overflow-x-auto pb-1">
             {FILTERS.map((f) => {
               const count = f.value === "all" ? items.length : items.filter((m) => m.type === f.value).length;
@@ -110,12 +120,13 @@ function Library() {
           </div>
 
           <ul className="grid gap-3">
-            {shown?.map((m) => <FileRow key={m.id} m={m} />)}
+            {shown?.map((m) => <FileRow key={m.id} m={m} entry={entries[m.id]} />)}
           </ul>
-          {shown?.length === 0 && <p className="text-center text-sm text-[var(--text-secondary)] py-6">Nothing here yet.</p>}
-        </>
+          {shown?.length === 0 && (
+            <p className="text-center text-sm text-[var(--text-secondary)] py-6">{q ? `No files match "${search.trim()}".` : "Nothing here yet."}</p>
+          )}
+        </section>
       )}
-
     </div>
   );
 }

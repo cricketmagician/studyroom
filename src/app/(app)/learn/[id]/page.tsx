@@ -14,6 +14,7 @@ import { ErrorText } from "@/components/auth-card";
 import { MaterialIcon } from "@/components/material-icon";
 import { pillButton } from "@/components/ui";
 import { rememberOpened } from "@/components/study-tiles";
+import { NotesCard, StudyActions } from "@/components/study-actions";
 
 export default function ViewerPage() {
   return (
@@ -68,6 +69,8 @@ function Viewer() {
             </a>
           </div>
 
+          <StudyActions materialId={item.id} />
+
           <div className="rounded-[32px] overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-lg">
             {item.type === "pdf" ? (
               <iframe src={item.url} title={item.title} className="w-full h-[78vh]" />
@@ -75,6 +78,8 @@ function Viewer() {
               <video src={item.url} controls playsInline preload="metadata" className="w-full max-h-[78vh] bg-black" />
             )}
           </div>
+
+          <NotesCard materialId={item.id} />
         </article>
       )}
     </div>

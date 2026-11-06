@@ -22,6 +22,18 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Each user's private saved / done / notes per file. Only they can see or change it.
+    match /profiles/{uid}/library/{materialId} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.keys().hasOnly(['saved', 'done', 'note', 'updatedAt']) &&
+        request.resource.data.get('saved', false) is bool &&
+        request.resource.data.get('done', false) is bool &&
+        request.resource.data.get('note', '') is string &&
+        request.resource.data.get('note', '').size() <= 5000 &&
+        request.resource.data.updatedAt == request.time;
+    }
+
     // Uploaded PDFs and videos. Everyone signed in can read; teachers manage their own.
     match /materials/{id} {
       allow read: if signedIn();

@@ -2,18 +2,23 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { CloudUpload, Library, LogOut, Moon, Sun } from "lucide-react";
-import { auth } from "@/lib/firebase/config";
+import { usePathname } from "next/navigation";
+import { Bookmark, CloudUpload, House, Library, Moon, Sun, UserRound } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/components/providers/theme-provider";
 import { Logo } from "@/components/auth-card";
 import { pillButton } from "@/components/ui";
 
-const TEACHER_LINKS = [
+const STUDENT_TABS = [
+  { href: "/learn", label: "Home", icon: House },
+  { href: "/saved", label: "Saved", icon: Bookmark },
+  { href: "/profile", label: "Profile", icon: UserRound },
+];
+
+const TEACHER_TABS = [
   { href: "/teacher", label: "Upload", icon: CloudUpload },
   { href: "/learn", label: "Library", icon: Library },
+  { href: "/profile", label: "Profile", icon: UserRound },
 ];
 
 const chip = `${pillButton} h-10 bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-[var(--shadow-sm)]`;
@@ -22,37 +27,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { profile } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
-  const router = useRouter();
-  const isTeacher = profile?.role === "teacher";
-
-  const logout = async () => {
-    await signOut(auth);
-    router.replace("/login");
-  };
-
-  // Labelled pills: non-tech users read words faster than icons.
-  const nav = isTeacher && (
-    <nav aria-label="Main" className="flex gap-1.5">
-      {TEACHER_LINKS.map(({ href, label, icon: Icon }) => {
-        const active = pathname === href || (href === "/learn" && pathname.startsWith("/learn/"));
-        return (
-          <Link
-            key={href}
-            href={href}
-            aria-current={active ? "page" : undefined}
-            className={`${pillButton} flex-1 sm:flex-none h-10 px-4 text-xs ${
-              active
-                ? "bg-[#111110] text-white dark:bg-white dark:text-[#111110] shadow-[var(--shadow-sm)]"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)]"
-            }`}
-          >
-            <Icon className="w-4 h-4" aria-hidden />
-            {label}
-          </Link>
-        );
-      })}
-    </nav>
-  );
+  const tabs = profile?.role === "teacher" ? TEACHER_TABS : STUDENT_TABS;
 
   return (
     <>
@@ -63,8 +38,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-20 bg-[color-mix(in_srgb,var(--bg-primary)_80%,transparent)] backdrop-blur-xl">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
           <Logo />
-          <div className="hidden sm:block ml-3">{nav}</div>
-
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={toggleTheme}
@@ -74,31 +47,44 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
             </button>
-
             {profile && (
-              <span className="flex items-center gap-2 h-10 pl-1 pr-3 rounded-full bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-[var(--shadow-sm)]">
+              <Link href="/profile" aria-label="Your profile" className={`${chip} pl-1 pr-3`}>
                 <span aria-hidden className="w-8 h-8 rounded-full bg-[var(--accent)] text-white flex items-center justify-center font-heading font-bold text-xs">
                   {profile.name.trim().charAt(0).toUpperCase() || "?"}
                 </span>
-                <span className="flex flex-col leading-none">
-                  <span className="hidden md:block text-xs font-semibold max-w-[8rem] truncate">{profile.name}</span>
-                  <span className="text-[10px] text-[var(--text-muted)] md:mt-0.5">{isTeacher ? "Teacher" : "Student"}</span>
-                </span>
-              </span>
+                <span className="text-xs max-w-[8rem] truncate">{profile.name.split(" ")[0]}</span>
+              </Link>
             )}
-
-            <button onClick={logout} className={`${chip} px-3.5 text-xs hover:text-red-600 hover:border-red-200 dark:hover:text-red-400 dark:hover:border-red-900`}>
-              <LogOut className="w-4 h-4" aria-hidden />
-              <span className="hidden sm:inline">Log out</span>
-              <span className="sr-only sm:hidden">Log out</span>
-            </button>
           </div>
         </div>
-
-        {nav && <div className="sm:hidden px-4 pb-3">{nav}</div>}
       </header>
 
-      <main id="main" className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 pb-24">{children}</main>
+      <main id="main" className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 pb-32">{children}</main>
+
+      {/* Floating footer nav, like a phone app. Labels stay visible so nobody has to guess an icon. */}
+      {profile && (
+        <nav aria-label="Main" className="fixed bottom-0 inset-x-0 z-30 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pointer-events-none">
+          <ul className="pointer-events-auto mx-auto max-w-sm flex items-center justify-between gap-1 p-1.5 rounded-full bg-[#111110] dark:bg-[#262623] shadow-[0_12px_32px_-8px_rgba(0,0,0,0.45)] border border-white/10">
+            {tabs.map(({ href, label, icon: Icon }) => {
+              const active = pathname === href || (href === "/learn" && pathname.startsWith("/learn/"));
+              return (
+                <li key={href} className="flex-1">
+                  <Link
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex flex-col items-center justify-center gap-0.5 h-14 rounded-full text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)] ${
+                      active ? "bg-[var(--accent)] text-white" : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" aria-hidden />
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      )}
     </>
   );
 }
