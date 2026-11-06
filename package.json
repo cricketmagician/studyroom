@@ -6,19 +6,15 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test src/lib/*.test.ts"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.109.0",
-    "@types/canvas-confetti": "^1.9.0",
-    "canvas-confetti": "^1.9.4",
-    "clsx": "^2.1.1",
     "firebase": "^13.2.0",
     "lucide-react": "^1.68.0",
     "next": "16.4.5",
     "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "tailwind-merge": "^3.7.0"
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark";
 
@@ -12,30 +12,38 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const KEY = "studyroom_theme";
+
+function subscribe(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener("themechange", onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener("themechange", onChange);
+  };
+}
+
+function readTheme(): Theme {
+  try {
+    return localStorage.getItem(KEY) === "dark" ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
+  // Server renders light; the saved theme applies right after hydration.
+  const theme = useSyncExternalStore(subscribe, readTheme, () => "light" as Theme);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("studyroom_theme") as Theme | null;
-    const initialTheme = savedTheme || "light";
-    setThemeState(initialTheme);
-    if (initialTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-    setMounted(true);
-  }, []);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem("studyroom_theme", newTheme);
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    try {
+      localStorage.setItem(KEY, newTheme);
+    } catch {}
+    window.dispatchEvent(new Event("themechange"));
   };
 
   const toggleTheme = () => {

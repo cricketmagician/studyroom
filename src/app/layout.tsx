@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
-import { Suspense } from "react";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { AppProvider } from "@/lib/store/app-store";
+import { AuthProvider } from "@/lib/auth";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,9 +17,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Skillverse — Premium Academic Learning Platform",
-  description:
-    "Editorial, minimalist, and modern college learning environment for students, instructors, and academic administrators.",
+  title: "Studyroom",
+  description: "Class PDFs and videos from your teachers, in one place.",
 };
 
 export default function RootLayout({
@@ -30,13 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
-      <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased font-sans flex flex-col selection:bg-[#C58B51]/20 selection:text-[#C58B51]">
+      <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased font-sans selection:bg-[#C58B51]/20">
         <ThemeProvider>
-          <AppProvider>
-            <Suspense fallback={null}>
-              {children}
-            </Suspense>
-          </AppProvider>
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>

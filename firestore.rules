@@ -1,88 +1,40 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
-    function isAuthenticated() {
+
+    function signedIn() {
       return request.auth != null;
     }
-    
-    function getUserData() {
-      return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data;
-    }
-    
-    function isSameCollege(collegeId) {
-      return isAuthenticated() && (getUserData().college_id == collegeId || getUserData().role == 'platform_admin');
-    }
-    
-    function isInstructor() {
-      return isAuthenticated() && getUserData().role in ['instructor', 'college_admin', 'platform_admin'];
-    }
-    
-    function isCollegeAdmin(collegeId) {
-      return isAuthenticated() && (
-        (getUserData().role == 'college_admin' && getUserData().college_id == collegeId) ||
-        getUserData().role == 'platform_admin'
-      );
+
+    function isTeacher() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == 'teacher';
     }
 
-    // Profiles collection
-    match /profiles/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if request.auth.uid == userId || isCollegeAdmin(request.resource.data.college_id);
+    // One profile per user. Users can only ever create themselves as students;
+    // make someone a teacher by editing their `role` in the Firebase console.
+    match /profiles/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.keys().hasOnly(['name', 'email', 'role']) &&
+        request.resource.data.role == 'student' &&
+        request.resource.data.name is string && request.resource.data.name.size() <= 80;
+      allow update, delete: if false;
     }
 
-    // Colleges (Tenants)
-    match /colleges/{collegeId} {
-      allow read: if true;
-      allow write: if isAuthenticated() && getUserData().role == 'platform_admin';
-    }
-
-    // Departments, Batches, Sessions
-    match /departments/{deptId} {
-      allow read: if isSameCollege(resource.data.college_id);
-      allow write: if isCollegeAdmin(request.resource.data.college_id);
-    }
-
-    // Courses & Curriculum
-    match /courses/{courseId} {
-      allow read: if isSameCollege(resource.data.college_id) && (resource.data.is_published == true || isInstructor());
-      allow write: if isInstructor();
-    }
-
-    match /modules/{moduleId} {
-      allow read: if isSameCollege(resource.data.college_id);
-      allow write: if isInstructor();
-    }
-
-    match /lessons/{lessonId} {
-      allow read: if isSameCollege(resource.data.college_id);
-      allow write: if isInstructor();
-    }
-
-    // Student Watch Progress & Notes (Strict user-level privacy)
-    match /watch_progress/{progressId} {
-      allow read, write: if isAuthenticated() && (request.auth.uid == request.resource.data.student_id || request.auth.uid == resource.data.student_id);
-    }
-
-    match /notes/{noteId} {
-      allow read, write: if isAuthenticated() && (request.auth.uid == request.resource.data.student_id || request.auth.uid == resource.data.student_id);
-    }
-
-    match /pdf_bookmarks/{bmId} {
-      allow read, write: if isAuthenticated() && (request.auth.uid == request.resource.data.student_id || request.auth.uid == resource.data.student_id);
-    }
-
-    // Assignments & Submissions
-    match /assignments/{asgId} {
-      allow read: if isSameCollege(resource.data.college_id);
-      allow write: if isInstructor();
-    }
-
-    match /assignment_submissions/{subId} {
-      allow read: if isAuthenticated() && (request.auth.uid == resource.data.student_id || isInstructor());
-      allow create, update: if isAuthenticated() && request.auth.uid == request.resource.data.student_id;
-      allow update: if isInstructor(); // for grading
+    // Uploaded PDFs and videos. Everyone signed in can read; teachers manage their own.
+    match /materials/{id} {
+      allow read: if signedIn();
+      allow create: if isTeacher() &&
+        request.resource.data.keys().hasOnly(['title', 'type', 'url', 'storagePath', 'size', 'teacherId', 'teacherName', 'createdAt']) &&
+        request.resource.data.teacherId == request.auth.uid &&
+        request.resource.data.type in ['pdf', 'video'] &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 200 &&
+        request.resource.data.storagePath.matches('materials/' + request.auth.uid + '/.*') &&
+        request.resource.data.createdAt == request.time;
+      allow delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
+      allow update: if false;
     }
   }
 }

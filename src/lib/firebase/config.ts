@@ -1,7 +1,7 @@
-import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
-import { getAuth, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
-import { getStorage, FirebaseStorage } from "firebase/storage";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,30 +12,14 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-export const isFirebaseConfigured = Boolean(
-  firebaseConfig.apiKey &&
-  firebaseConfig.projectId &&
-  !firebaseConfig.apiKey.includes("your-api-key") &&
-  !firebaseConfig.apiKey.toLowerCase().includes("demo")
-);
-
-let app: FirebaseApp | null = null;
-let auth: Auth | null = null;
-let db: Firestore | null = null;
-let storage: FirebaseStorage | null = null;
-
-if (typeof window !== "undefined" || isFirebaseConfigured) {
-  try {
-    app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    storage = getStorage(app);
-  } catch (err) {
-    // Graceful fallback when env vars are dummy or unconfigured
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("Firebase initialized with local fallback:", err);
-    }
-  }
+// Fail loudly: a silent fallback here once made uploads look successful when they were not.
+// Real Firebase web API keys always start with "AIza"; anything else is a placeholder.
+if (!firebaseConfig.apiKey?.startsWith("AIza") || !firebaseConfig.projectId || !firebaseConfig.storageBucket) {
+  throw new Error("Firebase env vars are missing. Copy .env.example to .env.local and fill in your Firebase project values.");
 }
 
-export { app, auth, db, storage };
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
