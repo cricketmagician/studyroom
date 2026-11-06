@@ -1,6 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { anthropic, errorResponse, FALLBACK, HttpError, loadMaterial, loadPdfBase64, MODEL, requireUser } from "@/lib/server/ai";
+import { ThinkingLevel } from "@google/genai";
+import { errorResponse, gemini, HttpError, loadMaterial, loadPdfBase64, MODEL, replyText, requireUser } from "@/lib/server/ai";
 import { PACK_SCHEMA, validatePack } from "@/lib/study-pack";
 
 export const maxDuration = 300; // reading a long PDF can take a minute or two
@@ -33,37 +34,31 @@ export async function POST(request: Request) {
     if (existing?.status === "generating" && !stuck) return Response.json({ status: "generating" });
     if (existing?.status === "ready" && !regenerate) return Response.json({ status: "ready" });
 
-    const client = anthropic();
+    const ai = gemini();
     const pdf = await loadPdfBase64(material);
     previous = existing;
     started = true;
     await packRef.set({ status: "generating", updatedAt: FieldValue.serverTimestamp() });
 
-    const message = await client.beta.messages
-      .stream({
-        model: MODEL,
-        max_tokens: 16000,
-        ...FALLBACK,
-        output_config: { effort: "low", format: { type: "json_schema", schema: PACK_SCHEMA } },
-        system: SYSTEM,
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "document", source: { type: "base64", media_type: "application/pdf", data: pdf }, title: material.title },
-              { type: "text", text: "Make the study pack for this file." },
-            ],
-          },
-        ],
-      })
-      .finalMessage();
+    const response = await ai.models.generateContent({
+      model: MODEL,
+      contents: [
+        {
+          role: "user",
+          parts: [{ inlineData: { mimeType: "application/pdf", data: pdf } }, { text: `Make the study pack for this file: "${material.title}".` }],
+        },
+      ],
+      config: {
+        systemInstruction: SYSTEM,
+        responseMimeType: "application/json",
+        responseJsonSchema: PACK_SCHEMA,
+        thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+        maxOutputTokens: 16000,
+      },
+    });
+    const pack = validatePack(JSON.parse(replyText(response)));
 
-    if (message.stop_reason === "refusal") throw new HttpError(422, "AI couldn't make a study pack for this file.");
-    if (message.stop_reason === "max_tokens") throw new HttpError(422, "This file is too long for one study pack.");
-    const text = message.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
-    const pack = validatePack(JSON.parse(text));
-
-    await packRef.set({ status: "ready", published: false, ...pack, model: message.model, updatedAt: FieldValue.serverTimestamp() });
+    await packRef.set({ status: "ready", published: false, ...pack, model: MODEL, updatedAt: FieldValue.serverTimestamp() });
     return Response.json({ status: "ready" });
   } catch (err) {
     const response = errorResponse(err);

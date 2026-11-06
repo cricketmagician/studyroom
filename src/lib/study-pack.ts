@@ -1,4 +1,4 @@
-// The AI study pack for one PDF: shape, JSON schema for Claude, and validation of what comes back.
+// The AI study pack for one PDF: shape, JSON schema for the AI model, and validation of what comes back.
 
 export type QuizQuestion = { question: string; options: string[]; answer: number; explanation: string; page: number };
 export type Flashcard = { front: string; back: string };

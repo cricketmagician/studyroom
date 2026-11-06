@@ -1,15 +1,14 @@
 // Server-only helpers shared by the /api/ai routes.
-import Anthropic from "@anthropic-ai/sdk";
+import { ApiError, GoogleGenAI } from "@google/genai";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminAuth, adminDb, bucket } from "@/lib/server/firebase-admin";
 
-export const MODEL = "claude-opus-5-5";
-// Opt into Anthropic's server-side fallback model if Opus declines a request.
-export const FALLBACK = { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const };
+// Fast, low-cost model: each PDF is read once per study pack, so cost scales with files, not students.
+export const MODEL = "gemini-3.8-flash";
 
 export const DAILY_QUESTIONS = 30; // per teacher, keeps the AI bill predictable
-// shortcut: PDFs go to Claude as base64 (request limit 32 MB incl. ~33% base64 overhead); use the Files API for bigger files.
-const MAX_PDF_BYTES = 20 * 1024 * 1024;
+// shortcut: PDFs are sent inline (Gemini caps inline requests at 20 MB incl. ~33% base64 overhead); use the Gemini Files API for bigger files.
+const MAX_PDF_BYTES = 14 * 1024 * 1024;
 
 export class HttpError extends Error {
   constructor(public status: number, message: string) {
@@ -17,9 +16,22 @@ export class HttpError extends Error {
   }
 }
 
-export function anthropic() {
-  if (!process.env.ANTHROPIC_API_KEY) throw new HttpError(503, "AI is not set up yet. Ask the admin to add the Anthropic API key.");
-  return new Anthropic();
+export function gemini() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new HttpError(503, "AI is not set up yet. Ask the admin to add the Gemini API key.");
+  // Retry brief overloads (503 "high demand") and rate limits a few times before giving up.
+  return new GoogleGenAI({ apiKey, httpOptions: { retryOptions: { attempts: 4, initialDelay: 2, maxDelay: 20, httpStatusCodes: [429, 500, 503] } } });
+}
+
+/** The model's text, or a friendly error when it was blocked or cut off. */
+export function replyText(response: { text?: string; candidates?: { finishReason?: string }[]; promptFeedback?: { blockReason?: string } }) {
+  const finish = response.candidates?.[0]?.finishReason;
+  if (response.promptFeedback?.blockReason || (finish && finish !== "STOP" && finish !== "MAX_TOKENS")) {
+    throw new HttpError(422, "AI couldn't work with this file or question.");
+  }
+  if (finish === "MAX_TOKENS") throw new HttpError(422, "This file is too long for AI to finish. Try a shorter PDF.");
+  if (!response.text) throw new HttpError(502, "AI couldn't answer right now. Please try again.");
+  return response.text;
 }
 
 /** The signed-in user behind a request, from the Firebase ID token in the Authorization header. */
@@ -59,7 +71,7 @@ export async function loadMaterial(materialId: string) {
 /** The PDF as base64, read from Storage by its path (never from a URL stored in the database). */
 export async function loadPdfBase64(m: MaterialDoc) {
   if (m.type !== "pdf") throw new HttpError(400, "AI help works on PDF files for now.");
-  if (m.size > MAX_PDF_BYTES) throw new HttpError(413, "This PDF is too big for AI help (limit 20 MB).");
+  if (m.size > MAX_PDF_BYTES) throw new HttpError(413, "This PDF is too big for AI help (limit 14 MB).");
   const [bytes] = await bucket.file(m.storagePath).download();
   return bytes.toString("base64");
 }
@@ -67,9 +79,9 @@ export async function loadPdfBase64(m: MaterialDoc) {
 /** JSON error response; unexpected errors are logged and hidden from the user. */
 export function errorResponse(err: unknown) {
   if (err instanceof HttpError) return Response.json({ error: err.message }, { status: err.status });
-  if (err instanceof Anthropic.RateLimitError) return Response.json({ error: "AI is busy right now. Please try again in a minute." }, { status: 429 });
-  if (err instanceof Anthropic.APIError) {
-    console.error("Anthropic API error", err.status, err.message);
+  if (err instanceof ApiError) {
+    console.error("Gemini API error", err.status, err.message);
+    if (err.status === 429 || err.status === 503) return Response.json({ error: "AI is busy right now (or today's free limit is used up). Please try again in a few minutes." }, { status: 503 });
     return Response.json({ error: "AI couldn't answer right now. Please try again." }, { status: 502 });
   }
   console.error(err);
