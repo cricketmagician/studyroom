@@ -1,9 +1,9 @@
 "use client";
 
-// These tiles only render after sign-in (client side), so reading localStorage in useState is safe.
+// These widgets only render after sign-in (client side), so reading localStorage in useState is safe.
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CirclePlay, Clock, FileText, Pause, Play, RotateCcw, Sparkles, Trophy, X } from "lucide-react";
+import { ArrowRight, Pause, Play, RotateCcw, X } from "lucide-react";
 import { Material } from "@/lib/materials";
 import type { Entry } from "@/lib/hooks";
 import { dayKey, recordVisit, Streak, weekKeys } from "@/lib/streak";
@@ -11,7 +11,7 @@ import { MaterialIcon } from "@/components/material-icon";
 import { cardClass, pillButton } from "@/components/ui";
 
 const STREAK_KEY = "studyroom_streak";
-export const LAST_OPENED_KEY = "studyroom_last_opened";
+const LAST_OPENED_KEY = "studyroom_last_opened";
 
 function readJson<T>(key: string): T | null {
   try {
@@ -27,92 +27,101 @@ function writeJson(key: string, value: unknown) {
   } catch {}
 }
 
-/** Called by the viewer so the library can offer "continue where you left off". */
+/** Called by the viewer so the home page can offer "continue where you left off". */
 export function rememberOpened(id: string) {
   writeJson(LAST_OPENED_KEY, id);
 }
 
-const tile = `${cardClass} p-5`;
+/** Records today's visit and returns the streak. */
+export function useStreak() {
+  const [streak] = useState<Streak>(() => recordVisit(readJson<Streak>(STREAK_KEY), new Date()));
+  useEffect(() => writeJson(STREAK_KEY, streak), [streak]);
+  return streak;
+}
 
-function TileHeader({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
+function Progress({ percent, done, total }: { percent: number; done: number; total: number }) {
+  const r = 18;
+  const c = 2 * Math.PI * r;
   return (
-    <div className="flex items-center gap-2.5">
-      <span className="w-8 h-8 rounded-full bg-[var(--accent-light)] text-[var(--accent)] flex items-center justify-center shrink-0">{icon}</span>
-      <div>
-        <h3 className="font-heading font-bold text-sm leading-tight">{title}</h3>
-        <p className="text-[11px] text-[var(--text-muted)]">{sub}</p>
-      </div>
-    </div>
+    <span className="inline-flex items-center gap-2.5" role="img" aria-label={`${done} of ${total} files done`}>
+      <svg viewBox="0 0 44 44" className="w-11 h-11 -rotate-90 shrink-0" aria-hidden>
+        <circle cx="22" cy="22" r={r} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
+        <circle cx="22" cy="22" r={r} fill="none" stroke="var(--accent)" strokeWidth="4" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (c * percent) / 100} className="transition-all duration-700" />
+      </svg>
+      <span className="leading-tight">
+        <span className="block text-sm font-heading font-black text-white">{percent}%</span>
+        <span className="block text-[11px] text-white/60">{done} of {total} done</span>
+      </span>
+    </span>
   );
 }
 
-export function StatTiles({ items }: { items: Material[] }) {
-  const [weekAgo] = useState(() => Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const stats = [
-    { label: "PDFs", value: items.filter((m) => m.type === "pdf").length, icon: <FileText className="w-4 h-4" /> },
-    { label: "Videos", value: items.filter((m) => m.type === "video").length, icon: <CirclePlay className="w-4 h-4" /> },
-    { label: "New this week", value: items.filter((m) => !m.createdAt || m.createdAt.toMillis() > weekAgo).length, icon: <Sparkles className="w-4 h-4" /> },
-  ];
-  return (
-    <div className="grid grid-cols-3 gap-3">
-      {stats.map((s) => (
-        <div key={s.label} className={`${cardClass} p-4`}>
-          <span className="w-8 h-8 rounded-full bg-[var(--accent-light)] text-[var(--accent)] flex items-center justify-center">{s.icon}</span>
-          <p className="mt-3 text-3xl font-heading font-black tracking-tight">{s.value}</p>
-          <p className="text-xs text-[var(--text-secondary)] leading-tight">{s.label}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export function ProgressTile({ items, entries }: { items: Material[]; entries: Record<string, Entry> }) {
-  const done = items.filter((m) => entries[m.id]?.done).length;
-  const percent = Math.round((done / items.length) * 100);
-  return (
-    <div className={`${tile} space-y-3`}>
-      <div className="flex items-center justify-between gap-2">
-        <TileHeader icon={<Trophy className="w-4 h-4" />} title="Your progress" sub="Mark files as done when you finish them" />
-        <span className="font-heading font-black text-2xl tracking-tight">
-          {percent}<span className="text-[var(--accent)] text-lg">%</span>
-        </span>
-      </div>
-      <div className="h-2.5 rounded-full bg-[var(--bg-surface-subtle)] overflow-hidden" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label="Files done">
-        <div className="h-full rounded-full bg-[var(--accent)] transition-all duration-500" style={{ width: `${percent}%` }} />
-      </div>
-      <p className="text-xs text-[var(--text-secondary)]">
-        {done === items.length ? "🎉 You've finished every file. Great work!" : `${done} of ${items.length} files done`}
-      </p>
-    </div>
-  );
-}
-
-export function ContinueTile({ items }: { items: Material[] }) {
+/**
+ * The one thing to do next: the file you were reading (if unfinished), else the newest unfinished file.
+ * Also carries overall progress, so the home page needs no separate progress card.
+ */
+export function UpNextHero({ items, entries }: { items: Material[]; entries: Record<string, Entry> }) {
   const [lastId] = useState(() => readJson<string>(LAST_OPENED_KEY));
-  const m = items.find((i) => i.id === lastId);
-  if (!m) return null;
+  const done = items.filter((m) => entries[m.id]?.done).length;
+  const percent = items.length ? Math.round((done / items.length) * 100) : 0;
+  const last = items.find((m) => m.id === lastId && !entries[m.id]?.done);
+  const next = last ?? items.find((m) => !entries[m.id]?.done);
+
+  const label = !items.length ? "Welcome" : !next ? "All caught up" : last ? "Continue where you left off" : "Up next";
+
   return (
-    <Link
-      href={`/learn/${m.id}`}
-      className={`${tile} group flex items-center gap-4 hover:border-[var(--border-color)] transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)]`}
-    >
-      <span className="shrink-0 w-12 h-12 rounded-2xl bg-[#111110] text-white dark:bg-white dark:text-[#111110] flex items-center justify-center">
-        <MaterialIcon type={m.type} className="w-5 h-5" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--accent)]">Continue where you left off</span>
-        <span className="block font-heading font-bold truncate mt-0.5">{m.title}</span>
-      </span>
-      <span className={`${pillButton} shrink-0 h-9 px-4 text-xs bg-[var(--accent)] text-white group-hover:bg-[var(--accent-hover)]`}>
-        {m.type === "pdf" ? "Read" : "Watch"} <ArrowRight className="w-3.5 h-3.5" />
-      </span>
-    </Link>
+    <section className="relative overflow-hidden rounded-[32px] bg-[#1C1917] text-white shadow-lg">
+      {/* Photo fades into the card from the left: no hard edge, no grey veil over the face. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- static decorative photo */}
+      <img
+        src="/student-study.jpg"
+        alt=""
+        className="absolute inset-y-0 right-0 h-full w-[62%] sm:w-[55%] object-cover object-[center_22%] [mask-image:linear-gradient(to_right,transparent,black_45%)]"
+      />
+      <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#1C1917]/60 to-transparent" />
+
+      <div className="relative p-6 sm:p-8 flex flex-col gap-6 min-h-[260px]">
+        <span className="self-start inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-semibold uppercase tracking-wider text-white/85">
+          {label}
+        </span>
+
+        <div className="mt-auto max-w-[80%] sm:max-w-[58%]">
+          {next ? (
+            <>
+              <p className="flex items-center gap-2 text-xs text-white/60">
+                <MaterialIcon type={next.type} className="w-3.5 h-3.5" /> {next.type === "pdf" ? "PDF" : "Video"} · {next.teacherName}
+              </p>
+              <h2 className="mt-1.5 text-2xl sm:text-3xl font-heading font-black tracking-tight leading-tight line-clamp-2">{next.title}</h2>
+              <div className="mt-5 flex items-center gap-4">
+              <Link
+                href={`/learn/${next.id}`}
+                className={`${pillButton} h-11 px-5 text-sm bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white`}
+              >
+                {next.type === "pdf" ? "Start reading" : "Start watching"} <ArrowRight className="w-4 h-4" aria-hidden />
+              </Link>
+              <Progress percent={percent} done={done} total={items.length} />
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl sm:text-3xl font-heading font-black tracking-tight leading-tight">
+                {items.length ? "You've finished every file 🎉" : "No files yet"}
+              </h2>
+              <p className="mt-1.5 text-sm text-white/60">
+                {items.length ? "Great work. New uploads from your teacher will show up here." : "When your teacher uploads a PDF or video, it will show up here."}
+              </p>
+              {items.length > 0 && <div className="mt-5"><Progress percent={percent} done={done} total={items.length} /></div>}
+            </>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }
 
 const FOCUS_SECONDS = 25 * 60;
 
-export function FocusTimer() {
+function FocusTimer() {
   const [left, setLeft] = useState(FOCUS_SECONDS);
   const [running, setRunning] = useState(false);
 
@@ -133,82 +142,82 @@ export function FocusTimer() {
   const mm = String(Math.floor(left / 60)).padStart(2, "0");
   const ss = String(left % 60).padStart(2, "0");
   const done = left === 0;
+  const untouched = left === FOCUS_SECONDS;
 
   return (
-    <div className={`${tile} flex flex-col justify-between gap-4`}>
-      <div className="flex items-center justify-between gap-2">
-        <TileHeader icon={<Clock className="w-4 h-4" />} title="Focus timer" sub="25 minutes of study" />
-        {running && (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Focusing
-          </span>
-        )}
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <p className="text-xs font-semibold text-[var(--text-secondary)]">
+          Focus timer {running && <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse align-middle" aria-label="running" />}
+        </p>
+        <p className="mt-1 font-heading font-black tracking-tight text-3xl tabular-nums" role="timer">
+          {done ? "Break time ☕" : <>{mm}<span className="text-[var(--text-muted)]">:{ss}</span></>}
+        </p>
       </div>
-
-      <p className="font-heading font-black tracking-tight text-4xl" role="timer" aria-live="off">
-        {done ? <span className="text-2xl">Time for a break! ☕</span> : <>{mm}<span className="text-[var(--accent)]">:{ss}</span></>}
-      </p>
-
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        {!untouched && (
+          <button
+            onClick={() => { setRunning(false); setLeft(FOCUS_SECONDS); }}
+            aria-label="Reset timer"
+            title="Reset"
+            className={`${pillButton} w-10 h-10 border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)]`}
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        )}
         {!done && (
           <button
             onClick={() => setRunning(!running)}
-            className={`${pillButton} h-9 px-4 text-xs ${running ? "bg-[#111110] text-white dark:bg-white dark:text-[#111110]" : "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white"}`}
+            aria-label={running ? "Pause timer" : "Start 25 minute focus timer"}
+            className={`${pillButton} w-12 h-12 ${running ? "bg-[var(--bg-surface-subtle)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[#111110] text-white dark:bg-white dark:text-[#111110]"}`}
           >
-            {running ? <><Pause className="w-3.5 h-3.5 fill-current" /> Pause</> : <><Play className="w-3.5 h-3.5 fill-current" /> {left === FOCUS_SECONDS ? "Start" : "Resume"}</>}
+            {running ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
           </button>
         )}
-        <button
-          onClick={() => { setRunning(false); setLeft(FOCUS_SECONDS); }}
-          disabled={left === FOCUS_SECONDS}
-          aria-label="Reset timer"
-          title="Reset"
-          className={`${pillButton} h-9 ${done ? "px-4 text-xs bg-[var(--accent)] text-white" : "w-9 border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"}`}
-        >
-          <RotateCcw className="w-3.5 h-3.5" /> {done && "Start again"}
-        </button>
       </div>
     </div>
   );
 }
 
-export function StreakTile() {
-  const [streak] = useState<Streak>(() => recordVisit(readJson<Streak>(STREAK_KEY), new Date()));
-  useEffect(() => writeJson(STREAK_KEY, streak), [streak]);
-
+function WeekDots({ streak }: { streak: Streak }) {
   const today = dayKey(new Date());
-  const week = weekKeys(new Date());
-
   return (
-    <div className={`${tile} flex flex-col justify-between gap-4`}>
-      <TileHeader icon={<span className="text-sm">🔥</span>} title="Study streak" sub="Days in a row you opened Studyroom" />
-      <p className="flex items-baseline gap-2">
-        <span className="text-4xl font-heading font-black tracking-tight">{streak.count}</span>
-        <span className="text-sm text-[var(--text-secondary)]">{streak.count === 1 ? "day" : "days"}</span>
-      </p>
-      <ol className="flex justify-between" aria-label="This week">
-        {week.map((k, i) => {
-          const visited = streak.days.includes(k);
-          const missed = !visited && k < today; // YYYY-MM-DD strings sort by date
-          return (
-            <li key={k} className="flex flex-col items-center gap-1">
-              <span className={`text-[10px] font-semibold ${k === today ? "text-[var(--accent)]" : "text-[var(--text-muted)]"}`}>{"MTWTFSS"[i]}</span>
-              <span
-                aria-label={visited ? "studied" : missed ? "missed" : "coming up"}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold ${
-                  visited
-                    ? "bg-[var(--accent)] text-white"
-                    : missed
-                      ? "bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400"
-                      : "bg-[var(--bg-surface-subtle)] text-[var(--text-muted)]"
-                }`}
-              >
-                {visited ? "✓" : missed ? <X className="w-3.5 h-3.5" strokeWidth={3} aria-hidden /> : ""}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-    </div>
+    <ol className="flex justify-between gap-1" aria-label="This week">
+      {weekKeys(new Date()).map((k, i) => {
+        const visited = streak.days.includes(k);
+        const missed = !visited && k < today; // YYYY-MM-DD strings sort by date
+        return (
+          <li key={k} className="flex flex-col items-center gap-1.5">
+            <span
+              aria-label={visited ? "studied" : missed ? "missed" : "coming up"}
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                visited
+                  ? "bg-[var(--accent)] text-white"
+                  : missed
+                    ? "text-[var(--text-muted)] border border-dashed border-[var(--border-color)]"
+                    : "bg-[var(--bg-surface-subtle)]"
+              } ${k === today ? "ring-2 ring-offset-2 ring-offset-[var(--bg-surface)] ring-[var(--accent)]" : ""}`}
+            >
+              {visited ? "✓" : missed ? <X className="w-3 h-3" strokeWidth={3} aria-hidden /> : ""}
+            </span>
+            <span className={`text-[10px] font-semibold ${k === today ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"}`}>{"MTWTFSS"[i]}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/** One calm card for today's study habits: focus timer and this week's streak. */
+export function TodayCard({ streak }: { streak: Streak }) {
+  return (
+    <section className={`${cardClass} p-5 sm:p-6`} aria-label="Today">
+      <div className="grid sm:grid-cols-2 gap-5 sm:gap-8">
+        <FocusTimer />
+        <div className="border-t sm:border-t-0 sm:border-l border-[var(--border-subtle)] pt-5 sm:pt-0 sm:pl-8">
+          <WeekDots streak={streak} />
+        </div>
+      </div>
+    </section>
   );
 }

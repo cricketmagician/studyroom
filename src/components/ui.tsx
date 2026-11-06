@@ -21,41 +21,6 @@ export function PageTitle({ name, title }: { name?: string; title: string }) {
   );
 }
 
-/** Photo card with a frosted-glass bar at the bottom. */
-export function PhotoHero({
-  image,
-  badge,
-  href,
-  children,
-}: {
-  image: string;
-  badge: string;
-  href?: string;
-  children: React.ReactNode;
-}) {
-  const body = (
-    <>
-      <span className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 backdrop-blur-md border border-white/20 text-white text-xs font-semibold">
-        {badge}
-      </span>
-      {/* eslint-disable-next-line @next/next/no-img-element -- static decorative photo */}
-      <img src={image} alt="" className="w-full h-[280px] sm:h-[340px] object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-500" />
-      <span className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
-      <span className="absolute inset-x-3.5 bottom-3.5 z-10 backdrop-blur-md bg-white/40 dark:bg-black/40 border border-white/60 dark:border-white/20 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-xl">
-        {children}
-      </span>
-    </>
-  );
-  const className = "group block relative rounded-[32px] overflow-hidden shadow-lg bg-[#EFE6D8]";
-  return href ? (
-    <Link href={href} className={`${className} transition-transform hover:scale-[1.01] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)]`}>
-      {body}
-    </Link>
-  ) : (
-    <div className={className}>{body}</div>
-  );
-}
-
 /** One file in a list: icon tile, title, details, and an arrow (or a custom action). */
 export function FileRow({ m, action, entry }: { m: Material; action?: React.ReactNode; entry?: Entry }) {
   return (
