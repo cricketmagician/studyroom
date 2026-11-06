@@ -7,10 +7,11 @@ import { ArrowRight, Pause, Play, RotateCcw, X } from "lucide-react";
 import { Material } from "@/lib/materials";
 import type { Entry } from "@/lib/hooks";
 import { dayKey, recordVisit, Streak, weekKeys } from "@/lib/streak";
+import { formatDuration, useWeekStudyTime } from "@/lib/study-time";
 import { MaterialIcon } from "@/components/material-icon";
 import { cardClass, pillButton } from "@/components/ui";
 
-const STREAK_KEY = "studyroom_streak";
+const streakKey = (uid: string) => `studyroom_streak_${uid}`;
 const LAST_OPENED_KEY = "studyroom_last_opened";
 
 function readJson<T>(key: string): T | null {
@@ -32,11 +33,72 @@ export function rememberOpened(id: string) {
   writeJson(LAST_OPENED_KEY, id);
 }
 
-/** Records today's visit and returns the streak. */
-export function useStreak() {
-  const [streak] = useState<Streak>(() => recordVisit(readJson<Streak>(STREAK_KEY), new Date()));
-  useEffect(() => writeJson(STREAK_KEY, streak), [streak]);
-  return streak;
+/** Checks the user in for today (once per day) and returns the streak. Safe to call from several places. */
+export function useStreak(uid: string) {
+  const [state] = useState(() => {
+    const prev = readJson<Streak>(streakKey(uid));
+    const streak = recordVisit(prev, new Date());
+    return { streak, isNewDay: prev?.last !== streak.last };
+  });
+  useEffect(() => writeJson(streakKey(uid), state.streak), [uid, state.streak]);
+  return state;
+}
+
+/** Automatic daily check-in: the first time the app opens on a new day, record it and say so. */
+export function DailyCheckIn({ uid }: { uid: string }) {
+  const { streak, isNewDay } = useStreak(uid);
+  const [visible, setVisible] = useState(isNewDay);
+  useEffect(() => {
+    if (!visible) return;
+    const t = setTimeout(() => setVisible(false), 4000);
+    return () => clearTimeout(t);
+  }, [visible]);
+  if (!visible) return null;
+  return (
+    <div role="status" className="fixed top-20 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
+      <span className="inline-flex items-center gap-2 px-4 h-11 rounded-full bg-[#111110] text-white text-sm font-semibold shadow-xl dark:bg-white dark:text-[#111110]">
+        <span aria-hidden>🔥</span> Checked in for today · {streak.count} {streak.count === 1 ? "day" : "days"} in a row
+      </span>
+    </div>
+  );
+}
+
+/** Study time recorded automatically while the app is open: today's total plus this week's bars. */
+export function StudyTimeCard({ uid }: { uid: string }) {
+  const week = useWeekStudyTime(uid);
+  const keys = weekKeys(new Date());
+  const today = dayKey(new Date());
+  const todayIndex = keys.indexOf(today);
+  const todaySeconds = week[todayIndex] ?? 0;
+  const max = Math.max(...week, 60 * 30); // scale bars to at least 30 minutes
+  const total = week.reduce((a, b) => a + b, 0);
+
+  return (
+    <section className={`${cardClass} p-5 sm:p-6`} aria-label="Study time">
+      <div className="flex items-end justify-between gap-6">
+        <div>
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
+            Studying today
+          </p>
+          <p className="mt-1 font-heading font-black tracking-tight text-4xl tabular-nums">{formatDuration(todaySeconds)}</p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">{formatDuration(total)} this week · counts while the app is open</p>
+        </div>
+        <ol className="flex items-end gap-1.5 h-20" aria-label="Study time this week">
+          {week.map((sec, i) => (
+            <li key={keys[i]} className="flex flex-col items-center gap-1.5 h-full justify-end" title={`${formatDuration(sec)}`}>
+              <span
+                className={`w-3.5 sm:w-4 rounded-full ${i === todayIndex ? "bg-[var(--accent)]" : sec ? "bg-[var(--text-primary)] opacity-80" : "bg-[var(--bg-surface-subtle)]"}`}
+                style={{ height: `${Math.max(8, (sec / max) * 100)}%` }}
+              />
+              <span className={`text-[10px] font-semibold ${i === todayIndex ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"}`}>{"MTWTFSS"[i]}</span>
+              <span className="sr-only">{formatDuration(sec)}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
 }
 
 function Progress({ percent, done, total }: { percent: number; done: number; total: number }) {
@@ -71,12 +133,12 @@ export function UpNextHero({ items, entries }: { items: Material[]; entries: Rec
 
   return (
     <section className="relative overflow-hidden rounded-[32px] bg-[#1C1917] text-white shadow-lg">
-      {/* Photo fades into the card from the left: no hard edge, no grey veil over the face. */}
+      {/* Group study photo (no single student to identify with), fading in from the left so text stays readable. */}
       {/* eslint-disable-next-line @next/next/no-img-element -- static decorative photo */}
       <img
-        src="/student-study.jpg"
+        src="/student-hero-banner.jpg"
         alt=""
-        className="absolute inset-y-0 right-0 h-full w-[62%] sm:w-[55%] object-cover object-[center_22%] [mask-image:linear-gradient(to_right,transparent,black_45%)]"
+        className="absolute inset-y-0 right-0 h-full w-[70%] sm:w-[62%] object-cover object-[58%_center] [mask-image:linear-gradient(to_right,transparent,black_50%)]"
       />
       <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#1C1917]/60 to-transparent" />
 

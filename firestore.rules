@@ -34,6 +34,28 @@ service cloud.firestore {
         request.resource.data.updatedAt == request.time;
     }
 
+    // Each user's private notebook.
+    match /profiles/{uid}/notes/{noteId} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.keys().hasOnly(['title', 'body', 'pinned', 'createdAt', 'updatedAt']) &&
+        request.resource.data.title is string && request.resource.data.title.size() <= 200 &&
+        request.resource.data.body is string && request.resource.data.body.size() <= 20000 &&
+        request.resource.data.pinned is bool &&
+        request.resource.data.updatedAt == request.time;
+    }
+
+    // Each user's private to-do list.
+    match /profiles/{uid}/tasks/{taskId} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.keys().hasOnly(['title', 'done', 'due', 'createdAt']) &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 200 &&
+        request.resource.data.done is bool &&
+        (request.resource.data.due == null || (request.resource.data.due is string && request.resource.data.due.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')));
+    }
+
     // Uploaded PDFs and videos. Everyone signed in can read; teachers manage their own.
     match /materials/{id} {
       allow read: if signedIn();

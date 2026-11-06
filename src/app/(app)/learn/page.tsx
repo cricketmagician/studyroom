@@ -7,7 +7,7 @@ import { Kind } from "@/lib/files";
 import { useMaterials, useMyLibrary } from "@/lib/hooks";
 import { ErrorText } from "@/components/auth-card";
 import { FileRow, pillButton } from "@/components/ui";
-import { TodayCard, UpNextHero, useStreak } from "@/components/study-tiles";
+import { StudyTimeCard, TodayCard, UpNextHero, useStreak } from "@/components/study-tiles";
 
 export default function LearnPage() {
   return (
@@ -28,10 +28,15 @@ function greeting(hour: number) {
 }
 
 function Home() {
+  const { user } = useAuth();
+  return user ? <HomeFor uid={user.uid} /> : null;
+}
+
+function HomeFor({ uid }: { uid: string }) {
   const { profile } = useAuth();
   const { items, error } = useMaterials();
   const entries = useMyLibrary();
-  const streak = useStreak();
+  const { streak } = useStreak(uid);
   const [now] = useState(() => new Date());
   const [filter, setFilter] = useState<Kind | "all">("all");
   const [search, setSearch] = useState("");
@@ -49,7 +54,8 @@ function Home() {
             {now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
           </p>
           <h1 className="mt-0.5 text-3xl sm:text-4xl font-heading font-black tracking-tight leading-tight">
-            {greeting(now.getHours())}, {profile?.name.split(" ")[0]}
+            {greeting(now.getHours())},
+            <span className="block text-[var(--accent)]">{profile?.name.split(" ")[0]}</span>
           </h1>
         </div>
         <span
@@ -65,6 +71,7 @@ function Home() {
 
       {items ? <UpNextHero items={items} entries={entries} /> : <div className="h-[260px] rounded-[32px] bg-[var(--bg-surface-subtle)] animate-pulse" />}
 
+      <StudyTimeCard uid={uid} />
       <TodayCard streak={streak} />
 
       {items && items.length > 0 && (

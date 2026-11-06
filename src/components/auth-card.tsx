@@ -20,7 +20,7 @@ export function AuthCard({ title, subtitle, children }: { title: string; subtitl
         {/* Photo side, like the original hero card (desktop only) */}
         <div className="hidden lg:block relative rounded-[32px] overflow-hidden shadow-lg bg-[#EFE6D8]">
           {/* eslint-disable-next-line @next/next/no-img-element -- static decorative photo */}
-          <img src="/student-study.jpg" alt="" className="w-full h-[600px] object-cover object-[center_25%]" />
+          <img src="/student-hero-banner.jpg" alt="" className="w-full h-[600px] object-cover object-[58%_center]" />
           <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 backdrop-blur-md border border-white/20 text-white text-xs font-semibold">
             ✨ Your class, in one place
           </span>
