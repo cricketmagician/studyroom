@@ -46,3 +46,4 @@ firestore-debug.log
 storage-debug.log
 ui-debug.log
 /.next-local/
+!.env.example
