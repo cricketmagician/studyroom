@@ -17,7 +17,7 @@ export type StudyPack = {
 
 /** Stored at materials/{id}/ai/pack. Students only see it once the teacher publishes it. */
 export type PackDoc =
-  | { status: "generating" }
+  | { status: "generating"; updatedAt?: { toMillis(): number } }
   | { status: "error"; error: string }
   | ({ status: "ready"; published: boolean } & StudyPack);
 

@@ -120,7 +120,10 @@ function TeacherControls({ material, pack }: { material: Material; pack: PackDoc
   const setPublished = (published: boolean) =>
     updateDoc(doc(db, "materials", material.id, "ai", "pack"), { published }).catch((err) => setError(friendlyError(err)));
 
-  const working = busy || pack?.status === "generating";
+  const [openedAt] = useState(() => Date.now());
+  // The server lets a job that's been "generating" for 10+ minutes be restarted, so offer "Try again" then.
+  const stuck = pack?.status === "generating" && openedAt - (pack.updatedAt?.toMillis() ?? openedAt) > 10 * 60 * 1000;
+  const working = busy || (pack?.status === "generating" && !stuck);
   const box = `${cardClass} p-4 flex flex-wrap items-center justify-between gap-3`;
 
   return (
@@ -132,10 +135,10 @@ function TeacherControls({ material, pack }: { material: Material; pack: PackDoc
             AI is reading the file and making the study pack. This takes a minute or two.
           </span>
         </div>
-      ) : !pack || pack.status === "error" ? (
+      ) : !pack || pack.status === "error" || stuck ? (
         <div className={box}>
           <span className="text-sm">
-            {pack?.status === "error" ? pack.error : "Let AI make a summary, quiz and flashcards from this PDF. You check it before students see it."}
+            {pack?.status === "error" ? pack.error : stuck ? "AI didn't finish last time." : "Let AI make a summary, quiz and flashcards from this PDF. You check it before students see it."}
           </span>
           <button onClick={() => make(false)} className={`${pillButton} h-10 px-4 text-xs bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white`}>
             <Sparkles className="w-4 h-4" aria-hidden /> {pack ? "Try again" : "Make study pack"}
