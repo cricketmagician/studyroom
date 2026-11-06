@@ -7,7 +7,7 @@ export const MODEL = "claude-opus-5-5";
 // Opt into Anthropic's server-side fallback model if Opus declines a request.
 export const FALLBACK = { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const };
 
-export const DAILY_QUESTIONS = 30; // per student, keeps the AI bill predictable
+export const DAILY_QUESTIONS = 30; // per teacher, keeps the AI bill predictable
 // shortcut: PDFs go to Claude as base64 (request limit 32 MB incl. ~33% base64 overhead); use the Files API for bigger files.
 const MAX_PDF_BYTES = 20 * 1024 * 1024;
 

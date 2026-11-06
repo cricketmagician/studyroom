@@ -39,10 +39,10 @@ These accounts work only locally. Uploaded files are lost when you stop `npm run
 
 ## AI study help (optional)
 
-PDFs get an AI **study pack** (summary, key points, terms, exam questions, a 10-question quiz and flashcards) and an **Ask AI** doubt chat that answers only from the file, with page links.
+When a teacher uploads a PDF, AI reads it **once** and makes a study pack: summary, key points, terms, exam questions, a mind map, a 10-question quiz and flashcards. The teacher checks it on the file's page and presses **Publish to students**. Students only read what was published, so they cost no AI tokens.
 
-- It starts by itself when a teacher uploads a PDF. The teacher checks it on the file's page and presses **Publish to students**.
-- Each student can ask 30 questions a day (`DAILY_QUESTIONS` in `src/lib/server/ai.ts`). Set a monthly spend limit in the Claude Console too.
+- Teachers also get an **Ask AI** chat on each PDF (answers only from the file, with page links). Students don't get the chat.
+- Each teacher can ask 30 questions a day (`DAILY_QUESTIONS` in `src/lib/server/ai.ts`). Set a monthly spend limit in the Claude Console too.
 - Model: Claude Opus 5.5 (`MODEL` in `src/lib/server/ai.ts`). PDFs up to 20 MB.
 
 To turn it on, add your key to `.env.local` (server-side only, never `NEXT_PUBLIC_`):

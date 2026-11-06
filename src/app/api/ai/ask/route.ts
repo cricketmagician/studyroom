@@ -4,17 +4,18 @@ import { AnswerPart, checkTurns } from "@/lib/chat";
 
 export const maxDuration = 120;
 
-// Kept identical across requests so the system prompt + PDF prefix is cached and shared by every student asking about this file.
-const SYSTEM = `You are a friendly study helper for college students. You answer questions about one class file their teacher shared.
-- Answer only from the file. If the file doesn't cover the question, say so plainly and suggest asking the teacher. Never make things up.
-- Reply in the student's language and style: English, Hindi, or Hinglish.
+// Kept identical across requests so the system prompt + PDF prefix is cached across questions about this file.
+const SYSTEM = `You are a helpful teaching assistant. A teacher asks you about one class file they shared with their students.
+- Answer only from the file. If the file doesn't cover the question, say so plainly. Never make things up.
+- Reply in the teacher's language and style: English, Hindi, or Hinglish.
 - Keep it short and simple: a direct answer first, then a small example or steps if it helps. Use plain text and short lists, no tables.
-- If the student asks you to do graded work for them, help them understand instead of giving a ready answer.`;
+- Help the teacher prepare: explain parts of the file, suggest extra questions, examples or simpler ways to teach a topic.`;
 
-/** Doubt chat over one PDF, with page citations. Any signed-in user; limited per day. */
+/** Chat over one PDF, with page citations. Teachers only (students get the published study pack instead); limited per day. */
 export async function POST(request: Request) {
   try {
     const user = await requireUser(request);
+    if (user.role !== "teacher") throw new HttpError(403, "Only teachers can chat with AI.");
     const body = await request.json();
     const turns = checkTurns(body?.turns);
     if (!turns) throw new HttpError(400, "Please type a shorter question and try again.");

@@ -5,14 +5,16 @@ import { PACK_SCHEMA, validatePack } from "@/lib/study-pack";
 
 export const maxDuration = 300; // reading a long PDF can take a minute or two
 
+// One call reads the PDF once and returns everything, so each file costs tokens a single time; students only read the saved result.
 const SYSTEM = `You make study material for college students from one class file their teacher uploaded.
-Use only what is in the file. Write in the same language as the file. Keep sentences short and clear for students.
+Use only what is in the file. Write in the same language as the file. Keep every item short: students revise from this, so no filler.
 - summary: 4-6 sentences a student can read in two minutes.
 - keyPoints: the 6-10 most important points.
 - terms: important terms with a one-line meaning.
 - examQuestions: 5 questions likely to come in an exam.
 - quiz: 10 multiple-choice questions with exactly 4 options each; "answer" is the index (0-3) of the correct option; "explanation" says why in one or two sentences; "page" is the PDF page number where the answer is found.
-- flashcards: 10-15 cards, a short prompt on the front and the answer on the back.`;
+- flashcards: 10-15 cards, a short prompt on the front and the answer on the back.
+- mindMap: the file's main topic in "center" (2-5 words) and 4-6 branches; each branch has a short title and 2-4 points of a few words each, so a student can recall the whole chapter from it.`;
 
 /** Teacher-only: makes (or remakes) the AI study pack for one of their PDFs. Students see it after the teacher publishes. */
 export async function POST(request: Request) {
@@ -40,9 +42,9 @@ export async function POST(request: Request) {
     const message = await client.beta.messages
       .stream({
         model: MODEL,
-        max_tokens: 32000,
+        max_tokens: 16000,
         ...FALLBACK,
-        output_config: { effort: "medium", format: { type: "json_schema", schema: PACK_SCHEMA } },
+        output_config: { effort: "low", format: { type: "json_schema", schema: PACK_SCHEMA } },
         system: SYSTEM,
         messages: [
           {

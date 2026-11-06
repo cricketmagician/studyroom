@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 import { CheckCircle2, CloudUpload, Trash2 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
@@ -11,6 +11,7 @@ import { deleteMaterial, Material, newestFirst, toMaterial, uploadMaterial } fro
 import { ErrorText, inputClass } from "@/components/auth-card";
 import { MaterialIcon } from "@/components/material-icon";
 import { postAi } from "@/lib/ai-client";
+import { PackDoc } from "@/lib/study-pack";
 import { cardClass, FileRow, PageTitle, pillButton } from "@/components/ui";
 
 export default function TeacherPage() {
@@ -196,6 +197,8 @@ function MyUploads() {
             key={m.id}
             m={m}
             action={
+              <span className="shrink-0 flex items-center gap-2">
+              {m.type === "pdf" && <PackBadge materialId={m.id} />}
               <button
                 onClick={() => remove(m)}
                 aria-label={`Delete ${m.title}`}
@@ -204,10 +207,30 @@ function MyUploads() {
               >
                 <Trash2 className="w-4 h-4" />
               </button>
+              </span>
             }
           />
         ))}
       </ul>
     </section>
   );
+}
+
+/** Where the file's AI study pack stands, so the teacher knows what still needs review. */
+function PackBadge({ materialId }: { materialId: string }) {
+  const [pack, setPack] = useState<PackDoc | null | undefined>(undefined);
+  useEffect(
+    () => onSnapshot(doc(db, "materials", materialId, "ai", "pack"), (snap) => setPack(snap.exists() ? (snap.data() as PackDoc) : null), () => setPack(null)),
+    [materialId]
+  );
+  if (pack === undefined) return null;
+  const [label, style] =
+    pack?.status === "ready"
+      ? pack.published
+        ? ["AI pack live", "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"]
+        : ["AI pack: review", "bg-amber-500/15 text-amber-800 dark:text-amber-300"]
+      : pack?.status === "generating"
+        ? ["AI making…", "bg-[var(--accent-light)] text-[var(--accent-text)]"]
+        : ["No AI pack", "bg-[var(--bg-surface-subtle)] text-[var(--text-muted)]"];
+  return <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap ${style}`}>{label}</span>;
 }

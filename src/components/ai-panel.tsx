@@ -2,18 +2,18 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { BookOpen, Check, Layers, ListChecks, Loader2, MessageCircle, RefreshCw, Send, Sparkles, X } from "lucide-react";
+import { BookOpen, Brain, Check, Layers, ListChecks, Loader2, MessageCircle, RefreshCw, Send, Sparkles, X } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
 import { useAuth } from "@/lib/auth";
 import { postAi } from "@/lib/ai-client";
 import { AnswerPart, ChatTurn, MAX_QUESTION, MAX_TURNS } from "@/lib/chat";
 import { Material } from "@/lib/materials";
-import { PackDoc, StudyPack } from "@/lib/study-pack";
+import { MindMap, PackDoc, StudyPack } from "@/lib/study-pack";
 import { ErrorText } from "@/components/auth-card";
 import { cardClass, pillButton } from "@/components/ui";
 
-type Tab = "pack" | "quiz" | "cards" | "ask";
+type Tab = "pack" | "map" | "quiz" | "cards" | "ask";
 type GoToPage = (page: number) => void;
 
 const sectionTitle = "text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]";
@@ -32,8 +32,10 @@ function PageChip({ page, onGoToPage }: { page: number; onGoToPage: GoToPage }) 
 
 /** AI help for one PDF: study pack, quiz, flashcards and doubt chat. Teachers also make and publish the pack here. */
 export function AiPanel({ material, onGoToPage }: { material: Material; onGoToPage: GoToPage }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const isOwner = user?.uid === material.teacherId;
+  // Only teachers chat with AI; students study from the pack their teacher published, so they cost no tokens.
+  const canChat = profile?.role === "teacher";
   // undefined = loading, null = none (or not published yet, which students aren't allowed to read)
   const [pack, setPack] = useState<PackDoc | null | undefined>(undefined);
   const [tab, setTab] = useState<Tab | null>(null);
@@ -53,13 +55,16 @@ export function AiPanel({ material, onGoToPage }: { material: Material; onGoToPa
     ...(ready
       ? [
           { value: "pack" as const, label: "Study pack", icon: <BookOpen className="w-4 h-4" /> },
+          ...(ready.mindMap ? [{ value: "map" as const, label: "Mind map", icon: <Brain className="w-4 h-4" /> }] : []),
           { value: "quiz" as const, label: "Quiz", icon: <ListChecks className="w-4 h-4" /> },
           { value: "cards" as const, label: "Flashcards", icon: <Layers className="w-4 h-4" /> },
         ]
       : []),
-    { value: "ask", label: "Ask AI", icon: <MessageCircle className="w-4 h-4" /> },
+    ...(canChat ? [{ value: "ask" as const, label: "Ask AI", icon: <MessageCircle className="w-4 h-4" /> }] : []),
   ];
-  const active = tab && tabs.some((t) => t.value === tab) ? tab : tabs[0].value;
+  const active = tab && tabs.some((t) => t.value === tab) ? tab : tabs[0]?.value;
+  // A student with nothing published yet sees nothing here.
+  if (!tabs.length) return null;
 
   return (
     <section className="space-y-4" aria-label="AI study help">
@@ -87,6 +92,7 @@ export function AiPanel({ material, onGoToPage }: { material: Material; onGoToPa
       </div>
 
       {active === "pack" && ready && <PackView pack={ready} />}
+      {active === "map" && ready?.mindMap && <MindMapView map={ready.mindMap} />}
       {active === "quiz" && ready && <QuizView pack={ready} onGoToPage={onGoToPage} />}
       {active === "cards" && ready && <FlashcardsView pack={ready} />}
       {active === "ask" && <AskView material={material} onGoToPage={onGoToPage} />}
@@ -209,6 +215,44 @@ function PackView({ pack }: { pack: StudyPack }) {
   );
 }
 
+const BRANCH_COLORS = ["#E57835", "#3B82F6", "#10B981", "#8B5CF6", "#F59E0B", "#EC4899"];
+
+/** Topic in the middle, branches on both sides (stacked under it on phones). */
+function MindMapView({ map }: { map: MindMap }) {
+  const half = Math.ceil(map.branches.length / 2);
+  const branch = (b: MindMap["branches"][number], i: number, side: "left" | "right") => {
+    const color = BRANCH_COLORS[i % BRANCH_COLORS.length];
+    return (
+      <li key={i} className="relative">
+        <span aria-hidden className={`hidden md:block absolute top-6 h-0.5 w-10 ${side === "left" ? "-right-10" : "-left-10"}`} style={{ background: color }} />
+        <div className="rounded-2xl p-4 bg-[var(--bg-surface)] border-2" style={{ borderColor: `${color}66` }}>
+          <p className="font-heading font-bold text-sm" style={{ color }}>{b.title}</p>
+          <ul className="mt-2 space-y-1.5">
+            {b.points.map((p, j) => (
+              <li key={j} className="flex gap-2 text-sm leading-snug">
+                <span aria-hidden className="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full" style={{ background: color }} /> {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </li>
+    );
+  };
+  return (
+    <div className={`${cardClass} p-5 sm:p-6`}>
+      <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:gap-x-10 items-center">
+        <div className="flex justify-center md:order-2">
+          <p className="px-6 py-5 rounded-[28px] bg-[#111110] text-white dark:bg-white dark:text-[#111110] font-heading font-black text-lg text-center leading-tight max-w-[13rem] shadow-[var(--shadow-lg)]">
+            {map.center}
+          </p>
+        </div>
+        <ul className="space-y-4 md:order-1">{map.branches.slice(0, half).map((b, i) => branch(b, i, "left"))}</ul>
+        <ul className="space-y-4 md:order-3">{map.branches.slice(half).map((b, i) => branch(b, i + half, "right"))}</ul>
+      </div>
+    </div>
+  );
+}
+
 function QuizView({ pack, onGoToPage }: { pack: StudyPack; onGoToPage: GoToPage }) {
   const [chosen, setChosen] = useState<Record<number, number>>({});
   const answered = Object.keys(chosen).length;
@@ -320,7 +364,7 @@ function FlashcardsView({ pack }: { pack: StudyPack }) {
   );
 }
 
-const SUGGESTIONS = ["Explain this file in simple words", "Isko Hinglish mein samjhao", "What can come in the exam from this?"];
+const SUGGESTIONS = ["Which parts will students find hardest?", "Give 5 extra exam questions with answers", "Isko simple Hinglish mein samjhao"];
 
 function AskView({ material, onGoToPage }: { material: Material; onGoToPage: GoToPage }) {
   const [turns, setTurns] = useState<ChatTurn[]>([]);
@@ -361,7 +405,7 @@ function AskView({ material, onGoToPage }: { material: Material; onGoToPage: GoT
     <div className={`${cardClass} p-4 sm:p-5 space-y-4`}>
       {turns.length === 0 && (
         <div className="space-y-3">
-          <p className="text-sm text-[var(--text-secondary)]">Ask anything about <span className="font-semibold text-[var(--text-primary)]">{material.title}</span>. Answers come from this file, with the page to read.</p>
+          <p className="text-sm text-[var(--text-secondary)]">Ask anything about <span className="font-semibold text-[var(--text-primary)]">{material.title}</span>. Answers come from this file, with page links. Students don&apos;t see this chat.</p>
           <div className="flex flex-wrap gap-2">
             {SUGGESTIONS.map((s) => (
               <button key={s} onClick={() => ask(s)} className={`${pillButton} h-9 px-3.5 text-xs bg-[var(--bg-surface-subtle)] hover:bg-[var(--accent-light)] hover:text-[var(--accent-text)]`}>
@@ -422,7 +466,7 @@ function AskView({ material, onGoToPage }: { material: Material; onGoToPage: GoT
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(draft); } }}
               maxLength={MAX_QUESTION}
               rows={1}
-              placeholder="Type your doubt…"
+              placeholder="Ask about this file…"
               className="w-full max-h-40 min-h-12 px-4 py-3 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm outline-none resize-y focus:border-[var(--accent)] focus:bg-[var(--bg-surface)] focus:ring-4 focus:ring-[var(--ring-color)]"
             />
           </label>

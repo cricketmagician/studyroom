@@ -29,3 +29,14 @@ test("rejects a pack with no summary or no usable quiz", () => {
   assert.throws(() => validatePack({ summary: "ok", quiz: [{ ...good, answer: -1 }] }));
   assert.throws(() => validatePack(null));
 });
+
+test("keeps a usable mind map and drops a broken one", () => {
+  const base = { summary: "ok", quiz: [good] };
+  const map = validatePack({
+    ...base,
+    mindMap: { center: "Sums", branches: [{ title: "Rules", points: ["Order doesn't matter", ""] }, { title: "Uses", points: ["Shopping"] }, { title: "Empty", points: [] }] },
+  }).mindMap;
+  assert.deepEqual(map, { center: "Sums", branches: [{ title: "Rules", points: ["Order doesn't matter"] }, { title: "Uses", points: ["Shopping"] }] });
+  assert.equal(validatePack({ ...base, mindMap: { center: "Sums", branches: [{ title: "Only one", points: ["x"] }] } }).mindMap, undefined);
+  assert.equal(validatePack(base).mindMap, undefined);
+});

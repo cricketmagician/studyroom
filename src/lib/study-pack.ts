@@ -2,6 +2,8 @@
 
 export type QuizQuestion = { question: string; options: string[]; answer: number; explanation: string; page: number };
 export type Flashcard = { front: string; back: string };
+/** A topic in the centre with branches of short ideas around it. */
+export type MindMap = { center: string; branches: { title: string; points: string[] }[] };
 export type StudyPack = {
   summary: string;
   keyPoints: string[];
@@ -9,6 +11,8 @@ export type StudyPack = {
   examQuestions: string[];
   quiz: QuizQuestion[];
   flashcards: Flashcard[];
+  /** Missing on packs made before mind maps existed. */
+  mindMap?: MindMap;
 };
 
 /** Stored at materials/{id}/ai/pack. Students only see it once the teacher publishes it. */
@@ -23,7 +27,7 @@ const strList = { type: "array", items: str };
 export const PACK_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["summary", "keyPoints", "terms", "examQuestions", "quiz", "flashcards"],
+  required: ["summary", "keyPoints", "terms", "examQuestions", "quiz", "flashcards", "mindMap"],
   properties: {
     summary: str,
     keyPoints: strList,
@@ -44,6 +48,18 @@ export const PACK_SCHEMA = {
     flashcards: {
       type: "array",
       items: { type: "object", additionalProperties: false, required: ["front", "back"], properties: { front: str, back: str } },
+    },
+    mindMap: {
+      type: "object",
+      additionalProperties: false,
+      required: ["center", "branches"],
+      properties: {
+        center: str,
+        branches: {
+          type: "array",
+          items: { type: "object", additionalProperties: false, required: ["title", "points"], properties: { title: str, points: strList } },
+        },
+      },
     },
   },
 };
@@ -68,6 +84,12 @@ export function validatePack(raw: unknown): StudyPack {
     ),
     flashcards: list(r.flashcards).filter((c) => isStr(c?.front) && isStr(c?.back)),
   };
+  const map = r.mindMap as { center?: unknown; branches?: unknown } | undefined;
+  const branches = list(map?.branches)
+    .filter((b) => isStr(b?.title))
+    .map((b) => ({ title: b.title.trim(), points: list(b.points).filter(isStr) }))
+    .filter((b) => b.points.length > 0);
+  if (isStr(map?.center) && branches.length >= 2) pack.mindMap = { center: map.center.trim(), branches };
   if (!pack.summary || pack.quiz.length === 0) throw new Error("The AI study pack came back incomplete.");
   return pack;
 }
