@@ -1,22 +1,26 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { CloudUpload, Trash2 } from "lucide-react";
+import { CheckCircle2, CloudUpload, Trash2 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
 import { RequireRole, useAuth } from "@/lib/auth";
 import { checkFile, formatSize, Kind, titleFromFileName } from "@/lib/files";
 import { deleteMaterial, Material, newestFirst, toMaterial, uploadMaterial } from "@/lib/materials";
-import { buttonClass, ErrorText, inputClass } from "@/components/auth-card";
+import { ErrorText, inputClass } from "@/components/auth-card";
 import { MaterialIcon } from "@/components/material-icon";
+import { cardClass, FileRow, PageTitle, pillButton } from "@/components/ui";
 
 export default function TeacherPage() {
+  const { profile } = useAuth();
   return (
     <RequireRole role="teacher">
-      <UploadForm />
-      <MyUploads />
+      <div className="space-y-6">
+        <PageTitle name={profile?.name} title="Share with Students" />
+        <UploadForm />
+        <MyUploads />
+      </div>
     </RequireRole>
   );
 }
@@ -63,17 +67,24 @@ function UploadForm() {
   const uploading = progress !== null;
 
   return (
-    <section className="bg-[var(--bg-surface)] border rounded-3xl p-6 sm:p-8 shadow-[var(--shadow-md)]">
-      <h1 className="text-2xl font-heading font-bold">Share a file with students</h1>
-      <p className="mt-1 text-[var(--text-secondary)]">Choose a PDF or a video, give it a name, and press Upload.</p>
+    <section className={`${cardClass} p-5 sm:p-6`}>
+      <div className="flex items-center gap-2.5">
+        <span className="w-8 h-8 rounded-full bg-[var(--accent-light)] text-[var(--accent)] flex items-center justify-center">
+          <CloudUpload className="w-4 h-4" aria-hidden />
+        </span>
+        <div>
+          <h2 className="font-heading font-bold text-sm leading-tight">Upload a file</h2>
+          <p className="text-xs text-[var(--text-secondary)]">Choose a PDF or video, check the name, press Upload.</p>
+        </div>
+      </div>
 
-      <form onSubmit={upload} className="mt-6 space-y-5">
+      <form onSubmit={upload} className="mt-5 space-y-4">
         <label
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
           onDrop={(e) => { e.preventDefault(); setDragging(false); if (!uploading) pick(e.dataTransfer.files[0]); }}
-          className={`flex flex-col items-center justify-center gap-3 text-center rounded-2xl border-2 border-dashed px-6 py-10 cursor-pointer transition-colors focus-within:ring-4 focus-within:ring-[var(--ring-color)] ${
-            dragging ? "border-[var(--accent)] bg-[var(--accent-light)]" : "hover:border-[var(--accent)] bg-[var(--bg-surface-subtle)]"
+          className={`flex flex-col items-center justify-center gap-2.5 text-center rounded-2xl border-2 border-dashed px-6 py-10 cursor-pointer transition-colors focus-within:ring-4 focus-within:ring-[var(--ring-color)] ${
+            dragging ? "border-[var(--accent)] bg-[var(--accent-light)]" : "border-[var(--border-color)] hover:border-[var(--accent)] bg-[var(--bg-primary)]"
           }`}
         >
           <input
@@ -85,15 +96,19 @@ function UploadForm() {
           />
           {file ? (
             <>
-              <span className="text-[var(--accent)]"><MaterialIcon type={file.kind} className="w-10 h-10" /></span>
-              <span className="font-semibold break-all">{file.file.name}</span>
-              <span className="text-sm text-[var(--text-secondary)]">{formatSize(file.file.size)} · Click to choose a different file</span>
+              <span className="w-14 h-14 rounded-2xl bg-[var(--bg-surface)] shadow-[var(--shadow-md)] text-[var(--accent)] flex items-center justify-center">
+                <MaterialIcon type={file.kind} className="w-7 h-7" />
+              </span>
+              <span className="font-bold break-all">{file.file.name}</span>
+              <span className="text-xs text-[var(--text-secondary)]">{formatSize(file.file.size)} · Click to choose a different file</span>
             </>
           ) : (
             <>
-              <CloudUpload className="w-10 h-10 text-[var(--accent)]" aria-hidden />
-              <span className="font-semibold">Click here to choose a file</span>
-              <span className="text-sm text-[var(--text-secondary)]">or drag it here · PDF up to 100 MB, video up to 2 GB</span>
+              <span className="w-14 h-14 rounded-2xl bg-[var(--bg-surface)] shadow-[var(--shadow-md)] text-[var(--accent)] flex items-center justify-center">
+                <CloudUpload className="w-7 h-7" aria-hidden />
+              </span>
+              <span className="font-bold">Click here to choose a file</span>
+              <span className="text-xs text-[var(--text-secondary)]">or drag it here · PDF up to 100 MB, video up to 2 GB</span>
             </>
           )}
         </label>
@@ -106,21 +121,25 @@ function UploadForm() {
         )}
 
         {uploading && (
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Uploading… please keep this page open</span>
-              <span>{progress}%</span>
+          <div className="p-4 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-subtle)]">
+            <div className="flex justify-between items-baseline text-xs mb-2">
+              <span className="text-[var(--text-secondary)]">Uploading… please keep this page open</span>
+              <span className="font-heading font-black text-lg">{progress}<span className="text-[var(--accent)]">%</span></span>
             </div>
             <div className="h-2 rounded-full bg-[var(--border-color)] overflow-hidden" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-              <div className="h-full bg-[var(--accent)] transition-all" style={{ width: `${progress}%` }} />
+              <div className="h-full rounded-full bg-[var(--accent)] transition-all" style={{ width: `${progress}%` }} />
             </div>
           </div>
         )}
 
         <ErrorText>{error}</ErrorText>
-        {done && <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">{done}</p>}
+        {done && (
+          <p role="status" className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-sm font-semibold flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" aria-hidden /> {done}
+          </p>
+        )}
 
-        <button type="submit" disabled={!file || !title.trim() || uploading} className={buttonClass}>
+        <button type="submit" disabled={!file || !title.trim() || uploading} className={`${pillButton} w-full h-12 text-sm bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shadow-[var(--shadow-md)]`}>
           {uploading ? "Uploading…" : "Upload"}
         </button>
       </form>
@@ -153,30 +172,33 @@ function MyUploads() {
   };
 
   return (
-    <section className="mt-10">
-      <h2 className="text-lg font-heading font-bold">Your uploads {items && `(${items.length})`}</h2>
+    <section className="space-y-3 pt-2">
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Your uploads</h2>
+        {items && (
+          <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[var(--accent-light)] text-[var(--accent-text)]">
+            {items.length} {items.length === 1 ? "file" : "files"}
+          </span>
+        )}
+      </div>
       <ErrorText>{error}</ErrorText>
-      {items?.length === 0 && <p className="mt-3 text-[var(--text-secondary)]">Nothing uploaded yet.</p>}
-      <ul className="mt-4 space-y-3">
+      {items?.length === 0 && <p className="px-1 text-sm text-[var(--text-secondary)]">Nothing uploaded yet. Your first file will appear here.</p>}
+      <ul className="grid gap-3">
         {items?.map((m) => (
-          <li key={m.id} className="flex items-center gap-4 bg-[var(--bg-surface)] border rounded-2xl p-4">
-            <span className="shrink-0 w-11 h-11 rounded-xl bg-[var(--accent-light)] text-[var(--accent-text)] flex items-center justify-center">
-              <MaterialIcon type={m.type} />
-            </span>
-            <Link href={`/learn/${m.id}`} className="min-w-0 flex-1 hover:underline">
-              <span className="block font-medium truncate">{m.title}</span>
-              <span className="block text-sm text-[var(--text-secondary)]">
-                {m.createdAt?.toDate().toLocaleDateString() ?? "Just now"} · {formatSize(m.size)}
-              </span>
-            </Link>
-            <button
-              onClick={() => remove(m)}
-              aria-label={`Delete ${m.title}`}
-              className="p-2.5 rounded-xl text-[var(--text-secondary)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)]"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          </li>
+          <FileRow
+            key={m.id}
+            m={m}
+            action={
+              <button
+                onClick={() => remove(m)}
+                aria-label={`Delete ${m.title}`}
+                title="Delete"
+                className={`${pillButton} shrink-0 w-9 h-9 border border-[var(--border-color)] text-[var(--text-muted)] hover:text-red-600 hover:border-red-200 hover:bg-red-50 dark:hover:bg-red-950/40 dark:hover:border-red-900`}
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            }
+          />
         ))}
       </ul>
     </section>

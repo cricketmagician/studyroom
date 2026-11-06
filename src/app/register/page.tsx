@@ -44,7 +44,7 @@ export default function RegisterPage() {
       </form>
       <p className="mt-6 text-center text-sm text-[var(--text-secondary)]">
         Already have an account?{" "}
-        <Link href="/login" className="text-[var(--accent-text)] hover:underline">Log in</Link>
+        <Link href="/login" className="font-semibold text-[var(--accent-text)] hover:underline">Log in</Link>
       </p>
     </AuthCard>
   );

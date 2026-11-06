@@ -8,8 +8,12 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
 import { RequireRole, Spinner } from "@/lib/auth";
+import { formatSize } from "@/lib/files";
 import { Material, toMaterial } from "@/lib/materials";
 import { ErrorText } from "@/components/auth-card";
+import { MaterialIcon } from "@/components/material-icon";
+import { pillButton } from "@/components/ui";
+import { rememberOpened } from "@/components/study-tiles";
 
 export default function ViewerPage() {
   return (
@@ -19,6 +23,8 @@ export default function ViewerPage() {
   );
 }
 
+const roundButton = `${pillButton} h-10 px-4 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-[var(--shadow-sm)] hover:border-[var(--text-muted)]`;
+
 function Viewer() {
   const { id } = useParams<{ id: string }>();
   const [item, setItem] = useState<Material | null | undefined>(undefined);
@@ -26,48 +32,51 @@ function Viewer() {
 
   useEffect(() => {
     getDoc(doc(db, "materials", id))
-      .then((snap) => setItem(snap.exists() ? toMaterial(snap) : null))
+      .then((snap) => {
+        setItem(snap.exists() ? toMaterial(snap) : null);
+        if (snap.exists()) rememberOpened(id);
+      })
       .catch((err) => setError(friendlyError(err)));
   }, [id]);
 
   return (
-    <>
-      <Link href="/learn" className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+    <div className="space-y-5">
+      <Link href="/learn" className={roundButton}>
         <ArrowLeft className="w-4 h-4" aria-hidden /> All files
       </Link>
 
       <ErrorText>{error}</ErrorText>
       {item === undefined && !error && <Spinner />}
-      {item === null && <p className="mt-12 text-center text-[var(--text-secondary)]">This file was removed or does not exist.</p>}
+      {item === null && <p className="py-16 text-center text-[var(--text-secondary)]">This file was removed or does not exist.</p>}
 
       {item && (
-        <article className="mt-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-heading font-bold">{item.title}</h1>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                Shared by {item.teacherName} · {item.createdAt?.toDate().toLocaleDateString()}
-              </p>
+        <article className="space-y-5">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="flex items-start gap-3.5 min-w-0">
+              <span className="shrink-0 mt-1 w-12 h-12 rounded-2xl bg-[var(--accent-light)] text-[var(--accent)] flex items-center justify-center">
+                <MaterialIcon type={item.type} className="w-6 h-6" />
+              </span>
+              <div className="min-w-0">
+                <h1 className="text-2xl sm:text-3xl font-heading font-black tracking-tight leading-tight break-words">{item.title}</h1>
+                <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                  Shared by {item.teacherName} · {item.createdAt?.toDate().toLocaleDateString()} · {formatSize(item.size)}
+                </p>
+              </div>
             </div>
-            <a
-              href={item.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium hover:bg-[var(--bg-surface-subtle)]"
-            >
+            <a href={item.url} target="_blank" rel="noopener noreferrer" className={roundButton}>
               <ExternalLink className="w-4 h-4" aria-hidden /> Open in new tab
             </a>
           </div>
 
-          <div className="mt-6 rounded-3xl overflow-hidden border bg-[var(--bg-surface)] shadow-[var(--shadow-md)]">
+          <div className="rounded-[32px] overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-lg">
             {item.type === "pdf" ? (
-              <iframe src={item.url} title={item.title} className="w-full h-[80vh]" />
+              <iframe src={item.url} title={item.title} className="w-full h-[78vh]" />
             ) : (
-              <video src={item.url} controls playsInline preload="metadata" className="w-full max-h-[80vh] bg-black" />
+              <video src={item.url} controls playsInline preload="metadata" className="w-full max-h-[78vh] bg-black" />
             )}
           </div>
         </article>
       )}
-    </>
+    </div>
   );
 }

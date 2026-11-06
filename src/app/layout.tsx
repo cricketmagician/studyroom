@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
-      <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased font-sans selection:bg-[#C58B51]/20">
+      <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased font-sans selection:bg-orange-500/20">
         <ThemeProvider>
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>

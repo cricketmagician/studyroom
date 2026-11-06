@@ -37,8 +37,8 @@ export default function LoginPage() {
         </button>
       </form>
       <div className="mt-6 flex justify-between text-sm">
-        <Link href="/forgot-password" className="text-[var(--accent-text)] hover:underline">Forgot password?</Link>
-        <Link href="/register" className="text-[var(--accent-text)] hover:underline">Create account</Link>
+        <Link href="/forgot-password" className="font-semibold text-[var(--accent-text)] hover:underline">Forgot password?</Link>
+        <Link href="/register" className="font-semibold text-[var(--accent-text)] hover:underline">Create account</Link>
       </div>
     </AuthCard>
   );
