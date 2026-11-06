@@ -37,6 +37,22 @@ These accounts work only locally. Uploaded files are lost when you stop `npm run
    npm run dev
    ```
 
+## AI study help (optional)
+
+PDFs get an AI **study pack** (summary, key points, terms, exam questions, a 10-question quiz and flashcards) and an **Ask AI** doubt chat that answers only from the file, with page links.
+
+- It starts by itself when a teacher uploads a PDF. The teacher checks it on the file's page and presses **Publish to students**.
+- Each student can ask 30 questions a day (`DAILY_QUESTIONS` in `src/lib/server/ai.ts`). Set a monthly spend limit in the Claude Console too.
+- Model: Claude Opus 5.5 (`MODEL` in `src/lib/server/ai.ts`). PDFs up to 20 MB.
+
+To turn it on, add your key to `.env.local` (server-side only, never `NEXT_PUBLIC_`):
+
+```bash
+ANTHROPIC_API_KEY=...
+```
+
+On a real Firebase project, the server also needs Firebase Admin credentials: automatic on Firebase App Hosting, otherwise point `GOOGLE_APPLICATION_CREDENTIALS` at a service-account key. AI routes need a server, so deploy to Firebase App Hosting or Vercel (not static hosting).
+
 ## Making someone a teacher
 
 1. They sign up normally at `/register`.

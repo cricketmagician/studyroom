@@ -11,7 +11,9 @@
     "local": "firebase emulators:exec --project demo-studyroom --ui \"node scripts/seed-emulator.mjs && NEXT_PUBLIC_USE_EMULATOR=true next dev --webpack -p 3001\""
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
     "firebase": "^13.2.0",
+    "firebase-admin": "^14.5.0",
     "lucide-react": "^1.68.0",
     "next": "16.4.5",
     "react": "19.3.0",

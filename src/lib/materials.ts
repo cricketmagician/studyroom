@@ -49,7 +49,7 @@ export async function uploadMaterial(
   // shortcut: download URLs work for anyone who has the link; switch to signed URLs if files must stay private.
   const url = await getDownloadURL(task.snapshot.ref);
   try {
-    await addDoc(collection(db, "materials"), {
+    const ref = await addDoc(collection(db, "materials"), {
       title,
       type: kind,
       url,
@@ -59,6 +59,7 @@ export async function uploadMaterial(
       teacherName: teacher.name,
       createdAt: serverTimestamp(),
     });
+    return ref.id;
   } catch (err) {
     // Don't leave an orphan file nobody can see or delete.
     await deleteObject(task.snapshot.ref).catch(() => {});
@@ -67,6 +68,7 @@ export async function uploadMaterial(
 }
 
 export async function deleteMaterial(m: Material) {
+  await deleteDoc(doc(db, "materials", m.id, "ai", "pack"));
   await deleteObject(ref(storage, m.storagePath)).catch((err) => {
     if (err?.code !== "storage/object-not-found") throw err;
   });

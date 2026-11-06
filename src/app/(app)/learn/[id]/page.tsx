@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
@@ -15,6 +15,7 @@ import { MaterialIcon } from "@/components/material-icon";
 import { pillButton } from "@/components/ui";
 import { rememberOpened } from "@/components/study-tiles";
 import { NotesCard, StudyActions } from "@/components/study-actions";
+import { AiPanel } from "@/components/ai-panel";
 
 export default function ViewerPage() {
   return (
@@ -30,6 +31,14 @@ function Viewer() {
   const { id } = useParams<{ id: string }>();
   const [item, setItem] = useState<Material | null | undefined>(undefined);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const viewerRef = useRef<HTMLDivElement>(null);
+
+  // Citation chips jump the PDF to a page (the browser's PDF viewer reads #page=N).
+  const goToPage = (n: number) => {
+    setPage(n);
+    viewerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   useEffect(() => {
     getDoc(doc(db, "materials", id))
@@ -71,13 +80,15 @@ function Viewer() {
 
           <StudyActions materialId={item.id} />
 
-          <div className="rounded-[32px] overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-lg">
+          <div ref={viewerRef} className="scroll-mt-20 rounded-[32px] overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-lg">
             {item.type === "pdf" ? (
-              <iframe src={item.url} title={item.title} className="w-full h-[78vh]" />
+              <iframe key={page} src={`${item.url}#page=${page}`} title={item.title} className="w-full h-[78vh]" />
             ) : (
               <video src={item.url} controls playsInline preload="metadata" className="w-full max-h-[78vh] bg-black" />
             )}
           </div>
+
+          {item.type === "pdf" && <AiPanel material={item} onGoToPage={goToPage} />}
 
           <NotesCard materialId={item.id} />
         </article>

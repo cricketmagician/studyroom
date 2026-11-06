@@ -10,6 +10,7 @@ import { checkFile, formatSize, Kind, titleFromFileName } from "@/lib/files";
 import { deleteMaterial, Material, newestFirst, toMaterial, uploadMaterial } from "@/lib/materials";
 import { ErrorText, inputClass } from "@/components/auth-card";
 import { MaterialIcon } from "@/components/material-icon";
+import { postAi } from "@/lib/ai-client";
 import { cardClass, FileRow, PageTitle, pillButton } from "@/components/ui";
 
 export default function TeacherPage() {
@@ -54,8 +55,14 @@ function UploadForm() {
     setError("");
     setProgress(0);
     try {
-      await uploadMaterial(file.file, file.kind, title.trim(), { uid: user.uid, name: profile.name }, setProgress);
-      setDone(`"${title.trim()}" is uploaded. Students can see it now.`);
+      const id = await uploadMaterial(file.file, file.kind, title.trim(), { uid: user.uid, name: profile.name }, setProgress);
+      if (file.kind === "pdf") {
+        // Start the AI study pack now; the teacher reviews and publishes it on the file's page.
+        postAi("/api/ai/study-pack", { materialId: id }).catch(() => {});
+        setDone(`"${title.trim()}" is uploaded. Students can see it now. AI is also making a study pack: open the file to check and publish it.`);
+      } else {
+        setDone(`"${title.trim()}" is uploaded. Students can see it now.`);
+      }
       setFile(null);
       setTitle("");
     } catch (err) {

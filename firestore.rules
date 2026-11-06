@@ -56,6 +56,20 @@ service cloud.firestore {
         (request.resource.data.due == null || (request.resource.data.due is string && request.resource.data.due.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')));
     }
 
+    // AI study pack per file. Only the server writes its content; the owning teacher reviews,
+    // then publishes it (the only field they may change). Students read it once published.
+    match /materials/{materialId}/ai/{docId} {
+      function ownsFile() {
+        return signedIn() && get(/databases/$(database)/documents/materials/$(materialId)).data.teacherId == request.auth.uid;
+      }
+      allow read: if ownsFile() || (signedIn() && resource != null && resource.data.status == 'ready' && resource.data.published == true);
+      allow update: if ownsFile() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['published']) &&
+        request.resource.data.published is bool;
+      allow delete: if ownsFile();
+      allow create: if false;
+    }
+    // AI usage counters (profiles/{uid}/usage/...) have no rule on purpose: only the server can read or write them.
+
     // Uploaded PDFs and videos. Everyone signed in can read; teachers manage their own.
     match /materials/{id} {
       allow read: if signedIn();

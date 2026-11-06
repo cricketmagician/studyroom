@@ -40,7 +40,9 @@ export function useStreak(uid: string) {
     const streak = recordVisit(prev, new Date());
     return { streak, isNewDay: prev?.last !== streak.last };
   });
-  useEffect(() => writeJson(streakKey(uid), state.streak), [uid, state.streak]);
+  useEffect(() => {
+    writeJson(streakKey(uid), state.streak);
+  }, [uid, state.streak]);
   return state;
 }
 
