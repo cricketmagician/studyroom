@@ -72,7 +72,7 @@ export async function loadMaterial(materialId: string) {
 export async function loadPdfBase64(m: MaterialDoc) {
   if (m.type !== "pdf") throw new HttpError(400, "AI help works on PDF files for now.");
   if (m.size > MAX_PDF_BYTES) throw new HttpError(413, "This PDF is too big for AI help (limit 14 MB).");
-  const [bytes] = await bucket.file(m.storagePath).download();
+  const [bytes] = await bucket().file(m.storagePath).download();
   return bytes.toString("base64");
 }
 

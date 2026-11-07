@@ -24,4 +24,5 @@ const app = getApps()[0] ?? initializeApp(credential ? { credential, projectId, 
 
 export const adminAuth = getAuth(app);
 export const adminDb = getFirestore(app);
-export const bucket = getStorage(app).bucket();
+// A function, not a value: resolving the bucket throws when env vars are missing, which would fail the whole build.
+export const bucket = () => getStorage(app).bucket();

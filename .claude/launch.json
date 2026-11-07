@@ -1,0 +1,21 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": [
+        "PATH=/Users/neerajsingh/.local/node-v22.23.4-darwin-x64/bin:/Users/neerajsingh/.local/jdk21/Contents/Home/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+        "JAVA_HOME=/Users/neerajsingh/.local/jdk21/Contents/Home",
+        "/Users/neerajsingh/.local/node-v22.23.4-darwin-x64/bin/npm",
+        "run",
+        "local"
+      ],
+      "port": 3001
+    },
+    {
+      "name": "local-running",
+      "url": "http://localhost:3001"
+    }
+  ]
+}
