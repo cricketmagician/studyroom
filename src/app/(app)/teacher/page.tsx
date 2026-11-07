@@ -6,7 +6,7 @@ import { CheckCircle2, CloudUpload, Trash2 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
 import { RequireRole, useAuth } from "@/lib/auth";
-import { checkFile, formatSize, Kind, titleFromFileName } from "@/lib/files";
+import { checkFile, formatSize, Kind, MAX_BYTES, titleFromFileName } from "@/lib/files";
 import { deleteMaterial, Material, newestFirst, toMaterial, uploadMaterial } from "@/lib/materials";
 import { ErrorText, inputClass } from "@/components/auth-card";
 import { MaterialIcon } from "@/components/material-icon";
@@ -116,7 +116,7 @@ function UploadForm() {
                 <CloudUpload className="w-7 h-7" aria-hidden />
               </span>
               <span className="font-bold">Click here to choose a file</span>
-              <span className="text-xs text-[var(--text-secondary)]">or drag it here · PDF up to 100 MB, video up to 2 GB</span>
+              <span className="text-xs text-[var(--text-secondary)]">or drag it here · PDF up to {formatSize(MAX_BYTES.pdf)}, video up to {formatSize(MAX_BYTES.video)}</span>
             </>
           )}
         </label>
@@ -175,7 +175,7 @@ function MyUploads() {
     try {
       await deleteMaterial(m);
     } catch (err) {
-      setError(friendlyError(err));
+      setError((err as Error).message);
     }
   };
 

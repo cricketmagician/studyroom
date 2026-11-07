@@ -1,15 +1,14 @@
 import {
   addDoc,
   collection,
-  deleteDoc,
-  doc,
   QueryDocumentSnapshot,
   DocumentSnapshot,
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
-import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { db, storage } from "@/lib/firebase/config";
+import { upload } from "@vercel/blob/client";
+import { auth, db } from "@/lib/firebase/config";
+import { postAi } from "@/lib/ai-client";
 import { Kind } from "@/lib/files";
 
 export type Material = {
@@ -39,38 +38,34 @@ export async function uploadMaterial(
   teacher: { uid: string; name: string },
   onProgress: (percent: number) => void
 ) {
-  const storagePath = `materials/${teacher.uid}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-  const task = uploadBytesResumable(ref(storage, storagePath), file, {
+  const token = await auth.currentUser?.getIdToken();
+  if (!token) throw new Error("Please log in again.");
+  // Uploads go straight from the browser to Vercel Blob; our /api/files/upload route only checks the teacher and hands out a token.
+  const blob = await upload(`materials/${teacher.uid}/${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`, file, {
+    access: "public",
+    handleUploadUrl: "/api/files/upload",
+    headers: { Authorization: `Bearer ${token}` },
     contentType: kind === "pdf" ? "application/pdf" : file.type || "video/mp4",
+    multipart: file.size > 20 * 1024 * 1024,
+    onUploadProgress: ({ percentage }) => onProgress(Math.round(percentage)),
   });
-  task.on("state_changed", (s) => onProgress(Math.round((s.bytesTransferred / s.totalBytes) * 100)));
-  await task;
 
-  // shortcut: download URLs work for anyone who has the link; switch to signed URLs if files must stay private.
-  const url = await getDownloadURL(task.snapshot.ref);
-  try {
-    const ref = await addDoc(collection(db, "materials"), {
-      title,
-      type: kind,
-      url,
-      storagePath,
-      size: file.size,
-      teacherId: teacher.uid,
-      teacherName: teacher.name,
-      createdAt: serverTimestamp(),
-    });
-    return ref.id;
-  } catch (err) {
-    // Don't leave an orphan file nobody can see or delete.
-    await deleteObject(task.snapshot.ref).catch(() => {});
-    throw err;
-  }
+  // shortcut: public Blob URLs (random suffix) work for anyone who has the link; switch to a private store if files must stay private.
+  // shortcut: if saving the listing fails the file stays in Blob storage unlisted; add a cleanup job if that ever matters.
+  const ref = await addDoc(collection(db, "materials"), {
+    title,
+    type: kind,
+    url: blob.url,
+    storagePath: blob.pathname,
+    size: file.size,
+    teacherId: teacher.uid,
+    teacherName: teacher.name,
+    createdAt: serverTimestamp(),
+  });
+  return ref.id;
 }
 
+/** Removes the file, its AI pack and its listing (done on the server, which holds the storage key). */
 export async function deleteMaterial(m: Material) {
-  await deleteDoc(doc(db, "materials", m.id, "ai", "pack"));
-  await deleteObject(ref(storage, m.storagePath)).catch((err) => {
-    if (err?.code !== "storage/object-not-found") throw err;
-  });
-  await deleteDoc(doc(db, "materials", m.id));
+  await postAi("/api/files/delete", { materialId: m.id });
 }

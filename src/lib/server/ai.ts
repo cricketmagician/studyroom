@@ -1,7 +1,8 @@
 // Server-only helpers shared by the /api/ai routes.
 import { ApiError, GoogleGenAI } from "@google/genai";
 import { FieldValue } from "firebase-admin/firestore";
-import { adminAuth, adminDb, bucket } from "@/lib/server/firebase-admin";
+import { head } from "@vercel/blob";
+import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 
 // Fast, low-cost model: each PDF is read once per study pack, so cost scales with files, not students.
 export const MODEL = "gemini-3.8-flash";
@@ -68,12 +69,15 @@ export async function loadMaterial(materialId: string) {
   return snap.data() as MaterialDoc;
 }
 
-/** The PDF as base64, read from Storage by its path (never from a URL stored in the database). */
+/** The PDF as base64, read from Vercel Blob. */
 export async function loadPdfBase64(m: MaterialDoc) {
   if (m.type !== "pdf") throw new HttpError(400, "AI help works on PDF files for now.");
   if (m.size > MAX_PDF_BYTES) throw new HttpError(413, "This PDF is too big for AI help (limit 14 MB).");
-  const [bytes] = await bucket().file(m.storagePath).download();
-  return bytes.toString("base64");
+  // Look the file up by its stored path (never a URL from the database), then download it.
+  const { url } = await head(m.storagePath);
+  const res = await fetch(url);
+  if (!res.ok) throw new HttpError(502, "Couldn't read this file. Please try again.");
+  return Buffer.from(await res.arrayBuffer()).toString("base64");
 }
 
 /** JSON error response; unexpected errors are logged and hidden from the user. */

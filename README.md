@@ -30,7 +30,6 @@ These accounts work only locally. Uploaded files are lost when you stop `npm run
 3. **Project settings → Your apps → Web app**: copy the config values into `.env.local`, using `.env.example` as the template.
 4. Paste the security rules:
    - `firestore.rules` → **Firestore → Rules → Publish**
-   - `storage.rules` → **Storage → Rules → Publish**
 5. Install and run:
    ```bash
    npm install

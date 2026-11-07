@@ -1,9 +1,9 @@
 export type Kind = "pdf" | "video";
 
-// Keep in sync with storage.rules.
+// Enforced again by /api/files/upload. Kept small: the free Vercel Blob plan holds about 1 GB in total.
 export const MAX_BYTES: Record<Kind, number> = {
-  pdf: 100 * 1024 * 1024,
-  video: 2048 * 1024 * 1024,
+  pdf: 50 * 1024 * 1024,
+  video: 300 * 1024 * 1024,
 };
 
 export function checkFile(file: { name: string; type: string; size: number }): { kind: Kind } | { error: string } {
@@ -15,7 +15,7 @@ export function checkFile(file: { name: string; type: string; size: number }): {
 
   if (!kind) return { error: "Only PDF or video files (MP4, WebM, MOV) can be uploaded." };
   if (file.size === 0) return { error: "This file is empty." };
-  if (file.size > MAX_BYTES[kind]) return { error: `This file is too big. The limit is ${kind === "pdf" ? "100 MB" : "2 GB"}.` };
+  if (file.size > MAX_BYTES[kind]) return { error: `This file is too big. The limit is ${formatSize(MAX_BYTES[kind])}.` };
   return { kind };
 }
 

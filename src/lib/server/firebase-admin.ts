@@ -2,7 +2,6 @@
 import { applicationDefault, cert, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
 
 const useEmulator = process.env.NEXT_PUBLIC_USE_EMULATOR === "true";
 
@@ -10,7 +9,6 @@ if (useEmulator) {
   // `npm run local` sets these already; defaults keep `next dev` against the emulator working too.
   process.env.FIREBASE_AUTH_EMULATOR_HOST ??= "127.0.0.1:9099";
   process.env.FIRESTORE_EMULATOR_HOST ??= "127.0.0.1:8080";
-  process.env.FIREBASE_STORAGE_EMULATOR_HOST ??= "127.0.0.1:9199";
 }
 
 const projectId = useEmulator ? "demo-studyroom" : process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
@@ -24,5 +22,3 @@ const app = getApps()[0] ?? initializeApp(credential ? { credential, projectId, 
 
 export const adminAuth = getAuth(app);
 export const adminDb = getFirestore(app);
-// A function, not a value: resolving the bucket throws when env vars are missing, which would fail the whole build.
-export const bucket = () => getStorage(app).bucket();

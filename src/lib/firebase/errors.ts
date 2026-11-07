@@ -7,9 +7,6 @@ const MESSAGES: Record<string, string> = {
   "auth/too-many-requests": "Too many tries. Please wait a few minutes and try again.",
   "auth/network-request-failed": "No internet connection. Check your network and try again.",
   "permission-denied": "You don't have permission to do this.",
-  "storage/unauthorized": "You don't have permission to upload this file.",
-  "storage/quota-exceeded": "Storage is full. Contact the admin.",
-  "storage/retry-limit-exceeded": "Upload stopped because the connection dropped. Please try again.",
 };
 
 export function friendlyError(err: unknown) {

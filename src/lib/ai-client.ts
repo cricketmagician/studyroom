@@ -1,7 +1,7 @@
 import { auth } from "@/lib/firebase/config";
 
-/** Calls one of our /api/ai routes as the signed-in user. Throws an Error with a friendly message on failure. */
-export async function postAi<T>(path: "/api/ai/ask" | "/api/ai/study-pack", body: unknown): Promise<T> {
+/** Calls one of our API routes as the signed-in user. Throws an Error with a friendly message on failure. */
+export async function postAi<T>(path: "/api/ai/ask" | "/api/ai/study-pack" | "/api/files/delete", body: unknown): Promise<T> {
   const token = await auth.currentUser?.getIdToken();
   if (!token) throw new Error("Please log in again.");
   let res: Response;
