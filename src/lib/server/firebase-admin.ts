@@ -1,5 +1,5 @@
 // Server-only: Firebase Admin bypasses security rules, so never import this from a client component.
-import { applicationDefault, getApps, initializeApp } from "firebase-admin/app";
+import { applicationDefault, cert, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
@@ -16,10 +16,11 @@ if (useEmulator) {
 const projectId = useEmulator ? "demo-studyroom" : process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 const storageBucket = useEmulator ? "demo-studyroom.appspot.com" : process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
 
-const app =
-  getApps()[0] ??
-  // Real projects read service-account credentials from GOOGLE_APPLICATION_CREDENTIALS (automatic on Firebase App Hosting).
-  initializeApp(useEmulator ? { projectId, storageBucket } : { credential: applicationDefault(), projectId, storageBucket });
+// On Vercel, paste the service-account JSON into FIREBASE_SERVICE_ACCOUNT; elsewhere Google's default credentials are used.
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
+const credential = useEmulator ? undefined : serviceAccount ? cert(JSON.parse(serviceAccount)) : applicationDefault();
+
+const app = getApps()[0] ?? initializeApp(credential ? { credential, projectId, storageBucket } : { projectId, storageBucket });
 
 export const adminAuth = getAuth(app);
 export const adminDb = getFirestore(app);

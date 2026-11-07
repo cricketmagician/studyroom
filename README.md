@@ -53,6 +53,16 @@ GEMINI_API_KEY=...
 
 On a real Firebase project, the server also needs Firebase Admin credentials: automatic on Firebase App Hosting, otherwise point `GOOGLE_APPLICATION_CREDENTIALS` at a service-account key. AI routes need a server, so deploy to Firebase App Hosting or Vercel (not static hosting).
 
+## Going live on Vercel
+
+1. Do the one-time Firebase setup above (Blaze plan, Email/Password, Firestore, Storage, a Web app) and publish both rules files.
+2. Firebase console → Project settings → **Service accounts** → **Generate new private key**. Keep this JSON file secret.
+3. In Vercel → your project → Settings → **Environment Variables**, add:
+   - the six `NEXT_PUBLIC_FIREBASE_*` values from your Web app config
+   - `GEMINI_API_KEY`
+   - `FIREBASE_SERVICE_ACCOUNT`: the whole JSON file's contents
+4. Deploy (`npx vercel --prod`), then add the Vercel domain under Firebase → Authentication → Settings → **Authorized domains**.
+
 ## Making someone a teacher
 
 1. They sign up normally at `/register`.
