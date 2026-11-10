@@ -274,23 +274,23 @@ export default function SlabApp() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const carouselSlides = [
     {
-      id: "past-papers",
-      caption: "Past papers from your own branch.",
-      illustration: "/illustrations/reading-paper.svg",
-    },
-    {
-      id: "curated-notes",
-      caption: "Curated notes & question banks.",
-      illustration: "/illustrations/study-notes.svg",
-    },
-    {
-      id: "focus-lock",
-      caption: "Distraction lock with physical slab.",
+      id: "physical-lock",
+      caption: "Tactile ceramic lock to break screen addiction.",
       illustration: "/illustrations/desk-coffee.svg",
     },
     {
-      id: "syllabus",
-      caption: "Syllabus tracking & high-yield topics.",
+      id: "curated-study",
+      caption: "Curated academic sprints & revision blocks.",
+      illustration: "/illustrations/study-notes.svg",
+    },
+    {
+      id: "app-shield",
+      caption: "Strict distraction intercept matrix.",
+      illustration: "/illustrations/reading-bench.svg",
+    },
+    {
+      id: "binaural-drone",
+      caption: "Synthesized 40Hz acoustic focus sanctuary.",
       illustration: "/illustrations/bookshelf.svg",
     },
   ];
@@ -303,7 +303,7 @@ export default function SlabApp() {
     };
     setCurrentUser(user);
     try {
-      localStorage.setItem("intersemester_user", JSON.stringify(user));
+      localStorage.setItem("still_user", JSON.stringify(user));
     } catch {
       // ignore
     }
@@ -313,7 +313,10 @@ export default function SlabApp() {
   useEffect(() => {
     setMounted(true);
     try {
-      const savedUser = localStorage.getItem("intersemester_user") || localStorage.getItem("slab_user");
+      const savedUser =
+        localStorage.getItem("still_user") ||
+        localStorage.getItem("intersemester_user") ||
+        localStorage.getItem("slab_user");
       if (savedUser) setCurrentUser(JSON.parse(savedUser));
       const savedTheme = localStorage.getItem("slab_theme") as "alabaster" | "dark" | null;
       if (savedTheme) setTheme(savedTheme);
@@ -506,15 +509,15 @@ export default function SlabApp() {
   if (!mounted) {
     return (
       <div className="min-h-screen bg-white text-[#999999] flex items-center justify-center font-mono text-xs tracking-widest">
-        INITIALIZING INTERSEMESTER...
+        INITIALIZING STILL...
       </div>
     );
   }
 
   // =========================================================================
   // APPLE SENIOR DESIGNER LEVEL LOGIN SCREEN
-  // Brand: Intersemester // Featuring Tegaki dynamic hand-drawn stroke accents
-  // & Clean vector illustration card matching 1:1 design specifications
+  // Brand: STILL // Featuring Tegaki dynamic hand-drawn stroke accents
+  // & Original hardware-companion focus sanctuary design
   // =========================================================================
   if (!currentUser) {
     const activeSlide = carouselSlides[carouselIndex];
@@ -528,20 +531,26 @@ export default function SlabApp() {
           {/* Top Brand Header */}
           <header className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              {/* Minimalist [is] Brand Mark */}
+              {/* Minimalist Tactile Monolith Mark */}
               <div className="w-7 h-7 rounded-lg bg-[#111110] text-white flex items-center justify-center shadow-xs">
-                <span className="font-apfel text-xs font-bold tracking-tight">is</span>
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M4 3h-1v1" />
+                  <path d="M20 3h1v1" />
+                  <path d="M4 21h-1v-1" />
+                  <path d="M20 21h1v-1" />
+                  <circle cx="12" cy="12" r="2.8" fill="currentColor" />
+                </svg>
               </div>
-              <span className="font-apfel text-base font-bold tracking-tight text-[#111110]">
-                Intersemester
+              <span className="font-apfel text-xs tracking-[0.24em] font-black uppercase text-[#111110]">
+                STILL
               </span>
             </div>
 
             <button
-              onClick={() => alert("Need help? Support team is available 24/7 at support@intersemester.com")}
+              onClick={() => alert("STILL Hardware Companion • Support 24/7 at support@stillfocus.com")}
               className="text-xs font-absans text-[#888888] hover:text-[#111110] transition-colors cursor-pointer"
             >
-              Need help?
+              Support
             </button>
           </header>
 
@@ -551,7 +560,7 @@ export default function SlabApp() {
               {/* Vector Illustration Canvas with Subtle Tegaki Hand-Drawn Flourishes */}
               <div className="h-60 bg-[#FAFAFA] flex items-center justify-center relative p-5 overflow-hidden">
                 {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
-                <div className="absolute top-[34%] left-[48%] text-[#FF5F56] text-lg select-none tegaki-float pointer-events-none">
+                <div className="absolute top-[32%] left-[48%] text-[#FF5F56] text-lg select-none tegaki-float pointer-events-none">
                   ✦
                 </div>
                 <div className="absolute top-[48%] left-[42%] w-1.5 h-1.5 rounded-full bg-[#FF5F56] select-none pointer-events-none" />
@@ -605,12 +614,12 @@ export default function SlabApp() {
             {/* Apple Senior Designer Typography with Tegaki Animated Stroke */}
             <div className="space-y-1.5 pt-1">
               <h1 className="text-[32px] sm:text-[34px] leading-[1.12] font-apfel font-bold tracking-tight text-[#111110]">
-                Your semester,{" "}
+                Silence the noise.{" "}
                 <span className="relative inline-block text-[#111110]">
-                  sorted.
+                  reclaim focus.
                   {/* Tegaki Dynamic Organic Brush Stroke Underline */}
                   <svg
-                    viewBox="0 0 110 16"
+                    viewBox="0 0 140 16"
                     className="absolute -bottom-1.5 left-0 w-full overflow-visible text-[#111110] pointer-events-none tegaki-stroke-animated"
                     fill="none"
                     stroke="currentColor"
@@ -618,12 +627,12 @@ export default function SlabApp() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <path d="M 3 11 C 25 3, 62 4, 106 8 C 85 10, 50 12, 18 13" />
+                    <path d="M 3 11 C 35 3, 85 4, 136 8 C 105 10, 60 12, 22 13" />
                   </svg>
                 </span>
               </h1>
               <p className="text-sm font-absans text-[#666666] leading-relaxed">
-                New here or coming back, continue the same way.
+                A tactile hardware sanctuary engineered for deep work.
               </p>
             </div>
 
@@ -634,11 +643,11 @@ export default function SlabApp() {
                 className="p-3.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] space-y-2.5 animate-in fade-in duration-150"
               >
                 <div className="text-xs font-absans font-medium text-[#111110]">
-                  Enter your university email
+                  Enter your student or university email
                 </div>
                 <input
                   type="email"
-                  placeholder="student@campus.ac.in"
+                  placeholder="student@domain.ac.in"
                   value={inputEmail}
                   onChange={(e) => setInputEmail(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-xs font-absans text-[#111110] focus:outline-none focus:border-[#111110]"
@@ -742,7 +751,7 @@ export default function SlabApp() {
 
           {/* Bottom Footer */}
           <footer className="pt-4 flex items-center justify-between text-xs text-[#888888] font-absans border-t border-[#F2F2F2]">
-            <span>© 2026 Intersemester</span>
+            <span>© 2026 Still Technologies Inc.</span>
             <div className="flex items-center gap-4">
               <a href="#privacy" className="hover:text-[#111110] transition-colors">
                 Privacy
