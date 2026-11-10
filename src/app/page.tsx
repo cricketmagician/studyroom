@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { MaterialIcon, MaterialIconName } from "@/components/material-icon";
 import { StudyTracker } from "@/components/study-tracker";
 import { PracticeView } from "@/components/practice-view";
+import { DailyCheckinModal, CheckinResult } from "@/components/daily-checkin-modal";
+import { ActiveStudySession } from "@/components/active-study-session";
+import { dayKey } from "@/lib/streak";
 import { Sparkles, ArrowRight, X, Flame } from "lucide-react";
 
 // The 6 Modules from Image 1: Recommended App Structure
@@ -86,11 +89,27 @@ export default function CMALearningDashboard() {
   const [activeTab, setActiveTab] = useState<string>("home");
   const [activeModuleModal, setActiveModuleModal] = useState<StudyModule | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showCheckinModal, setShowCheckinModal] = useState(false);
+  const [activeStudySession, setActiveStudySession] = useState<CheckinResult | null>(null);
+  const [streakDays, setStreakDays] = useState(7);
+
+  // Automatically trigger Daily Check-in on app open if not already checked in today
+  useEffect(() => {
+    try {
+      const todayStr = dayKey(new Date());
+      const lastCheckin = localStorage.getItem("cma_last_checkin");
+      if (lastCheckin !== todayStr) {
+        setShowCheckinModal(true);
+      }
+    } catch {
+      setShowCheckinModal(true);
+    }
+  }, []);
 
   const user = {
     name: "Neeraj Singh",
     role: "CMA Aspirant",
-    streakDays: 6,
+    streakDays: streakDays,
     examCountdown: 48,
   };
 
@@ -180,10 +199,14 @@ export default function CMALearningDashboard() {
                 <div className="text-[10px] text-[#88867E] truncate">{user.role}</div>
               </div>
             </div>
-            <div className="flex items-center gap-1 font-apfel font-bold text-amber-500 text-[11px] px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200/60">
-              <Flame className="w-3 h-3 fill-amber-500" />
-              <span>{user.streakDays}D</span>
-            </div>
+            <button
+              onClick={() => setShowCheckinModal(true)}
+              className="flex items-center gap-1 font-apfel font-bold text-amber-600 text-[11px] px-2.5 py-1 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-colors cursor-pointer"
+              title="Open Daily Check-in"
+            >
+              <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500 animate-pulse" />
+              <span>{streakDays}D</span>
+            </button>
           </div>
         </div>
       </aside>
@@ -212,8 +235,16 @@ export default function CMALearningDashboard() {
             </div>
           </div>
 
-          {/* Right Header: Search & Bell with Material Icons */}
-          <div className="flex items-center gap-3">
+          {/* Right Header: Daily Check-in CTA, Search & Bell */}
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => setShowCheckinModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 text-amber-700 border border-amber-200/90 text-xs font-bold font-apfel transition-all cursor-pointer shadow-2xs"
+              title="Daily Check-in & Set Goal"
+            >
+              <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+              <span>Check-in</span>
+            </button>
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#EBE8E1] text-xs text-[#88867E] shadow-2xs w-60">
               <MaterialIcon name="search" className="w-4 h-4 text-[#AAA79E]" />
               <input
@@ -651,6 +682,35 @@ export default function CMALearningDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* =============================================================== */}
+      {/* DAILY CHECK-IN MODAL (Pops up automatically on open)            */}
+      {/* =============================================================== */}
+      <DailyCheckinModal
+        isOpen={showCheckinModal}
+        onClose={() => setShowCheckinModal(false)}
+        initialStreak={streakDays}
+        onStartStudy={(result) => {
+          setShowCheckinModal(false);
+          setActiveStudySession(result);
+        }}
+      />
+
+      {/* =============================================================== */}
+      {/* ACTIVE STUDY SESSION (Timer & Focus Stage for Chosen Subject)   */}
+      {/* =============================================================== */}
+      {activeStudySession && (
+        <ActiveStudySession
+          subject={activeStudySession.subject}
+          initialMinutes={activeStudySession.durationMinutes}
+          onComplete={(studiedMinutes, subjectName) => {
+            setActiveStudySession(null);
+            // Navigate to Study Tracker to showcase updated analytics
+            setActiveTab("analytics");
+          }}
+          onExit={() => setActiveStudySession(null)}
+        />
       )}
     </div>
   );
