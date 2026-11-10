@@ -53,7 +53,7 @@ html {
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-absans), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   min-height: 100vh;
   transition: background-color 200ms ease, color 200ms ease;
   -webkit-font-smoothing: antialiased;

@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AuthProvider } from "@/lib/auth";
+
+const absans = localFont({
+  src: "./fonts/Absans-Regular.woff2",
+  variable: "--font-absans",
+  display: "swap",
+});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,7 +34,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${absans.variable} ${inter.variable} ${manrope.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased font-sans selection:bg-orange-500/20">
         <ThemeProvider>
           <AuthProvider>{children}</AuthProvider>

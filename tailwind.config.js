@@ -25,8 +25,9 @@ module.exports = {
         'line-subtle': 'var(--border-subtle)',
       },
       fontFamily: {
-        heading: ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        sans: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        absans: ['var(--font-absans)', 'var(--font-inter)', 'sans-serif'],
+        heading: ['var(--font-absans)', 'var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-absans)', 'var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: '16px',
