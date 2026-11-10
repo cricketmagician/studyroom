@@ -3,22 +3,55 @@ import { addDoc, collection, deleteDoc, doc, DocumentData, onSnapshot, orderBy, 
 import { db } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
 import { useAuth } from "@/lib/auth";
-import { Material, toMaterial } from "@/lib/materials";
+import { Material, toMaterial, getLocalMaterials } from "@/lib/materials";
 import { Task } from "@/lib/tasks";
 
-/** All class files, newest first, kept live. */
+/** All class files, newest first, kept live from Firestore and admin publishing. */
 export function useMaterials() {
   const [items, setItems] = useState<Material[] | null>(null);
   const [error, setError] = useState("");
-  useEffect(
-    () =>
-      onSnapshot(
-        query(collection(db, "materials"), orderBy("createdAt", "desc")),
-        (snap) => setItems(snap.docs.map(toMaterial)),
-        (err) => setError(friendlyError(err))
-      ),
-    []
-  );
+
+  useEffect(() => {
+    // Initial read from local published storage
+    const initialLocal = getLocalMaterials();
+    if (initialLocal.length > 0) {
+      setItems(initialLocal);
+    }
+
+    const unsubFirestore = onSnapshot(
+      query(collection(db, "materials"), orderBy("createdAt", "desc")),
+      (snap) => {
+        const firestoreList = snap.docs.map(toMaterial);
+        const localList = getLocalMaterials();
+        const map = new Map<string, Material>();
+        localList.forEach((m) => map.set(m.id, m));
+        firestoreList.forEach((m) => map.set(m.id, m));
+        setItems(Array.from(map.values()));
+      },
+      (err) => {
+        // Fallback to local materials if offline or rules block
+        setItems(getLocalMaterials());
+        setError(friendlyError(err));
+      }
+    );
+
+    const onLocalUpdate = () => {
+      const localList = getLocalMaterials();
+      setItems((prev) => {
+        const map = new Map<string, Material>();
+        (prev || []).forEach((m) => map.set(m.id, m));
+        localList.forEach((m) => map.set(m.id, m));
+        return Array.from(map.values());
+      });
+    };
+
+    window.addEventListener("cma_materials_updated", onLocalUpdate);
+    return () => {
+      unsubFirestore();
+      window.removeEventListener("cma_materials_updated", onLocalUpdate);
+    };
+  }, []);
+
   return { items, error };
 }
 

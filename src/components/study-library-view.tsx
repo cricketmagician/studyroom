@@ -131,7 +131,7 @@ export function StudyLibraryView({ onBack }: { onBack?: () => void }) {
           list.push({
             id: m.id,
             title: m.title,
-            subject: "Uploaded Notes",
+            subject: m.subject || "Cost Accounting",
             pages: Math.max(12, Math.round(m.size / (1024 * 100))),
             size: `${(m.size / (1024 * 1024)).toFixed(1)} MB`,
             downloadUrl: m.url,

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, Play, CheckCircle2, Clock, User, X, Sparkles, Filter } from "lucide-react";
+import { ArrowLeft, Play, CheckCircle2, Clock, User, X, Sparkles, Filter, ExternalLink } from "lucide-react";
+import { useMaterials } from "@/lib/hooks";
 
 interface LectureVideo {
   id: string;
@@ -11,6 +12,7 @@ interface LectureVideo {
   duration: string;
   faculty: string;
   views: string;
+  url?: string;
   completed?: boolean;
 }
 
@@ -78,6 +80,7 @@ const CMA_LECTURES: LectureVideo[] = [
 ];
 
 export function VideoLecturesView({ onBack }: { onBack?: () => void }) {
+  const { items: uploadedMaterials } = useMaterials();
   const [selectedSub, setSelectedSub] = useState("All");
   const [watchedIds, setWatchedIds] = useState<Record<string, boolean>>({ "v-1": true, "v-2": true });
   const [activeVideo, setActiveVideo] = useState<LectureVideo | null>(null);
@@ -88,7 +91,29 @@ export function VideoLecturesView({ onBack }: { onBack?: () => void }) {
     setWatchedIds((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const filtered = CMA_LECTURES.filter((v) => selectedSub === "All" || v.subject === selectedSub);
+  const allVideos: LectureVideo[] = React.useMemo(() => {
+    const list: LectureVideo[] = [];
+    if (uploadedMaterials && uploadedMaterials.length > 0) {
+      uploadedMaterials
+        .filter((m) => m.type === "video")
+        .forEach((m) => {
+          list.push({
+            id: m.id,
+            title: m.title,
+            paperCode: m.paperCode || "Paper 8",
+            subject: m.subject || "Cost Accounting",
+            duration: m.duration || `${Math.max(15, Math.round(m.size / (1024 * 1024 * 2)))} Min`,
+            faculty: m.faculty || m.teacherName || "CMA Faculty",
+            views: "CMA Student Community",
+            url: m.url,
+            completed: !!watchedIds[m.id],
+          });
+        });
+    }
+    return [...list, ...CMA_LECTURES];
+  }, [uploadedMaterials, watchedIds]);
+
+  const filtered = allVideos.filter((v) => selectedSub === "All" || v.subject === selectedSub);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto w-full select-none pb-16">
@@ -218,27 +243,40 @@ export function VideoLecturesView({ onBack }: { onBack?: () => void }) {
               </button>
             </div>
 
-            {/* Video Player Stage Simulation */}
+            {/* Video Player Stage */}
             <div className="w-full aspect-video rounded-2xl bg-black border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
-              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer">
-                <Play className="w-8 h-8 fill-white translate-x-0.5" />
-              </div>
-              <div className="absolute bottom-3 inset-x-4 flex items-center justify-between text-[11px] font-mono text-white/80">
-                <span>00:00 / {activeVideo.duration}</span>
-                <div className="flex items-center gap-2">
-                  {[1, 1.25, 1.5, 2].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setPlaybackSpeed(s)}
-                      className={`px-2 py-0.5 rounded text-[10px] ${
-                        playbackSpeed === s ? "bg-white text-black font-bold" : "bg-white/10 text-white"
-                      }`}
-                    >
-                      {s}x
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {activeVideo.url && (activeVideo.url.endsWith(".mp4") || activeVideo.url.endsWith(".webm") || activeVideo.url.startsWith("blob:") || activeVideo.url.startsWith("data:")) ? (
+                <video src={activeVideo.url} controls className="w-full h-full object-contain" autoPlay />
+              ) : activeVideo.url && (activeVideo.url.includes("youtube.com") || activeVideo.url.includes("youtu.be")) ? (
+                <iframe
+                  src={activeVideo.url.replace("watch?v=", "embed/")}
+                  className="w-full h-full border-none"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <>
+                  <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer">
+                    <Play className="w-8 h-8 fill-white translate-x-0.5" />
+                  </div>
+                  <div className="absolute bottom-3 inset-x-4 flex items-center justify-between text-[11px] font-mono text-white/80">
+                    <span>00:00 / {activeVideo.duration}</span>
+                    <div className="flex items-center gap-2">
+                      {[1, 1.25, 1.5, 2].map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => setPlaybackSpeed(s)}
+                          className={`px-2 py-0.5 rounded text-[10px] ${
+                            playbackSpeed === s ? "bg-white text-black font-bold" : "bg-white/10 text-white"
+                          }`}
+                        >
+                          {s}x
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="flex items-center justify-between pt-1 text-xs">

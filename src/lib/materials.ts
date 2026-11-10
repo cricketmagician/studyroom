@@ -16,19 +16,57 @@ export type Material = {
   title: string;
   type: Kind;
   url: string;
-  storagePath: string;
+  storagePath?: string;
   size: number;
+  subject?: string;
+  paperCode?: string;
+  duration?: string;
+  faculty?: string;
   teacherId: string;
   teacherName: string;
-  createdAt: Timestamp | null;
+  createdAt?: any;
 };
+
+const LOCAL_STORAGE_KEY = "cma_published_materials";
+
+export function getLocalMaterials(): Material[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalMaterial(m: Material): void {
+  if (typeof window === "undefined") return;
+  try {
+    const current = getLocalMaterials();
+    const updated = [m, ...current.filter((item) => item.id !== m.id)];
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new Event("cma_materials_updated"));
+  } catch {}
+}
+
+export function removeLocalMaterial(id: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const current = getLocalMaterials();
+    const updated = current.filter((item) => item.id !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new Event("cma_materials_updated"));
+  } catch {}
+}
 
 export function toMaterial(snap: QueryDocumentSnapshot | DocumentSnapshot): Material {
   return { id: snap.id, ...(snap.data() as Omit<Material, "id">) };
 }
 
 export function newestFirst(a: Material, b: Material) {
-  return (b.createdAt?.toMillis() ?? Date.now()) - (a.createdAt?.toMillis() ?? Date.now());
+  const timeA = typeof a.createdAt?.toMillis === "function" ? a.createdAt.toMillis() : (a.createdAt || 0);
+  const timeB = typeof b.createdAt?.toMillis === "function" ? b.createdAt.toMillis() : (b.createdAt || 0);
+  return (timeB || 0) - (timeA || 0);
 }
 
 export async function uploadMaterial(
@@ -67,5 +105,8 @@ export async function uploadMaterial(
 
 /** Removes the file, its AI pack and its listing (done on the server, which holds the storage key). */
 export async function deleteMaterial(m: Material) {
-  await postAi("/api/files/delete", { materialId: m.id });
+  removeLocalMaterial(m.id);
+  try {
+    await postAi("/api/files/delete", { materialId: m.id });
+  } catch {}
 }

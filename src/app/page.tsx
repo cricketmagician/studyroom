@@ -178,6 +178,22 @@ export default function CMALearningDashboard() {
                 </button>
               );
             })}
+
+            <div className="pt-2">
+              <Link
+                href="/admin"
+                className="w-full px-3.5 py-2 rounded-xl text-xs font-semibold text-[#8B5CF6] hover:bg-[#F4EFFE] flex items-center justify-between transition-colors border border-dashed border-[#8B5CF6]/30 cursor-pointer"
+                title="Open Admin & Faculty Upload Console"
+              >
+                <div className="flex items-center gap-2">
+                  <MaterialIcon name="school" className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                  <span>Admin Uploads</span>
+                </div>
+                <span className="text-[10px] font-mono bg-[#8B5CF6]/15 text-[#7C3AED] px-1.5 py-0.5 rounded font-bold">
+                  ADMIN ↗
+                </span>
+              </Link>
+            </div>
           </nav>
         </div>
 
@@ -243,6 +259,14 @@ export default function CMALearningDashboard() {
 
           {/* Right Header: Daily Check-in CTA, Search & Bell */}
           <div className="flex items-center gap-2.5">
+            <Link
+              href="/admin"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F4EFFE] hover:bg-[#EDE5FD] text-[#7C3AED] border border-[#E5DAFA] text-xs font-bold font-apfel transition-all cursor-pointer shadow-2xs"
+              title="CMA Admin & Faculty Upload Console"
+            >
+              <MaterialIcon name="school" className="w-3.5 h-3.5 text-[#8B5CF6]" />
+              <span>Admin</span>
+            </Link>
             <button
               onClick={() => setShowCheckinModal(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 text-amber-700 border border-amber-200/90 text-xs font-bold font-apfel transition-all cursor-pointer shadow-2xs"

@@ -43,7 +43,7 @@ function HomeFor({ uid }: { uid: string }) {
 
   const q = search.trim().toLowerCase();
   const shown = items?.filter(
-    (m) => (filter === "all" || m.type === filter) && (!q || m.title.toLowerCase().includes(q) || m.teacherName.toLowerCase().includes(q))
+    (m) => (filter === "all" || m.type === filter) && (!q || m.title.toLowerCase().includes(q) || (m.teacherName || "").toLowerCase().includes(q))
   );
 
   return (
