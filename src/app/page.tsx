@@ -20,6 +20,13 @@ import {
   Layers,
   CircleDot,
   Fingerprint,
+  LayoutDashboard,
+  Calendar,
+  Activity,
+  Settings,
+  LogOut,
+  Radio,
+  Menu,
 } from "lucide-react";
 
 // Web Audio API engine for tactile mechanical clicks & haptics
@@ -755,24 +762,30 @@ export default function SlabApp() {
   // =========================================================================
   // =========================================================================
   // SCREEN 4 & 5: AUTHENTICATED STILL PHYSICAL FOCUS COCKPIT
-  // Dual Experience: True Desktop Studio Dashboard (lg:) + Mobile App (<lg:)
+  // Full-Width Studio Dashboard with Desktop Sidebar & Top Header
   // =========================================================================
   return (
     <div
       suppressHydrationWarning
-      className="min-h-screen bg-[#FBFBFD] sm:py-6 lg:py-10 flex items-center justify-center font-absans"
+      className="min-h-screen w-full bg-[#FAF9F5] flex flex-col lg:flex-row font-absans text-[#111110] select-none"
     >
-      <div className="w-full max-w-[410px] lg:max-w-6xl min-h-screen sm:min-h-[820px] lg:min-h-[760px] bg-white sm:rounded-[36px] sm:border sm:border-[#E5E7EB] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.06)] flex flex-col lg:flex-row justify-between px-[26px] pt-[26px] pb-[21px] lg:p-10 relative overflow-hidden text-[#111110] select-none">
-        {/* =============================================================== */}
-        {/* LEFT PANE: FOCUS STAGE & HARDWARE CONTROL (Full on Desktop)     */}
-        {/* =============================================================== */}
-        <div className={`w-full lg:w-[50%] flex-col justify-between space-y-6 lg:pr-8 ${activeTab === "slab" ? "flex" : "hidden lg:flex"}`}>
-          {/* Top Header: Brand Monolith Mark & Telemetry Pill */}
-          <header className="flex items-center justify-between pb-2">
-            <div className="flex items-center gap-[10px]">
-              {/* Tactile Monolith Mark (Golden 30px Box) */}
-              <div className="w-[30px] h-[30px] rounded-xl bg-[#111110] text-white flex items-center justify-center shadow-xs">
-                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      {/* =============================================================== */}
+      {/* DESKTOP SIDEBAR (w-72, sticky, hidden on mobile)                 */}
+      {/* =============================================================== */}
+      <aside className="hidden lg:flex w-72 bg-[#FCFBF8] border-r border-[#EFECE6] flex-col justify-between p-6 shrink-0 sticky top-0 h-screen overflow-y-auto">
+        <div className="space-y-8">
+          {/* Sidebar Top: Monolith Brand Mark */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-[34px] h-[34px] rounded-xl bg-[#111110] text-white flex items-center justify-center shadow-xs">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
                   <path d="M4 3h-1v1" />
                   <path d="M20 3h1v1" />
                   <path d="M4 21h-1v-1" />
@@ -780,363 +793,565 @@ export default function SlabApp() {
                   <circle cx="12" cy="12" r="2.8" fill="currentColor" />
                 </svg>
               </div>
-              <span className="font-apfel text-xs tracking-[0.24em] font-black uppercase text-[#111110]">
+              <div>
+                <span className="font-apfel text-sm tracking-[0.24em] font-black uppercase text-[#111110] block">
+                  STILL
+                </span>
+                <span className="text-[10px] font-mono text-[#888888] tracking-wider uppercase block">
+                  HARDWARE SANCTUARY
+                </span>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F2EFE8] text-[#555] font-semibold">
+              v2.4
+            </span>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="space-y-1.5">
+            {[
+              {
+                id: "slab",
+                label: "Focus Sanctuary",
+                icon: LayoutDashboard,
+                badge: isSlabbed ? "LOCKED" : "READY",
+              },
+              {
+                id: "schedule",
+                label: "Focus Schedule",
+                icon: Calendar,
+                badge: `${studySlots.filter((s) => s.completed).length}/${studySlots.length}`,
+              },
+              {
+                id: "activity",
+                label: "Activity & Telemetry",
+                icon: Activity,
+                badge: "12h today",
+              },
+              {
+                id: "settings",
+                label: "Device & Settings",
+                icon: Settings,
+                badge: soundEnabled ? "SOUND ON" : "MUTED",
+              },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id as typeof activeTab);
+                    if (soundEnabled) audioEngine.playHaptic("click");
+                  }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl text-[13px] font-medium flex items-center justify-between transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-[#111110] text-white shadow-xs"
+                      : "text-[#666666] hover:bg-[#F3EFE7] hover:text-[#111110]"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-[#777777]"}`} />
+                    <span className="font-absans">{tab.label}</span>
+                  </div>
+                  {tab.badge && (
+                    <span
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-md ${
+                        isActive
+                          ? "bg-white/20 text-white font-semibold"
+                          : "bg-[#EFEBE4] text-[#666666]"
+                      }`}
+                    >
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Hardware BLE Status Card */}
+          <div className="p-4 rounded-2xl bg-gradient-to-b from-[#F8F6F2] to-[#EAE5DC] border border-[#E8E2D6] space-y-3 shadow-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[11px] font-apfel font-bold uppercase tracking-wider text-[#111110]">
+                  Ceramic Puck BLE
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-700 font-semibold">94%</span>
+            </div>
+            <div className="text-[11px] text-[#666666] leading-relaxed">
+              Tactile physical lock linked. Zero screen distraction bypass.
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar Footer: User Profile & Logout */}
+        <div className="pt-4 border-t border-[#EFECE6] space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-[#111110] text-white flex items-center justify-center font-apfel text-xs font-bold shadow-xs">
+                {currentUser.name.slice(0, 2)}
+              </div>
+              <div className="truncate max-w-[120px]">
+                <div className="text-xs font-apfel font-bold text-[#111110] truncate">
+                  {currentUser.name}
+                </div>
+                <div className="text-[10px] text-[#777777] font-absans truncate">
+                  {currentUser.email}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 font-apfel font-bold text-amber-500 text-[11px] px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200/60">
+              <Flame className="w-3 h-3 fill-amber-500" />
+              <span>6D</span>
+            </div>
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="w-full py-2 rounded-xl border border-[#E5E7EB] hover:border-red-400 hover:bg-red-50 text-[12px] text-red-600 transition-colors flex items-center justify-center gap-2 cursor-pointer font-medium"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign out</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* =============================================================== */}
+      {/* MAIN STUDIO CONTENT AREA WITH TOP HEADER (Full-Width Studio)    */}
+      {/* =============================================================== */}
+      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+        {/* Top Header Bar */}
+        <header className="h-16 px-6 lg:px-10 border-b border-[#EFECE6] bg-white/80 backdrop-blur-md flex items-center justify-between sticky top-0 z-30 select-none">
+          {/* Left: Mobile Brand Mark / Desktop Breadcrumb */}
+          <div className="flex items-center gap-3">
+            <div className="lg:hidden flex items-center gap-2">
+              <div className="w-[28px] h-[28px] rounded-lg bg-[#111110] text-white flex items-center justify-center shadow-xs">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <circle cx="12" cy="12" r="3" fill="currentColor" />
+                </svg>
+              </div>
+              <span className="font-apfel text-xs tracking-widest font-black uppercase text-[#111110]">
                 STILL
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Click Sound Toggle */}
-              <button
-                onClick={() => {
-                  setSoundEnabled(!soundEnabled);
-                  audioEngine.playHaptic("click");
-                }}
-                className="p-1.5 rounded-full border border-[#E5E7EB] text-[#777777] hover:text-[#111110] transition-colors cursor-pointer"
-                title={soundEnabled ? "Mute clicks" : "Enable clicks"}
-              >
-                {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-              </button>
-
-              {/* Iconic Reclaimed Telemetry Pill ("12h 51m today") */}
-              <div className="px-3 py-1 rounded-full text-xs font-absans font-medium bg-[#FAFAFA] border border-[#E5E7EB] text-[#111110] shadow-xs">
-                {formatReclaimed(reclaimedSeconds)}
-              </div>
-            </div>
-          </header>
-
-          {/* Visual Stage: Golden Height with Premium Warm Alabaster Plinth */}
-          <div className="w-full h-[250px] sm:h-[260px] flex items-center justify-center relative select-none">
-            {/* Soft Ambient Warm Halo */}
-            <div className="absolute w-[85%] h-[220px] rounded-full bg-gradient-to-tr from-[#FCEEE7]/60 via-[#F6F2E9]/70 to-[#ECE4D8]/50 blur-2xl -z-10 pointer-events-none" />
-
-            {/* Premium Tactile Ceramic Plinth Backdrop */}
-            <div className="w-full h-[240px] rounded-[32px] bg-gradient-to-b from-[#F8F6F2] via-[#F3EFE8] to-[#EAE5DC] border border-[#E8E2D6]/70 shadow-[0_12px_30px_-8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.9)] relative flex items-center justify-center p-4 overflow-hidden">
-              {/* Hand-Drawn Tegaki Delicate Organic Ring Accent */}
-              <svg
-                viewBox="0 0 200 200"
-                className="absolute inset-0 w-full h-full text-[#111110]/[0.03] pointer-events-none"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <circle cx="100" cy="100" r="88" strokeDasharray="5 5" />
-                <path d="M 30 170 Q 100 190 170 170" strokeLinecap="round" strokeDasharray="6 4" />
-              </svg>
-
-              {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
-              <div className="absolute top-[16%] left-[18%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none z-10">
-                ✦
-              </div>
-              <div className="absolute top-[26%] right-[18%] w-2 h-2 rounded-full bg-[#FF5F56] select-none pointer-events-none z-10" />
-
-              {/* The 3D Tactile Ceramic Physical STILL Puck */}
-              <div
-                onClick={handleToggleSlab}
-                className={`w-44 h-44 rounded-[28px] transition-all duration-300 flex flex-col items-center justify-center relative select-none cursor-pointer ${
-                  isSlabbed
-                    ? "bg-white border-2 border-emerald-500 shadow-[0_15px_30px_-5px_rgba(16,185,129,0.2),inset_0_2px_4px_rgba(0,0,0,0.05)] scale-98"
-                    : "bg-gradient-to-b from-white to-[#F2EFE8] border border-white/90 shadow-[0_22px_45px_-12px_rgba(0,0,0,0.14),0_8px_16px_-4px_rgba(0,0,0,0.06),inset_0_2px_2px_rgba(255,255,255,0.95)] hover:scale-[1.02] active:scale-95"
-                }`}
-              >
-                {/* Engraved Corner Brackets */}
-                <svg
-                  viewBox="0 0 100 100"
-                  className={`absolute inset-3 w-[calc(100%-24px)] h-[calc(100%-24px)] pointer-events-none transition-colors ${
-                    isSlabbed ? "text-emerald-500/70" : "text-[#B8B4AC]"
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                >
-                  <path d="M22 12H14a4 4 0 0 0-4 4v8" />
-                  <path d="M78 12h8a4 4 0 0 1 4 4v8" />
-                  <path d="M22 88H14a4 4 0 0 1-4-4v-8" />
-                  <path d="M78 88h8a4 4 0 0 0 4-4v-8" />
-                </svg>
-
-                {/* Central Engraved STILL Text or Countdown */}
-                {isSlabbed ? (
-                  <div className="space-y-1 z-10 text-center">
-                    <div className="font-apfel text-3xl font-bold tracking-tight text-emerald-600">
-                      {formatTimer(secondsRemaining)}
-                    </div>
-                    <div className="text-[10px] font-mono tracking-widest text-emerald-600 font-bold uppercase flex items-center justify-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      STILL ACTIVE
-                    </div>
-                  </div>
-                ) : (
-                  <div className="z-10 flex flex-col items-center">
-                    <span className="font-apfel text-2xl font-black tracking-[0.28em] pl-1 text-[#2B2926]">
-                      STILL
-                    </span>
-                    <span className="text-[9px] font-mono tracking-widest text-[#88857F] uppercase mt-0.5">
-                      TAP TO LOCK
-                    </span>
-                  </div>
-                )}
-              </div>
+            <div className="hidden lg:flex items-center gap-2 text-xs">
+              <span className="text-[#888888] font-absans">Studio</span>
+              <span className="text-[#CCCCCC]">/</span>
+              <span className="font-apfel font-bold text-[#111110]">
+                {activeTab === "slab" && "Focus Sanctuary"}
+                {activeTab === "schedule" && "Focus Schedule & Routines"}
+                {activeTab === "activity" && "Activity Metrics & Impulses"}
+                {activeTab === "settings" && "Hardware & Preferences"}
+              </span>
+              <span className="ml-2 w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+              <span className="text-[10px] font-mono text-emerald-700 uppercase font-semibold">
+                Hardware Linked
+              </span>
             </div>
           </div>
 
-          {/* Typography: Mode Information & Golden Hierarchy */}
-          <div className="w-full text-left">
-            <h1 className="text-[32px] sm:text-[34px] leading-[1.15] font-apfel font-bold tracking-tight text-[#111110]">
-              <span className="block animate-text-reveal-1">
-                {isSlabbed ? "Focus locked." : "Silence the noise."}
-              </span>
-              <span className="block animate-text-reveal-2 text-[#111110]">
-                <span className="relative inline-block text-[#111110]">
-                  {activeMode.title}
-                  {/* Tegaki Dynamic Organic Brush Stroke Underline */}
-                  <svg
-                    viewBox="0 0 110 14"
-                    className="absolute -bottom-2 left-0 w-full overflow-visible text-[#FF5F56] pointer-events-none tegaki-stroke-animated"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M 3 8 C 30 13, 75 13, 106 6" />
-                  </svg>
-                </span>
-              </span>
-            </h1>
-            <p className="mt-[10px] text-[14px] leading-[22px] font-absans text-[#666666] animate-text-reveal-3">
-              {activeMode.subtitle} • {activeMode.durationMinutes}m focus block.
-            </p>
-
+          {/* Right Header Controls */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Click Sound Toggle */}
             <button
-              onClick={() => setShowModeDrawer(true)}
-              className="mt-[8px] text-xs font-absans font-medium text-[#111110] hover:text-[#555] flex items-center gap-1 transition-colors cursor-pointer"
+              onClick={() => {
+                setSoundEnabled(!soundEnabled);
+                audioEngine.playHaptic("click");
+              }}
+              className="p-2 rounded-xl border border-[#E5E7EB] bg-white text-[#666666] hover:text-[#111110] transition-colors cursor-pointer shadow-2xs"
+              title={soundEnabled ? "Mute clicks" : "Enable clicks"}
             >
-              <span>Manage modes</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </button>
-          </div>
 
-          {/* Action Zone: Primary Button & Secondary Grid */}
-          <div className="w-full space-y-[12px]">
-            {/* Primary Black Button */}
+            {/* Binaural 40Hz Audio Drone Toggle */}
+            <button
+              onClick={() => {
+                const next = !binauralAudio;
+                setBinauralAudio(next);
+                audioEngine.toggleBinauralDrone(next);
+              }}
+              className={`h-9 px-3 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer text-xs font-absans font-medium shadow-2xs ${
+                binauralAudio
+                  ? "bg-[#F5FBF7] border-emerald-400 text-emerald-700"
+                  : "border-[#E5E7EB] bg-white hover:bg-gray-50 text-[#111110]"
+              }`}
+            >
+              <Headphones className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">
+                {binauralAudio ? "40Hz Drone On" : "40Hz Drone Off"}
+              </span>
+            </button>
+
+            {/* Reclaimed Telemetry Pill */}
+            <div className="px-3.5 py-1.5 rounded-xl text-xs font-absans font-semibold bg-[#FAFAFA] border border-[#E5E7EB] text-[#111110] shadow-2xs">
+              {formatReclaimed(reclaimedSeconds)}
+            </div>
+
+            {/* Top Quick Focus Action */}
             <button
               onClick={handleToggleSlab}
-              className={`w-full h-[52px] px-4 rounded-2xl font-absans font-semibold text-[14px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-[0.99] ${
+              className={`hidden sm:flex h-9 px-4 rounded-xl text-xs font-absans font-semibold items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
                 isSlabbed
                   ? "bg-[#D9383A] text-white hover:bg-[#C53032]"
                   : "bg-[#111110] text-white hover:bg-black"
               }`}
             >
-              <span>{isSlabbed ? "Tap to Unstill (End Sprint)" : "Tap or hold to Still"}</span>
+              <span>{isSlabbed ? "End Sprint" : "Lock Still"}</span>
             </button>
-
-            {/* Secondary Row: 4 Apps Blocked & 40Hz Audio Drone */}
-            <div className="grid grid-cols-2 gap-[12px]">
-              <button
-                onClick={() => simulateOpenApp(apps[0])}
-                className="h-[46px] px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-              >
-                <Shield className="w-4 h-4 text-[#111110]" />
-                <span>4 Apps Blocked</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  const next = !binauralAudio;
-                  setBinauralAudio(next);
-                  audioEngine.toggleBinauralDrone(next);
-                }}
-                className={`h-[46px] px-4 rounded-xl border transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99] font-absans font-medium text-[13px] ${
-                  binauralAudio
-                    ? "bg-[#F5FBF7] border-emerald-400 text-emerald-700"
-                    : "border-[#E5E7EB] bg-white hover:bg-gray-50 text-[#111110]"
-                }`}
-              >
-                <Headphones className="w-4 h-4" />
-                <span>{binauralAudio ? "Drone 40Hz On" : "Drone 40Hz Off"}</span>
-              </button>
-            </div>
           </div>
-        </div>
+        </header>
 
-        {/* =============================================================== */}
-        {/* RIGHT PANE: DESKTOP STUDIO DASHBOARD (lg:block, hidden on mobile)*/}
-        {/* =============================================================== */}
-        <div className="hidden lg:flex lg:w-[50%] flex-col justify-between space-y-6 lg:pl-10 lg:border-l lg:border-[#F2F1EC]">
-          {/* Top User Profile & Streak Bar */}
-          <div className="flex items-center justify-between pb-2 border-b border-[#F3F4F6]">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#111110] text-white flex items-center justify-center font-apfel text-xs font-bold shadow-xs">
-                {currentUser.name.slice(0, 2)}
-              </div>
-              <div>
-                <div className="text-xs font-apfel font-bold text-[#111110]">{currentUser.name}</div>
-                <div className="text-[11px] text-[#777777] font-absans">{currentUser.email}</div>
-              </div>
-            </div>
+        {/* Dashboard Content Body */}
+        <main className="flex-1 p-6 lg:p-10 max-w-[1400px] w-full mx-auto space-y-8">
+          {/* ============================================================= */}
+          {/* TAB 1: FOCUS SANCTUARY (Main Cockpit View)                     */}
+          {/* ============================================================= */}
+          {activeTab === "slab" && (
+            <div className="space-y-8 animate-in fade-in duration-200">
+              {/* Top Dual Grid: Focus Stage & Status Matrix */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                {/* Left Card: Hardware Focus Stage */}
+                <div className="lg:col-span-7 bg-white rounded-[32px] p-6 lg:p-8 border border-[#EBE7DF] shadow-[0_12px_36px_-12px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-6">
+                  {/* Top Mode Header inside Left Card */}
+                  <div className="flex items-center justify-between pb-2">
+                    <span className="text-xs font-mono text-[#888888] uppercase tracking-wider">
+                      Physical Focus Stage
+                    </span>
+                    <button
+                      onClick={() => setShowModeDrawer(true)}
+                      className="text-xs font-absans font-semibold text-[#111110] hover:text-[#555] flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <span>Change Mode</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 font-apfel font-bold text-amber-500 text-xs px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/60">
-                <Flame className="w-3.5 h-3.5 fill-amber-500" />
-                <span>6 DAY STREAK</span>
-              </div>
-              <button
-                onClick={handleSignOut}
-                className="px-3 py-1 rounded-full border border-red-500/20 text-xs font-mono text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
-              >
-                Log out
-              </button>
-            </div>
-          </div>
+                  {/* Visual Stage: Warm Alabaster Plinth with 3D STILL Puck */}
+                  <div className="w-full h-[260px] sm:h-[280px] flex items-center justify-center relative select-none">
+                    {/* Soft Ambient Warm Halo */}
+                    <div className="absolute w-[85%] h-[240px] rounded-full bg-gradient-to-tr from-[#FCEEE7]/60 via-[#F6F2E9]/70 to-[#ECE4D8]/50 blur-2xl -z-10 pointer-events-none" />
 
-          {/* Interactive Study Schedule */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-apfel font-bold text-[#111110] uppercase tracking-wider">
-                Today&apos;s Focus Schedule
-              </h3>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#FAFAFA] border border-[#E5E7EB] text-[#555555]">
-                {studySlots.filter((s) => s.completed).length}/{studySlots.length} DONE
-              </span>
-            </div>
+                    {/* Premium Tactile Ceramic Plinth Backdrop */}
+                    <div className="w-full h-[260px] rounded-[32px] bg-gradient-to-b from-[#F8F6F2] via-[#F3EFE8] to-[#EAE5DC] border border-[#E8E2D6]/70 shadow-[0_12px_30px_-8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.9)] relative flex items-center justify-center p-4 overflow-hidden">
+                      {/* Tegaki Delicate Organic Ring Accent */}
+                      <svg
+                        viewBox="0 0 200 200"
+                        className="absolute inset-0 w-full h-full text-[#111110]/[0.03] pointer-events-none"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                      >
+                        <circle cx="100" cy="100" r="88" strokeDasharray="5 5" />
+                        <path
+                          d="M 30 170 Q 100 190 170 170"
+                          strokeLinecap="round"
+                          strokeDasharray="6 4"
+                        />
+                      </svg>
 
-            <div className="space-y-2.5">
-              {studySlots.map((slot) => (
-                <div
-                  key={slot.id}
-                  className="p-3 rounded-xl border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] transition-all flex items-center justify-between shadow-xs"
-                >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#FAFAFA] border border-[#E5E7EB] text-[#555555]">
-                        {slot.timeSlot}
-                      </span>
-                      <span className="text-[10px] font-mono text-[#888888]">{slot.durationMinutes}m</span>
+                      {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
+                      <div className="absolute top-[16%] left-[18%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none z-10">
+                        ✦
+                      </div>
+                      <div className="absolute top-[26%] right-[18%] w-2 h-2 rounded-full bg-[#FF5F56] select-none pointer-events-none z-10" />
+
+                      {/* The 3D Tactile Ceramic Physical STILL Puck */}
+                      <div
+                        onClick={handleToggleSlab}
+                        className={`w-44 h-44 rounded-[28px] transition-all duration-300 flex flex-col items-center justify-center relative select-none cursor-pointer ${
+                          isSlabbed
+                            ? "bg-white border-2 border-emerald-500 shadow-[0_15px_30px_-5px_rgba(16,185,129,0.2),inset_0_2px_4px_rgba(0,0,0,0.05)] scale-98"
+                            : "bg-gradient-to-b from-white to-[#F2EFE8] border border-white/90 shadow-[0_22px_45px_-12px_rgba(0,0,0,0.14),0_8px_16px_-4px_rgba(0,0,0,0.06),inset_0_2px_2px_rgba(255,255,255,0.95)] hover:scale-[1.02] active:scale-95"
+                        }`}
+                      >
+                        {/* Engraved Corner Brackets */}
+                        <svg
+                          viewBox="0 0 100 100"
+                          className={`absolute inset-3 w-[calc(100%-24px)] h-[calc(100%-24px)] pointer-events-none transition-colors ${
+                            isSlabbed ? "text-emerald-500/70" : "text-[#B8B4AC]"
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                        >
+                          <path d="M 10 25 L 10 10 L 25 10" />
+                          <path d="M 75 10 L 90 10 L 90 25" />
+                          <path d="M 10 75 L 10 90 L 25 90" />
+                          <path d="M 75 90 L 90 90 L 90 75" />
+                        </svg>
+
+                        {/* Ceramic Circular Core Button */}
+                        <div
+                          className={`w-28 h-28 rounded-full flex flex-col items-center justify-center text-center p-2 transition-all duration-300 ${
+                            isSlabbed
+                              ? "bg-emerald-50 text-emerald-700 shadow-inner"
+                              : "bg-[#FAFAFA] text-[#111110] shadow-[0_4px_10px_rgba(0,0,0,0.04)]"
+                          }`}
+                        >
+                          <span className="font-mono text-[10px] tracking-widest uppercase font-semibold text-[#777777]">
+                            {isSlabbed ? "SPRINT ACTIVE" : "STILL HARDWARE"}
+                          </span>
+                          <span className="font-apfel text-3xl font-bold tracking-tight mt-0.5">
+                            {formatTimer(secondsRemaining)}
+                          </span>
+                          <span className="text-[10px] font-absans text-[#888888] mt-0.5">
+                            {isSlabbed ? "Distractions 0" : "Tap to Engage"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div
-                      className={`text-xs font-apfel font-bold ${
-                        slot.completed ? "line-through text-[#999999]" : "text-[#111110]"
+                  </div>
+
+                  {/* Headline & Mode Details with Tegaki Underline */}
+                  <div className="w-full text-left">
+                    <h1 className="text-[30px] sm:text-[34px] leading-[1.18] font-apfel font-bold tracking-tight text-[#111110]">
+                      <span className="block">{isSlabbed ? "Focus locked." : "Silence the noise."}</span>
+                      <span className="block text-[#111110]">
+                        <span className="relative inline-block text-[#111110]">
+                          {activeMode.title}
+                          {/* Tegaki Dynamic Organic Brush Stroke Underline */}
+                          <svg
+                            viewBox="0 0 110 14"
+                            className="absolute -bottom-2 left-0 w-full overflow-visible text-[#FF5F56] pointer-events-none tegaki-stroke-animated"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M 3 8 C 30 13, 75 13, 106 6" />
+                          </svg>
+                        </span>
+                      </span>
+                    </h1>
+                    <p className="mt-[10px] text-[14px] leading-[22px] font-absans text-[#666666]">
+                      {activeMode.subtitle} • {activeMode.durationMinutes}m focus block.
+                    </p>
+                  </div>
+
+                  {/* Action Zone: Primary Button & Secondary Grid */}
+                  <div className="w-full space-y-[12px] pt-2">
+                    <button
+                      onClick={handleToggleSlab}
+                      className={`w-full h-[52px] px-4 rounded-2xl font-absans font-semibold text-[14px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-[0.99] ${
+                        isSlabbed
+                          ? "bg-[#D9383A] text-white hover:bg-[#C53032]"
+                          : "bg-[#111110] text-white hover:bg-black"
                       }`}
                     >
-                      {slot.subject}
+                      <span>{isSlabbed ? "Tap to Unstill (End Sprint)" : "Tap or hold to Still"}</span>
+                    </button>
+
+                    <div className="grid grid-cols-2 gap-[12px]">
+                      <button
+                        onClick={() => simulateOpenApp(apps[0])}
+                        className="h-[46px] px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                      >
+                        <Shield className="w-4 h-4 text-[#111110]" />
+                        <span>4 Apps Blocked</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const next = !binauralAudio;
+                          setBinauralAudio(next);
+                          audioEngine.toggleBinauralDrone(next);
+                        }}
+                        className={`h-[46px] px-4 rounded-xl border transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99] font-absans font-medium text-[13px] ${
+                          binauralAudio
+                            ? "bg-[#F5FBF7] border-emerald-400 text-emerald-700"
+                            : "border-[#E5E7EB] bg-white hover:bg-gray-50 text-[#111110]"
+                        }`}
+                      >
+                        <Headphones className="w-4 h-4" />
+                        <span>{binauralAudio ? "Drone 40Hz On" : "Drone 40Hz Off"}</span>
+                      </button>
                     </div>
-                    <div className="text-[11px] text-[#666666] font-absans">{slot.topic}</div>
+                  </div>
+                </div>
+
+                {/* Right Column: Schedule & Real-Time Protection Hub */}
+                <div className="lg:col-span-5 space-y-6 flex flex-col justify-between">
+                  {/* Today's Focus Schedule Card */}
+                  <div className="bg-white rounded-[32px] p-6 border border-[#EBE7DF] shadow-[0_12px_36px_-12px_rgba(0,0,0,0.04)] space-y-4">
+                    <div className="flex items-center justify-between pb-1 border-b border-[#F3F4F6]">
+                      <div>
+                        <h3 className="text-sm font-apfel font-bold text-[#111110] uppercase tracking-wider">
+                          Today&apos;s Focus Schedule
+                        </h3>
+                        <p className="text-[11px] text-[#777777] font-absans">
+                          Spaced academic intervals & revision blocks
+                        </p>
+                      </div>
+                      <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-[#FAFAFA] border border-[#E5E7EB] text-[#555555] font-semibold">
+                        {studySlots.filter((s) => s.completed).length}/{studySlots.length} DONE
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {studySlots.map((slot) => (
+                        <div
+                          key={slot.id}
+                          className="p-3.5 rounded-2xl border border-[#E5E7EB] bg-[#FCFBF9] hover:border-[#D1D5DB] transition-all flex items-center justify-between shadow-2xs"
+                        >
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded bg-white border border-[#E5E7EB] text-[#555555]">
+                                {slot.timeSlot}
+                              </span>
+                              <span className="text-[10px] font-mono text-[#888888]">
+                                {slot.durationMinutes}m
+                              </span>
+                            </div>
+                            <div
+                              className={`text-xs font-apfel font-bold ${
+                                slot.completed ? "line-through text-[#999999]" : "text-[#111110]"
+                              }`}
+                            >
+                              {slot.subject}
+                            </div>
+                            <div className="text-[11px] text-[#666666] font-absans">{slot.topic}</div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              audioEngine.playHaptic("complete");
+                              setStudySlots((prev) =>
+                                prev.map((s) =>
+                                  s.id === slot.id ? { ...s, completed: !s.completed } : s
+                                )
+                              );
+                            }}
+                            className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                              slot.completed
+                                ? "bg-emerald-500 text-white"
+                                : "bg-white border border-[#E5E7EB] text-[#888888] hover:text-[#111110]"
+                            }`}
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      audioEngine.playHaptic("complete");
-                      setStudySlots((prev) =>
-                        prev.map((s) => (s.id === slot.id ? { ...s, completed: !s.completed } : s))
-                      );
-                    }}
-                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                      slot.completed
-                        ? "bg-emerald-500 text-white"
-                        : "bg-[#FAFAFA] border border-[#E5E7EB] text-[#888888] hover:text-[#111110]"
-                    }`}
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+                  {/* Impulse Intercept Audit Log */}
+                  <div className="bg-white rounded-[32px] p-6 border border-[#EBE7DF] shadow-[0_12px_36px_-12px_rgba(0,0,0,0.04)] space-y-3">
+                    <div className="flex items-center justify-between pb-1 border-b border-[#F3F4F6]">
+                      <span className="text-xs font-apfel font-bold uppercase tracking-wider text-[#777777]">
+                        Impulse Intercept Log
+                      </span>
+                      <span className="text-[10px] font-mono text-emerald-600 font-semibold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        ACTIVE SHIELD
+                      </span>
+                    </div>
 
-          {/* Distraction Matrix Checklist */}
-          <div className="p-3.5 rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] space-y-2">
-            <div className="flex items-center justify-between text-xs font-apfel font-bold uppercase tracking-wider">
-              <span>Distraction Shield</span>
-              <span className="font-mono text-[10px] text-[#777777]">
-                {apps.filter((a) => a.blocked).length} apps locked
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {apps.map((app) => (
-                <button
-                  key={app.id}
-                  onClick={() => handleToggleApp(app.id)}
-                  className={`p-2 rounded-xl text-[11px] font-absans flex items-center justify-between border cursor-pointer transition-colors ${
-                    app.blocked
-                      ? "bg-white border-[#E5E7EB] text-[#111110] font-medium shadow-xs"
-                      : "bg-transparent border-dashed border-[#E5E7EB] text-[#999999]"
-                  }`}
-                >
-                  <span className="truncate">{app.name.split(" ")[0]}</span>
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      app.blocked ? "bg-emerald-500" : "bg-transparent border border-gray-300"
-                    }`}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Reclaimed Time & Distraction Prevented Log */}
-          <div className="rounded-2xl border border-[#E5E7EB] bg-white p-3.5 space-y-2 shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-apfel font-bold uppercase tracking-wider text-[#777777]">
-                Impulse Intercept Log
-              </span>
-              <span className="text-[10px] font-mono text-emerald-600 font-semibold">
-                ACTIVE PROTECTION
-              </span>
-            </div>
-            <div className="divide-y divide-[#F3F4F6] max-h-28 overflow-y-auto pr-1">
-              {interceptLogs.slice(0, 3).map((log) => (
-                <div key={log.id} className="py-2 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                    <span className="font-apfel font-semibold text-[#111110]">{log.app}</span>
-                    <span className="text-[11px] text-[#777777]">intercepted</span>
+                    <div className="divide-y divide-[#F3F4F6]">
+                      {interceptLogs.slice(0, 3).map((log) => (
+                        <div key={log.id} className="py-2.5 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-2 h-2 rounded-full bg-red-500" />
+                            <span className="font-apfel font-bold text-[#111110]">{log.app}</span>
+                            <span className="text-[11px] text-[#777777]">
+                              blocked during {log.focusSubject}
+                            </span>
+                          </div>
+                          <span className="font-mono text-[10px] text-[#888888]">{log.time}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <span className="font-mono text-[10px] text-[#888888]">{log.time}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ================================================================= */}
-        {/* TAB 2: SCHEDULE (Daily Academic Timetable & Routines)             */}
-        {/* ================================================================= */}
-        {activeTab === "schedule" && (
-          <main className="lg:hidden w-full my-auto py-2 space-y-4 animate-in fade-in duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-apfel font-bold text-[#111110] tracking-tight">
-                  Focus Schedule
-                </h2>
-                <p className="text-xs text-[#777777] font-absans">
-                  Today&apos;s spaced academic revision intervals.
-                </p>
               </div>
-              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-[#FAFAFA] border border-[#E5E7EB] text-[#111110]">
-                {studySlots.filter((s) => s.completed).length}/{studySlots.length} DONE
-              </span>
-            </div>
 
-            <div className="space-y-3">
-              {studySlots.map((slot) => (
-                <div
-                  key={slot.id}
-                  className="p-4 rounded-2xl border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] transition-all shadow-xs"
-                >
-                  <div className="flex items-start justify-between gap-3">
+              {/* Bottom Full-Width Studio Row: Distraction Shield Grid */}
+              <div className="bg-white rounded-[32px] p-6 lg:p-8 border border-[#EBE7DF] shadow-[0_12px_36px_-12px_rgba(0,0,0,0.04)] space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-apfel font-bold text-[#111110] uppercase tracking-wider">
+                      Distraction Shield Matrix
+                    </h3>
+                    <p className="text-xs text-[#777777] font-absans">
+                      Click any application to toggle impenetrable hardware blocking.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#FAFAFA] border border-[#E5E7EB] text-[#111110] font-semibold">
+                    {apps.filter((a) => a.blocked).length} APPS LOCKED
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                  {apps.map((app) => (
+                    <button
+                      key={app.id}
+                      onClick={() => handleToggleApp(app.id)}
+                      className={`p-3.5 rounded-2xl text-xs font-absans flex items-center justify-between border cursor-pointer transition-all ${
+                        app.blocked
+                          ? "bg-white border-[#111110] text-[#111110] font-semibold shadow-xs"
+                          : "bg-[#FAFAFA] border-dashed border-[#E5E7EB] text-[#888888]"
+                      }`}
+                    >
+                      <span className="truncate">{app.name}</span>
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          app.blocked ? "bg-emerald-500" : "bg-transparent border border-gray-300"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================= */}
+          {/* TAB 2: SCHEDULE (Dedicated View)                              */}
+          {/* ============================================================= */}
+          {activeTab === "schedule" && (
+            <div className="bg-white rounded-[32px] p-6 lg:p-8 border border-[#EBE7DF] shadow-[0_12px_36px_-12px_rgba(0,0,0,0.04)] space-y-6 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-apfel font-bold text-[#111110] tracking-tight">
+                    Focus Schedule & Routines
+                  </h2>
+                  <p className="text-xs text-[#777777] font-absans">
+                    Today&apos;s scheduled deep work blocks and spaced academic intervals.
+                  </p>
+                </div>
+                <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#FAFAFA] border border-[#E5E7EB] text-[#111110] font-semibold">
+                  {studySlots.filter((s) => s.completed).length}/{studySlots.length} COMPLETED
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {studySlots.map((slot) => (
+                  <div
+                    key={slot.id}
+                    className="p-5 rounded-2xl border border-[#E5E7EB] bg-[#FCFBF9] hover:border-[#D1D5DB] transition-all flex items-center justify-between shadow-2xs"
+                  >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-[#FAFAFA] border border-[#E5E7EB] text-[#555555]">
+                        <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-white border border-[#E5E7EB] text-[#555555]">
                           {slot.timeSlot}
                         </span>
                         <span className="text-[10px] font-mono text-[#888888]">
-                          {slot.durationMinutes}m
+                          {slot.durationMinutes}m block
                         </span>
                       </div>
                       <h3
-                        className={`text-sm font-apfel font-bold ${
+                        className={`text-base font-apfel font-bold ${
                           slot.completed ? "line-through text-[#999999]" : "text-[#111110]"
                         }`}
                       >
@@ -1152,167 +1367,137 @@ export default function SlabApp() {
                           prev.map((s) => (s.id === slot.id ? { ...s, completed: !s.completed } : s))
                         );
                       }}
-                      className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                      className={`p-2.5 rounded-xl transition-colors cursor-pointer ${
                         slot.completed
                           ? "bg-emerald-500 text-white"
-                          : "bg-[#FAFAFA] border border-[#E5E7EB] text-[#888888] hover:text-[#111110]"
+                          : "bg-white border border-[#E5E7EB] text-[#888888] hover:text-[#111110]"
                       }`}
                     >
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-5 h-5" />
                     </button>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Shielded Apps Checklist */}
-            <div className="p-4 rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA]">
-              <div className="flex items-center justify-between text-xs font-apfel font-bold uppercase tracking-wider mb-2.5">
-                <span>Shielded Distractions</span>
-                <span className="font-mono text-[10px] text-[#777777]">
-                  {apps.filter((a) => a.blocked).length} active
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {apps.map((app) => (
-                  <button
-                    key={app.id}
-                    onClick={() => handleToggleApp(app.id)}
-                    className={`p-2.5 rounded-xl text-[11px] font-absans flex items-center justify-between border cursor-pointer transition-colors ${
-                      app.blocked
-                        ? "bg-white border-[#E5E7EB] text-[#111110] font-medium shadow-xs"
-                        : "bg-transparent border-dashed border-[#E5E7EB] text-[#999999]"
-                    }`}
-                  >
-                    <span>{app.name.split(" ")[0]}</span>
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        app.blocked ? "bg-emerald-500" : "bg-transparent border border-gray-300"
-                      }`}
-                    />
-                  </button>
                 ))}
               </div>
             </div>
-          </main>
-        )}
+          )}
 
-        {/* ================================================================= */}
-        {/* TAB 3: ACTIVITY (Reclaimed Metrics & Blocked Impulse Log)         */}
-        {/* ================================================================= */}
-        {activeTab === "activity" && (
-          <main className="lg:hidden w-full my-auto py-2 space-y-4 animate-in fade-in duration-200">
-            <div className="flex items-center justify-between">
+          {/* ============================================================= */}
+          {/* TAB 3: ACTIVITY (Dedicated View)                              */}
+          {/* ============================================================= */}
+          {activeTab === "activity" && (
+            <div className="bg-white rounded-[32px] p-6 lg:p-8 border border-[#EBE7DF] shadow-[0_12px_36px_-12px_rgba(0,0,0,0.04)] space-y-6 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-apfel font-bold text-[#111110] tracking-tight">
+                    Activity & Telemetry
+                  </h2>
+                  <p className="text-xs text-[#777777] font-absans">
+                    Reclaimed attention hours and intercepted distraction impulses.
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 font-apfel font-bold text-amber-500 text-xs px-3 py-1 rounded-full bg-amber-50 border border-amber-200/60">
+                  <Flame className="w-4 h-4 fill-amber-500" />
+                  <span>6 DAY STREAK</span>
+                </div>
+              </div>
+
+              {/* Main Stat Highlight Card */}
+              <div className="p-6 rounded-2xl border border-[#E5E7EB] bg-gradient-to-b from-[#F8F6F2] to-[#EAE5DC]">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-[#777777]">
+                  NET RECLAIMED TIME TODAY
+                </div>
+                <div className="text-4xl font-apfel font-bold mt-1 text-[#111110]">
+                  {Math.floor(reclaimedSeconds / 3600)}h {Math.floor((reclaimedSeconds % 3600) / 60)}m
+                </div>
+                <div className="text-xs text-emerald-700 font-medium mt-1">
+                  Protected from endless social media reels and addictive algorithms.
+                </div>
+              </div>
+
+              {/* Intercept Audit Trail */}
+              <div className="rounded-2xl border border-[#E5E7EB] bg-[#FCFBF9] divide-y divide-[#F3F4F6] overflow-hidden">
+                <div className="p-4 text-xs font-apfel font-bold uppercase tracking-wider text-[#777777] bg-white">
+                  Prevented Distraction Attempts
+                </div>
+                {interceptLogs.map((log) => (
+                  <div key={log.id} className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="w-2 h-2 rounded-full bg-red-500" />
+                      <div>
+                        <div className="text-xs font-apfel font-bold text-[#111110]">{log.app} Blocked</div>
+                        <div className="text-[11px] text-[#777777]">During {log.focusSubject}</div>
+                      </div>
+                    </div>
+                    <span className="font-mono text-xs text-[#888888]">{log.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================= */}
+          {/* TAB 4: SETTINGS (Dedicated View)                              */}
+          {/* ============================================================= */}
+          {activeTab === "settings" && (
+            <div className="bg-white rounded-[32px] p-6 lg:p-8 border border-[#EBE7DF] shadow-[0_12px_36px_-12px_rgba(0,0,0,0.04)] space-y-6 animate-in fade-in duration-200">
               <div>
                 <h2 className="text-2xl font-apfel font-bold text-[#111110] tracking-tight">
-                  Activity & Focus
+                  Settings & Hardware
                 </h2>
                 <p className="text-xs text-[#777777] font-absans">
-                  Reclaimed time and intercepted screen impulses.
+                  STILL ceramic puck profile, tactile feedback, and account preferences.
                 </p>
               </div>
-              <div className="flex items-center gap-1 font-apfel font-bold text-amber-500 text-xs px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/60">
-                <Flame className="w-3.5 h-3.5 fill-amber-500" />
-                <span>6 DAY STREAK</span>
-              </div>
-            </div>
 
-            {/* Main Stats Card */}
-            <div className="p-5 rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA]">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-[#777777]">
-                NET RECLAIMED TIME TODAY
-              </div>
-              <div className="text-3xl font-apfel font-bold mt-1 text-[#111110]">
-                {Math.floor(reclaimedSeconds / 3600)}h {Math.floor((reclaimedSeconds % 3600) / 60)}m
-              </div>
-              <div className="text-xs text-emerald-600 font-medium mt-1">
-                Saved from infinite reels & social feeds
-              </div>
-            </div>
-
-            {/* Impulse Intercept Audit Trail */}
-            <div className="rounded-2xl border border-[#E5E7EB] bg-white divide-y divide-[#F3F4F6] overflow-hidden shadow-xs">
-              <div className="p-3.5 text-xs font-apfel font-bold uppercase tracking-wider text-[#777777]">
-                Prevented Distraction Attempts
-              </div>
-              {interceptLogs.map((log) => (
-                <div key={log.id} className="p-3.5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-2 rounded-full bg-red-500" />
-                    <div>
-                      <div className="text-xs font-apfel font-bold text-[#111110]">{log.app} Blocked</div>
-                      <div className="text-[10px] text-[#777777]">During {log.focusSubject}</div>
-                    </div>
+              <div className="rounded-2xl border border-[#E5E7EB] bg-[#FCFBF9] divide-y divide-[#F3F4F6] overflow-hidden">
+                <div className="p-4 flex items-center justify-between bg-white">
+                  <div>
+                    <div className="text-sm font-apfel font-bold text-[#111110]">Active Profile</div>
+                    <div className="text-xs text-[#777777]">{currentUser.email}</div>
                   </div>
-                  <span className="font-mono text-xs text-[#888888]">{log.time}</span>
+                  <button
+                    onClick={handleSignOut}
+                    className="px-3 py-1.5 rounded-full border border-red-500/30 text-xs font-mono text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                  >
+                    Log out
+                  </button>
                 </div>
-              ))}
-            </div>
-          </main>
-        )}
 
-        {/* ================================================================= */}
-        {/* TAB 4: SETTINGS (Hardware Profile & Log Out)                      */}
-        {/* ================================================================= */}
-        {activeTab === "settings" && (
-          <main className="lg:hidden w-full my-auto py-2 space-y-4 animate-in fade-in duration-200">
-            <div>
-              <h2 className="text-2xl font-apfel font-bold text-[#111110] tracking-tight">
-                Settings & Device
-              </h2>
-              <p className="text-xs text-[#777777] font-absans">
-                STILL hardware profile and account management.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-[#E5E7EB] bg-white divide-y divide-[#F3F4F6] overflow-hidden shadow-xs">
-              <div className="p-4 flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-apfel font-bold text-[#111110]">Active Profile</div>
-                  <div className="text-xs text-[#777777]">{currentUser.email}</div>
-                </div>
-                <button
-                  onClick={handleSignOut}
-                  className="px-3 py-1.5 rounded-full border border-red-500/30 text-xs font-mono text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                <div
+                  onClick={() => {
+                    setSoundEnabled(!soundEnabled);
+                    audioEngine.playHaptic("click");
+                  }}
+                  className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
                 >
-                  Log out
-                </button>
-              </div>
-
-              <div
-                onClick={() => {
-                  setSoundEnabled(!soundEnabled);
-                  audioEngine.playHaptic("click");
-                }}
-                className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
-              >
-                <div>
-                  <div className="text-sm font-apfel font-bold text-[#111110]">Tactile Audio Clicks</div>
-                  <div className="text-xs text-[#777777]">Synthesized mechanical haptics</div>
+                  <div>
+                    <div className="text-sm font-apfel font-bold text-[#111110]">Tactile Audio Clicks</div>
+                    <div className="text-xs text-[#777777]">Synthesized mechanical haptics</div>
+                  </div>
+                  <span className="text-xs font-mono font-medium text-[#111110]">
+                    {soundEnabled ? "ENABLED" : "MUTED"}
+                  </span>
                 </div>
-                <span className="text-xs font-mono font-medium text-[#111110]">
-                  {soundEnabled ? "ENABLED" : "MUTED"}
-                </span>
-              </div>
 
-              <div
-                onClick={() => simulateOpenApp(apps[0])}
-                className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
-              >
-                <div>
-                  <div className="text-sm font-apfel font-bold text-[#111110]">Test Impenetrable Block</div>
-                  <div className="text-xs text-[#777777]">Trigger full-screen interception overlay</div>
+                <div
+                  onClick={() => simulateOpenApp(apps[0])}
+                  className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                >
+                  <div>
+                    <div className="text-sm font-apfel font-bold text-[#111110]">Test Impenetrable Block</div>
+                    <div className="text-xs text-[#777777]">Trigger full-screen interception overlay</div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#888888]" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-[#888888]" />
               </div>
             </div>
-          </main>
-        )}
+          )}
+        </main>
 
-        {/* ================================================================= */}
-        {/* BOTTOM NAVIGATION BAR (Exact 4 Tabs: Still, Schedule, Activity, Settings - Mobile Only) */}
-        {/* ================================================================= */}
-        <footer className="lg:hidden pt-[18px] flex items-center justify-around select-none border-t border-[#F3F4F6] text-[#888888]">
+        {/* =============================================================== */}
+        {/* MOBILE BOTTOM NAVIGATION BAR (<lg: screens only)                */}
+        {/* =============================================================== */}
+        <footer className="lg:hidden sticky bottom-0 z-30 bg-white/95 backdrop-blur-md border-t border-[#EFECE6] py-3 px-6 flex items-center justify-around select-none">
           {[
             { id: "slab", label: "Still" },
             { id: "schedule", label: "Schedule" },
@@ -1327,7 +1512,7 @@ export default function SlabApp() {
                   setActiveTab(tab.id as typeof activeTab);
                   if (soundEnabled) audioEngine.playHaptic("click");
                 }}
-                className={`flex flex-col items-center gap-1.5 cursor-pointer transition-colors ${
+                className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
                   isActive ? "text-[#111110] font-semibold" : "text-[#888888] hover:text-[#333333]"
                 }`}
               >
