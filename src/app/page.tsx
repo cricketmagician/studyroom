@@ -474,62 +474,79 @@ export default function BrickApp() {
   }
 
   // =========================================================================
-  // SCREEN 2: THE BRICK ONBOARDING & LOGIN SCREEN (Matches User Photo Screen 2)
+  // SCREEN 2: THE BRICK ONBOARDING & LOGIN SCREEN (Matches User Photo 1:1)
   // =========================================================================
   if (!currentUser) {
     return (
       <div
         suppressHydrationWarning
-        className="min-h-screen bg-[#111111] text-white font-absans flex flex-col justify-between p-6 max-w-sm mx-auto select-none"
+        className="min-h-screen bg-[#141414] text-white font-absans flex flex-col justify-between max-w-sm mx-auto select-none relative overflow-hidden shadow-2xl"
       >
-        {/* Top Header */}
-        <header className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+        {/* Full-bleed Desk & Hardware Hero Image from User's Screenshot */}
+        <div
+          className="absolute inset-0 bg-cover bg-top bg-no-repeat"
+          style={{ backgroundImage: "url('/images/brick-hero.jpg')" }}
+        />
+
+        {/* Top Vignette Gradient */}
+        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
+
+        {/* Bottom Rich Dark Vignette Gradient */}
+        <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-[#141414] via-[#141414]/92 via-60% to-transparent pointer-events-none" />
+
+        {/* Top iOS Status Bar & Centered BRICK Logo */}
+        <header className="relative z-10 px-6 pt-3">
+          {/* iOS Status Row */}
+          <div className="flex items-center justify-between text-xs font-semibold text-white/90 pb-3">
+            <span>9:41</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-mono">5G</span>
+              <div className="w-5 h-2.5 rounded-sm border border-white/80 p-0.5 flex items-center">
+                <div className="w-full h-full bg-white rounded-2xs" />
+              </div>
+            </div>
+          </div>
+
+          {/* Centered BRICK Wordmark with Corner Brackets */}
+          <div className="flex items-center justify-center gap-2 pt-2">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            >
               <path d="M6 3H3v3" />
               <path d="M18 3h3v3" />
               <path d="M6 21H3v-3" />
               <path d="M18 21h3v-3" />
             </svg>
-            <span className="font-apfel text-xs tracking-[0.25em] font-bold">BRICK</span>
+            <span className="font-apfel text-sm tracking-[0.25em] font-black text-white uppercase">
+              BRICK
+            </span>
           </div>
-
-          <button
-            onClick={handleInstantDemoLogin}
-            className="text-[11px] font-mono text-[#888888] hover:text-white px-2 py-1 rounded border border-[#222222] transition-colors"
-          >
-            DEMO PASS
-          </button>
         </header>
 
-        {/* Central Hero: The Physical Hardware Device Photo Metaphor */}
-        <div className="my-auto py-6 text-center space-y-6">
-          <div className="relative w-52 h-52 mx-auto rounded-3xl bg-[#181818] border border-[#262626] p-6 flex flex-col items-center justify-center shadow-2xl">
-            {/* The 3D Physical Brick Puck */}
-            <div className="w-32 h-32 rounded-2xl bg-[#EBE8E3] text-[#111111] shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex items-center justify-center relative p-3">
-              <svg viewBox="0 0 48 48" className="absolute inset-2 w-[calc(100%-16px)] h-[calc(100%-16px)] text-[#B0ADA8]" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                <path d="M12 6H6a2 2 0 0 0-2 2v6" />
-                <path d="M36 6h6a2 2 0 0 1 2 2v6" />
-                <path d="M12 42H6a2 2 0 0 1-2-2v-6" />
-                <path d="M36 42h6a2 2 0 0 0 2-2v-6" />
-              </svg>
-              <span className="font-apfel text-sm font-black tracking-widest text-[#222222]">BRICK</span>
-            </div>
-          </div>
+        {/* Spacer */}
+        <div className="flex-1" />
 
-          {/* Typography from Screen 2 */}
-          <div className="space-y-2">
-            <h1 className="text-3xl font-apfel font-medium tracking-tight text-white leading-tight">
-              Your time is yours.<br />Get back to playing.
+        {/* Bottom Content Area (Exact Headline, Subtitle, Buttons from Photo) */}
+        <div className="relative z-10 px-6 pb-6 space-y-6">
+          {/* Headline from Screenshot */}
+          <div className="space-y-1.5 text-left">
+            <h1 className="text-[32px] leading-[1.12] font-apfel font-normal tracking-tight text-white">
+              Your time is yours.<br />
+              Get back to creating.
             </h1>
-            <p className="text-xs font-absans text-[#888888] max-w-xs mx-auto">
-              A physical barrier between you and your phone&apos;s infinite scroll.
-            </p>
           </div>
 
-          {/* Email Login Form Modal / Drawer */}
-          {showEmailForm && (
-            <form onSubmit={handleLoginSubmit} className="space-y-3 p-4 rounded-2xl bg-[#1A1A1A] border border-[#2A2A2A] text-left animate-in fade-in duration-150">
+          {/* Email Login Form (If expanded) */}
+          {showEmailForm ? (
+            <form
+              onSubmit={handleLoginSubmit}
+              className="space-y-3 p-4 rounded-2xl bg-[#1B1B1B]/95 border border-white/15 backdrop-blur-md animate-in fade-in duration-150"
+            >
               <div className="text-xs font-apfel font-bold uppercase tracking-wider text-white">
                 Enter your credentials
               </div>
@@ -538,7 +555,7 @@ export default function BrickApp() {
                 placeholder="email@domain.com"
                 value={inputEmail}
                 onChange={(e) => setInputEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#121212] border border-[#2C2C2C] text-sm text-white focus:outline-none focus:border-white transition-colors"
+                className="w-full px-3.5 py-3 rounded-xl bg-[#121212] border border-[#2E2E2E] text-sm text-white focus:outline-none focus:border-white transition-colors"
                 autoFocus
                 required
               />
@@ -547,50 +564,49 @@ export default function BrickApp() {
                 placeholder="Passcode / PIN"
                 value={inputPassword}
                 onChange={(e) => setInputPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#121212] border border-[#2C2C2C] text-sm text-white focus:outline-none focus:border-white transition-colors"
+                className="w-full px-3.5 py-3 rounded-xl bg-[#121212] border border-[#2E2E2E] text-sm text-white focus:outline-none focus:border-white transition-colors tracking-widest"
                 required
               />
               <div className="flex items-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setShowEmailForm(false)}
-                  className="w-1/3 py-2.5 rounded-full border border-[#333333] text-xs font-absans text-[#888888] hover:text-white"
+                  className="w-1/3 py-3 rounded-full border border-white/20 text-xs font-absans text-[#888888] hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="w-2/3 py-2.5 rounded-full bg-white text-[#111111] font-apfel font-bold text-xs uppercase"
+                  className="w-2/3 py-3 rounded-full bg-white text-[#111111] font-apfel font-bold text-xs uppercase"
                 >
                   Continue
                 </button>
               </div>
             </form>
-          )}
-        </div>
-
-        {/* Bottom Actions (Exact Buttons from Screen 2 in photo!) */}
-        <div className="space-y-3 pb-2">
-          {!showEmailForm && (
-            <>
+          ) : (
+            /* Action Buttons (Exact Pills from Photo) */
+            <div className="space-y-3">
               <button
                 onClick={() => setShowEmailForm(true)}
-                className="w-full py-4 rounded-full bg-white text-[#111111] font-absans font-semibold text-sm hover:bg-[#EAEAEA] transition-all cursor-pointer shadow-md active:scale-98"
+                className="w-full py-4 rounded-full bg-white text-[#111111] font-absans font-semibold text-sm hover:bg-[#EAEAEA] active:scale-[0.98] transition-all cursor-pointer shadow-lg text-center"
               >
                 Continue with email
               </button>
 
               <button
                 onClick={handleInstantDemoLogin}
-                className="w-full py-4 rounded-full bg-[#1C1C1C] text-white font-absans font-semibold text-sm border border-[#2A2A2A] hover:bg-[#252525] transition-all cursor-pointer shadow-sm active:scale-98"
+                className="w-full py-4 rounded-full bg-[#1E1E1E]/80 backdrop-blur-md text-white font-absans font-semibold text-sm border border-white/20 hover:bg-[#282828] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
                 I don&apos;t have a Brick
               </button>
-            </>
+            </div>
           )}
 
-          <p className="text-[10px] text-center text-[#555555] pt-1 leading-relaxed">
-            By continuing, you agree to our Terms and Privacy Policy
+          {/* Legal Notice */}
+          <p className="text-[11px] text-center text-[#7E7E7E] leading-relaxed pt-1">
+            By continuing, you agree to our{" "}
+            <span className="underline cursor-pointer hover:text-white">Terms</span> and{" "}
+            <span className="underline cursor-pointer hover:text-white">Privacy Policy</span>
           </p>
         </div>
       </div>
