@@ -5,6 +5,11 @@ import Link from "next/link";
 import { MaterialIcon, MaterialIconName } from "@/components/material-icon";
 import { StudyTracker } from "@/components/study-tracker";
 import { PracticeView } from "@/components/practice-view";
+import { StudyLibraryView } from "@/components/study-library-view";
+import { VideoLecturesView } from "@/components/video-lectures-view";
+import { FriendChallengesView } from "@/components/friend-challenges-view";
+import { StudyPlannerView } from "@/components/study-planner-view";
+import { NotificationsPopover } from "@/components/notifications-popover";
 import { DailyCheckinModal, CheckinResult } from "@/components/daily-checkin-modal";
 import { ActiveStudySession } from "@/components/active-study-session";
 import { dayKey } from "@/lib/streak";
@@ -89,6 +94,7 @@ export default function CMALearningDashboard() {
   const [activeTab, setActiveTab] = useState<string>("home");
   const [activeModuleModal, setActiveModuleModal] = useState<StudyModule | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showNotifications, setShowNotifications] = useState(false);
   const [showCheckinModal, setShowCheckinModal] = useState(false);
   const [activeStudySession, setActiveStudySession] = useState<CheckinResult | null>(null);
   const [streakDays, setStreakDays] = useState(7);
@@ -256,25 +262,49 @@ export default function CMALearningDashboard() {
               />
             </div>
 
-            <button
-              className="w-10 h-10 rounded-full bg-white border border-[#EBE8E1] flex items-center justify-center text-[#666560] hover:text-[#111110] transition-colors relative cursor-pointer shadow-2xs"
-              title="Notifications"
-            >
-              <MaterialIcon name="notifications" className="w-4 h-4" />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#FF5F56] ring-2 ring-white" />
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="w-10 h-10 rounded-full bg-white border border-[#EBE8E1] flex items-center justify-center text-[#666560] hover:text-[#111110] transition-colors relative cursor-pointer shadow-2xs"
+                title="Notifications"
+              >
+                <MaterialIcon name="notifications" className="w-4 h-4" />
+                <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#FF5F56] ring-2 ring-white" />
+              </button>
+
+              <NotificationsPopover
+                isOpen={showNotifications}
+                onClose={() => setShowNotifications(false)}
+              />
+            </div>
           </div>
         </header>
 
         {/* Dashboard Main Canvas */}
         <main className="flex-1 p-6 lg:p-10 max-w-6xl w-full mx-auto space-y-8">
-          {activeTab === "analytics" ? (
+          {activeTab === "library" ? (
             <div className="py-2">
-              <StudyTracker onBack={() => setActiveTab("home")} />
+              <StudyLibraryView onBack={() => setActiveTab("home")} />
+            </div>
+          ) : activeTab === "lectures" ? (
+            <div className="py-2">
+              <VideoLecturesView onBack={() => setActiveTab("home")} />
             </div>
           ) : activeTab === "practice" ? (
             <div className="py-2">
               <PracticeView onBack={() => setActiveTab("home")} />
+            </div>
+          ) : activeTab === "analytics" ? (
+            <div className="py-2">
+              <StudyTracker onBack={() => setActiveTab("home")} />
+            </div>
+          ) : activeTab === "challenges" ? (
+            <div className="py-2">
+              <FriendChallengesView onBack={() => setActiveTab("home")} />
+            </div>
+          ) : activeTab === "planner" ? (
+            <div className="py-2">
+              <StudyPlannerView onBack={() => setActiveTab("home")} />
             </div>
           ) : (
             <>
@@ -376,9 +406,12 @@ export default function CMALearningDashboard() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-apfel font-bold text-[#111110]">Continue Learning</h2>
-              <span className="text-xs font-absans text-[#88867E] hover:text-[#111110] cursor-pointer">
+              <button
+                onClick={() => setActiveTab("library")}
+                className="text-xs font-absans text-[#88867E] hover:text-[#111110] cursor-pointer"
+              >
                 View All Courses
-              </span>
+              </button>
             </div>
 
             <div className="w-full rounded-[30px] bg-gradient-to-br from-[#D8EFE4] to-[#CDE8DC] border border-[#BDE0D0] p-6 sm:p-8 relative overflow-hidden shadow-[0_8px_24px_-6px_rgba(16,185,129,0.12)]">
@@ -425,7 +458,7 @@ export default function CMALearningDashboard() {
                   </div>
 
                   <button
-                    onClick={() => setActiveModuleModal(MODULES[1])}
+                    onClick={() => setActiveTab("lectures")}
                     className="w-11 h-11 rounded-full bg-white text-[#0F291E] hover:scale-105 active:scale-95 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center cursor-pointer group"
                     title="Resume Course"
                   >
@@ -456,18 +489,15 @@ export default function CMALearningDashboard() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {MODULES.map((mod) => (
+              {MODULES.filter(
+                (m) =>
+                  !searchQuery ||
+                  m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  m.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
+              ).map((mod) => (
                 <div
                   key={mod.id}
-                  onClick={() => {
-                    if (mod.id === "analytics") {
-                      setActiveTab("analytics");
-                    } else if (mod.id === "practice") {
-                      setActiveTab("practice");
-                    } else {
-                      setActiveModuleModal(mod);
-                    }
-                  }}
+                  onClick={() => setActiveTab(mod.id)}
                   className="p-5 rounded-[24px] bg-white border border-[#EBE8E1] hover:border-[#D0CABE] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
                 >
                   <div className="flex items-start justify-between">
@@ -596,9 +626,9 @@ export default function CMALearningDashboard() {
             {[
               { id: "home", iconName: "home" as MaterialIconName, label: "Home" },
               { id: "library", iconName: "study-library" as MaterialIconName, label: "Library" },
-              { id: "lectures", iconName: "play" as MaterialIconName, label: "Lectures" },
+              { id: "practice", iconName: "practice-zone" as MaterialIconName, label: "Practice" },
               { id: "analytics", iconName: "study-analytics" as MaterialIconName, label: "Stats" },
-              { id: "profile", iconName: "profile" as MaterialIconName, label: "Profile" },
+              { id: "planner", iconName: "study-planner" as MaterialIconName, label: "Planner" },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
