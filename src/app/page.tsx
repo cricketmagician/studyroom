@@ -753,214 +753,386 @@ export default function SlabApp() {
 
   // =========================================================================
   // =========================================================================
+  // =========================================================================
   // SCREEN 4 & 5: AUTHENTICATED STILL PHYSICAL FOCUS COCKPIT
-  // Continuing 1:1 with the Apple-grade Minimalist Visual System
+  // Dual Experience: True Desktop Studio Dashboard (lg:) + Mobile App (<lg:)
   // =========================================================================
   return (
     <div
       suppressHydrationWarning
-      className="min-h-screen bg-[#FBFBFD] sm:py-8 flex items-center justify-center font-absans"
+      className="min-h-screen bg-[#FBFBFD] sm:py-6 lg:py-10 flex items-center justify-center font-absans"
     >
-      <div className="w-full max-w-[400px] min-h-screen sm:min-h-[820px] bg-white sm:rounded-[36px] sm:border sm:border-[#E5E7EB] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.06)] flex flex-col justify-between px-[26px] pt-[26px] pb-[21px] relative overflow-hidden text-[#111110] select-none">
-        {/* Top Header: Brand Monolith Mark & Reclaimed Time Telemetry Pill */}
-        <header className="flex items-center justify-between pb-[13px]">
-          <div className="flex items-center gap-[10px]">
-            {/* Tactile Monolith Mark (Golden 30px Box) */}
-            <div className="w-[30px] h-[30px] rounded-xl bg-[#111110] text-white flex items-center justify-center shadow-xs">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M4 3h-1v1" />
-                <path d="M20 3h1v1" />
-                <path d="M4 21h-1v-1" />
-                <path d="M20 21h1v-1" />
-                <circle cx="12" cy="12" r="2.8" fill="currentColor" />
-              </svg>
-            </div>
-            <span className="font-apfel text-xs tracking-[0.24em] font-black uppercase text-[#111110]">
-              STILL
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Click Sound Toggle */}
-            <button
-              onClick={() => {
-                setSoundEnabled(!soundEnabled);
-                audioEngine.playHaptic("click");
-              }}
-              className="p-1.5 rounded-full border border-[#E5E7EB] text-[#777777] hover:text-[#111110] transition-colors cursor-pointer"
-              title={soundEnabled ? "Mute clicks" : "Enable clicks"}
-            >
-              {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-            </button>
-
-            {/* Iconic Reclaimed Telemetry Pill ("12h 51m today") */}
-            <div className="px-3 py-1 rounded-full text-xs font-absans font-medium bg-[#FAFAFA] border border-[#E5E7EB] text-[#111110] shadow-xs">
-              {formatReclaimed(reclaimedSeconds)}
-            </div>
-          </div>
-        </header>
-
-        {/* ================================================================= */}
-        {/* TAB 1: STILL HOME (The Tactile Ceramic Puck on Alabaster Plinth)   */}
-        {/* ================================================================= */}
-        {activeTab === "slab" && (
-          <main className="my-auto flex flex-col items-center w-full animate-in fade-in duration-200">
-            {/* Visual Stage: Golden Height with Premium Warm Alabaster Plinth */}
-            <div className="w-full h-[250px] sm:h-[260px] flex items-center justify-center relative select-none">
-              {/* Soft Ambient Warm Halo */}
-              <div className="absolute w-[85%] h-[220px] rounded-full bg-gradient-to-tr from-[#FCEEE7]/60 via-[#F6F2E9]/70 to-[#ECE4D8]/50 blur-2xl -z-10 pointer-events-none" />
-
-              {/* Premium Tactile Ceramic Plinth Backdrop */}
-              <div className="w-full h-[240px] rounded-[32px] bg-gradient-to-b from-[#F8F6F2] via-[#F3EFE8] to-[#EAE5DC] border border-[#E8E2D6]/70 shadow-[0_12px_30px_-8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.9)] relative flex items-center justify-center p-4 overflow-hidden">
-                {/* Hand-Drawn Tegaki Delicate Organic Ring Accent */}
-                <svg
-                  viewBox="0 0 200 200"
-                  className="absolute inset-0 w-full h-full text-[#111110]/[0.03] pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <circle cx="100" cy="100" r="88" strokeDasharray="5 5" />
-                  <path d="M 30 170 Q 100 190 170 170" strokeLinecap="round" strokeDasharray="6 4" />
+      <div className="w-full max-w-[410px] lg:max-w-6xl min-h-screen sm:min-h-[820px] lg:min-h-[760px] bg-white sm:rounded-[36px] sm:border sm:border-[#E5E7EB] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.06)] flex flex-col lg:flex-row justify-between px-[26px] pt-[26px] pb-[21px] lg:p-10 relative overflow-hidden text-[#111110] select-none">
+        {/* =============================================================== */}
+        {/* LEFT PANE: FOCUS STAGE & HARDWARE CONTROL (Full on Desktop)     */}
+        {/* =============================================================== */}
+        <div className="w-full lg:w-[50%] flex flex-col justify-between space-y-6 lg:pr-8">
+          {/* Top Header: Brand Monolith Mark & Telemetry Pill */}
+          <header className="flex items-center justify-between pb-2">
+            <div className="flex items-center gap-[10px]">
+              {/* Tactile Monolith Mark (Golden 30px Box) */}
+              <div className="w-[30px] h-[30px] rounded-xl bg-[#111110] text-white flex items-center justify-center shadow-xs">
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M4 3h-1v1" />
+                  <path d="M20 3h1v1" />
+                  <path d="M4 21h-1v-1" />
+                  <path d="M20 21h1v-1" />
+                  <circle cx="12" cy="12" r="2.8" fill="currentColor" />
                 </svg>
+              </div>
+              <span className="font-apfel text-xs tracking-[0.24em] font-black uppercase text-[#111110]">
+                STILL
+              </span>
+            </div>
 
-                {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
-                <div className="absolute top-[16%] left-[18%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none z-10">
-                  ✦
-                </div>
-                <div className="absolute top-[26%] right-[18%] w-2 h-2 rounded-full bg-[#FF5F56] select-none pointer-events-none z-10" />
+            <div className="flex items-center gap-2">
+              {/* Click Sound Toggle */}
+              <button
+                onClick={() => {
+                  setSoundEnabled(!soundEnabled);
+                  audioEngine.playHaptic("click");
+                }}
+                className="p-1.5 rounded-full border border-[#E5E7EB] text-[#777777] hover:text-[#111110] transition-colors cursor-pointer"
+                title={soundEnabled ? "Mute clicks" : "Enable clicks"}
+              >
+                {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+              </button>
 
-                {/* The 3D Tactile Ceramic Physical STILL Puck */}
-                <div
-                  onClick={handleToggleSlab}
-                  className={`w-44 h-44 rounded-[28px] transition-all duration-300 flex flex-col items-center justify-center relative select-none cursor-pointer ${
-                    isSlabbed
-                      ? "bg-white border-2 border-emerald-500 shadow-[0_15px_30px_-5px_rgba(16,185,129,0.2),inset_0_2px_4px_rgba(0,0,0,0.05)] scale-98"
-                      : "bg-gradient-to-b from-white to-[#F2EFE8] border border-white/90 shadow-[0_22px_45px_-12px_rgba(0,0,0,0.14),0_8px_16px_-4px_rgba(0,0,0,0.06),inset_0_2px_2px_rgba(255,255,255,0.95)] hover:scale-[1.02] active:scale-95"
-                  }`}
-                >
-                  {/* Engraved Corner Brackets */}
-                  <svg
-                    viewBox="0 0 100 100"
-                    className={`absolute inset-3 w-[calc(100%-24px)] h-[calc(100%-24px)] pointer-events-none transition-colors ${
-                      isSlabbed ? "text-emerald-500/70" : "text-[#B8B4AC]"
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                  >
-                    <path d="M22 12H14a4 4 0 0 0-4 4v8" />
-                    <path d="M78 12h8a4 4 0 0 1 4 4v8" />
-                    <path d="M22 88H14a4 4 0 0 1-4-4v-8" />
-                    <path d="M78 88h8a4 4 0 0 0 4-4v-8" />
-                  </svg>
-
-                  {/* Central Engraved STILL Text or Countdown */}
-                  {isSlabbed ? (
-                    <div className="space-y-1 z-10 text-center">
-                      <div className="font-apfel text-3xl font-bold tracking-tight text-emerald-600">
-                        {formatTimer(secondsRemaining)}
-                      </div>
-                      <div className="text-[10px] font-mono tracking-widest text-emerald-600 font-bold uppercase flex items-center justify-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        STILL ACTIVE
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="z-10 flex flex-col items-center">
-                      <span className="font-apfel text-2xl font-black tracking-[0.28em] pl-1 text-[#2B2926]">
-                        STILL
-                      </span>
-                      <span className="text-[9px] font-mono tracking-widest text-[#88857F] uppercase mt-0.5">
-                        TAP TO LOCK
-                      </span>
-                    </div>
-                  )}
-                </div>
+              {/* Iconic Reclaimed Telemetry Pill ("12h 51m today") */}
+              <div className="px-3 py-1 rounded-full text-xs font-absans font-medium bg-[#FAFAFA] border border-[#E5E7EB] text-[#111110] shadow-xs">
+                {formatReclaimed(reclaimedSeconds)}
               </div>
             </div>
+          </header>
 
-            {/* Typography: Mode Information & Golden Hierarchy */}
-            <div className="mt-[28px] sm:mt-[34px] w-full text-left">
-              <h1 className="text-[34px] leading-[1.15] font-apfel font-bold tracking-tight text-[#111110]">
-                <span className="block animate-text-reveal-1">
-                  {isSlabbed ? "Focus locked." : "Silence the noise."}
-                </span>
-                <span className="block animate-text-reveal-2 text-[#111110]">
-                  <span className="relative inline-block text-[#111110]">
-                    {activeMode.title}
-                    {/* Tegaki Dynamic Organic Brush Stroke Underline */}
-                    <svg
-                      viewBox="0 0 110 14"
-                      className="absolute -bottom-2 left-0 w-full overflow-visible text-[#FF5F56] pointer-events-none tegaki-stroke-animated"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M 3 8 C 30 13, 75 13, 106 6" />
-                    </svg>
-                  </span>
-                </span>
-              </h1>
-              <p className="mt-[13px] text-[14px] leading-[22px] font-absans text-[#666666] animate-text-reveal-3">
-                {activeMode.subtitle} • {activeMode.durationMinutes}m focus block.
-              </p>
+          {/* Visual Stage: Golden Height with Premium Warm Alabaster Plinth */}
+          <div className="w-full h-[250px] sm:h-[260px] flex items-center justify-center relative select-none">
+            {/* Soft Ambient Warm Halo */}
+            <div className="absolute w-[85%] h-[220px] rounded-full bg-gradient-to-tr from-[#FCEEE7]/60 via-[#F6F2E9]/70 to-[#ECE4D8]/50 blur-2xl -z-10 pointer-events-none" />
 
-              <button
-                onClick={() => setShowModeDrawer(true)}
-                className="mt-[8px] text-xs font-absans font-medium text-[#111110] hover:text-[#555] flex items-center gap-1 transition-colors cursor-pointer"
+            {/* Premium Tactile Ceramic Plinth Backdrop */}
+            <div className="w-full h-[240px] rounded-[32px] bg-gradient-to-b from-[#F8F6F2] via-[#F3EFE8] to-[#EAE5DC] border border-[#E8E2D6]/70 shadow-[0_12px_30px_-8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.9)] relative flex items-center justify-center p-4 overflow-hidden">
+              {/* Hand-Drawn Tegaki Delicate Organic Ring Accent */}
+              <svg
+                viewBox="0 0 200 200"
+                className="absolute inset-0 w-full h-full text-[#111110]/[0.03] pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
               >
-                <span>Manage modes</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+                <circle cx="100" cy="100" r="88" strokeDasharray="5 5" />
+                <path d="M 30 170 Q 100 190 170 170" strokeLinecap="round" strokeDasharray="6 4" />
+              </svg>
 
-            {/* Action Zone: Primary Button & Secondary Grid (Golden Gap mt-34px) */}
-            <div className="w-full mt-[28px] sm:mt-[34px] space-y-[13px]">
-              {/* Primary Black Button (Golden Height 52px) */}
-              <button
+              {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
+              <div className="absolute top-[16%] left-[18%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none z-10">
+                ✦
+              </div>
+              <div className="absolute top-[26%] right-[18%] w-2 h-2 rounded-full bg-[#FF5F56] select-none pointer-events-none z-10" />
+
+              {/* The 3D Tactile Ceramic Physical STILL Puck */}
+              <div
                 onClick={handleToggleSlab}
-                className={`w-full h-[52px] px-4 rounded-2xl font-absans font-semibold text-[14px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-[0.99] ${
+                className={`w-44 h-44 rounded-[28px] transition-all duration-300 flex flex-col items-center justify-center relative select-none cursor-pointer ${
                   isSlabbed
-                    ? "bg-[#D9383A] text-white hover:bg-[#C53032]"
-                    : "bg-[#111110] text-white hover:bg-black"
+                    ? "bg-white border-2 border-emerald-500 shadow-[0_15px_30px_-5px_rgba(16,185,129,0.2),inset_0_2px_4px_rgba(0,0,0,0.05)] scale-98"
+                    : "bg-gradient-to-b from-white to-[#F2EFE8] border border-white/90 shadow-[0_22px_45px_-12px_rgba(0,0,0,0.14),0_8px_16px_-4px_rgba(0,0,0,0.06),inset_0_2px_2px_rgba(255,255,255,0.95)] hover:scale-[1.02] active:scale-95"
                 }`}
               >
-                <span>{isSlabbed ? "Tap to Unstill (End Sprint)" : "Tap or hold to Still"}</span>
-              </button>
-
-              {/* Secondary Row: 4 Apps Blocked & 40Hz Audio Drone */}
-              <div className="grid grid-cols-2 gap-[13px]">
-                <button
-                  onClick={() => simulateOpenApp(apps[0])}
-                  className="h-[46px] px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                >
-                  <Shield className="w-4 h-4 text-[#111110]" />
-                  <span>4 Apps Blocked</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    const next = !binauralAudio;
-                    setBinauralAudio(next);
-                    audioEngine.toggleBinauralDrone(next);
-                  }}
-                  className={`h-[46px] px-4 rounded-xl border transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99] font-absans font-medium text-[13px] ${
-                    binauralAudio
-                      ? "bg-[#F5FBF7] border-emerald-400 text-emerald-700"
-                      : "border-[#E5E7EB] bg-white hover:bg-gray-50 text-[#111110]"
+                {/* Engraved Corner Brackets */}
+                <svg
+                  viewBox="0 0 100 100"
+                  className={`absolute inset-3 w-[calc(100%-24px)] h-[calc(100%-24px)] pointer-events-none transition-colors ${
+                    isSlabbed ? "text-emerald-500/70" : "text-[#B8B4AC]"
                   }`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeLinecap="round"
                 >
-                  <Headphones className="w-4 h-4" />
-                  <span>{binauralAudio ? "40Hz Drone On" : "40Hz Drone Off"}</span>
-                </button>
+                  <path d="M22 12H14a4 4 0 0 0-4 4v8" />
+                  <path d="M78 12h8a4 4 0 0 1 4 4v8" />
+                  <path d="M22 88H14a4 4 0 0 1-4-4v-8" />
+                  <path d="M78 88h8a4 4 0 0 0 4-4v-8" />
+                </svg>
+
+                {/* Central Engraved STILL Text or Countdown */}
+                {isSlabbed ? (
+                  <div className="space-y-1 z-10 text-center">
+                    <div className="font-apfel text-3xl font-bold tracking-tight text-emerald-600">
+                      {formatTimer(secondsRemaining)}
+                    </div>
+                    <div className="text-[10px] font-mono tracking-widest text-emerald-600 font-bold uppercase flex items-center justify-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      STILL ACTIVE
+                    </div>
+                  </div>
+                ) : (
+                  <div className="z-10 flex flex-col items-center">
+                    <span className="font-apfel text-2xl font-black tracking-[0.28em] pl-1 text-[#2B2926]">
+                      STILL
+                    </span>
+                    <span className="text-[9px] font-mono tracking-widest text-[#88857F] uppercase mt-0.5">
+                      TAP TO LOCK
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
-          </main>
-        )}
+          </div>
+
+          {/* Typography: Mode Information & Golden Hierarchy */}
+          <div className="w-full text-left">
+            <h1 className="text-[32px] sm:text-[34px] leading-[1.15] font-apfel font-bold tracking-tight text-[#111110]">
+              <span className="block animate-text-reveal-1">
+                {isSlabbed ? "Focus locked." : "Silence the noise."}
+              </span>
+              <span className="block animate-text-reveal-2 text-[#111110]">
+                <span className="relative inline-block text-[#111110]">
+                  {activeMode.title}
+                  {/* Tegaki Dynamic Organic Brush Stroke Underline */}
+                  <svg
+                    viewBox="0 0 110 14"
+                    className="absolute -bottom-2 left-0 w-full overflow-visible text-[#FF5F56] pointer-events-none tegaki-stroke-animated"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M 3 8 C 30 13, 75 13, 106 6" />
+                  </svg>
+                </span>
+              </span>
+            </h1>
+            <p className="mt-[10px] text-[14px] leading-[22px] font-absans text-[#666666] animate-text-reveal-3">
+              {activeMode.subtitle} • {activeMode.durationMinutes}m focus block.
+            </p>
+
+            <button
+              onClick={() => setShowModeDrawer(true)}
+              className="mt-[8px] text-xs font-absans font-medium text-[#111110] hover:text-[#555] flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <span>Manage modes</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Action Zone: Primary Button & Secondary Grid */}
+          <div className="w-full space-y-[12px]">
+            {/* Primary Black Button */}
+            <button
+              onClick={handleToggleSlab}
+              className={`w-full h-[52px] px-4 rounded-2xl font-absans font-semibold text-[14px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-[0.99] ${
+                isSlabbed
+                  ? "bg-[#D9383A] text-white hover:bg-[#C53032]"
+                  : "bg-[#111110] text-white hover:bg-black"
+              }`}
+            >
+              <span>{isSlabbed ? "Tap to Unstill (End Sprint)" : "Tap or hold to Still"}</span>
+            </button>
+
+            {/* Secondary Row: 4 Apps Blocked & 40Hz Audio Drone */}
+            <div className="grid grid-cols-2 gap-[12px]">
+              <button
+                onClick={() => simulateOpenApp(apps[0])}
+                className="h-[46px] px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              >
+                <Shield className="w-4 h-4 text-[#111110]" />
+                <span>4 Apps Blocked</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  const next = !binauralAudio;
+                  setBinauralAudio(next);
+                  audioEngine.toggleBinauralDrone(next);
+                }}
+                className={`h-[46px] px-4 rounded-xl border transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99] font-absans font-medium text-[13px] ${
+                  binauralAudio
+                    ? "bg-[#F5FBF7] border-emerald-400 text-emerald-700"
+                    : "border-[#E5E7EB] bg-white hover:bg-gray-50 text-[#111110]"
+                }`}
+              >
+                <Headphones className="w-4 h-4" />
+                <span>{binauralAudio ? "Drone 40Hz On" : "Drone 40Hz Off"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* =============================================================== */}
+        {/* RIGHT PANE: DESKTOP STUDIO DASHBOARD (lg:block, hidden on mobile)*/}
+        {/* =============================================================== */}
+        <div className="hidden lg:flex lg:w-[50%] flex-col justify-between space-y-6 lg:pl-10 lg:border-l lg:border-[#F2F1EC]">
+          {/* Top User Profile & Streak Bar */}
+          <div className="flex items-center justify-between pb-2 border-b border-[#F3F4F6]">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#111110] text-white flex items-center justify-center font-apfel text-xs font-bold shadow-xs">
+                {currentUser.name.slice(0, 2)}
+              </div>
+              <div>
+                <div className="text-xs font-apfel font-bold text-[#111110]">{currentUser.name}</div>
+                <div className="text-[11px] text-[#777777] font-absans">{currentUser.email}</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 font-apfel font-bold text-amber-500 text-xs px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/60">
+                <Flame className="w-3.5 h-3.5 fill-amber-500" />
+                <span>6 DAY STREAK</span>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="px-3 py-1 rounded-full border border-red-500/20 text-xs font-mono text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+              >
+                Log out
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Study Schedule */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-apfel font-bold text-[#111110] uppercase tracking-wider">
+                Today&apos;s Focus Schedule
+              </h3>
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#FAFAFA] border border-[#E5E7EB] text-[#555555]">
+                {studySlots.filter((s) => s.completed).length}/{studySlots.length} DONE
+              </span>
+            </div>
+
+            <div className="space-y-2.5">
+              {studySlots.map((slot) => (
+                <div
+                  key={slot.id}
+                  className="p-3 rounded-xl border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] transition-all flex items-center justify-between shadow-xs"
+                >
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#FAFAFA] border border-[#E5E7EB] text-[#555555]">
+                        {slot.timeSlot}
+                      </span>
+                      <span className="text-[10px] font-mono text-[#888888]">{slot.durationMinutes}m</span>
+                    </div>
+                    <div
+                      className={`text-xs font-apfel font-bold ${
+                        slot.completed ? "line-through text-[#999999]" : "text-[#111110]"
+                      }`}
+                    >
+                      {slot.subject}
+                    </div>
+                    <div className="text-[11px] text-[#666666] font-absans">{slot.topic}</div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      audioEngine.playHaptic("complete");
+                      setStudySlots((prev) =>
+                        prev.map((s) => (s.id === slot.id ? { ...s, completed: !s.completed } : s))
+                      );
+                    }}
+                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                      slot.completed
+                        ? "bg-emerald-500 text-white"
+                        : "bg-[#FAFAFA] border border-[#E5E7EB] text-[#888888] hover:text-[#111110]"
+                    }`}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Distraction Matrix Checklist */}
+          <div className="p-3.5 rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] space-y-2">
+            <div className="flex items-center justify-between text-xs font-apfel font-bold uppercase tracking-wider">
+              <span>Distraction Shield</span>
+              <span className="font-mono text-[10px] text-[#777777]">
+                {apps.filter((a) => a.blocked).length} apps locked
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {apps.map((app) => (
+                <button
+                  key={app.id}
+                  onClick={() => handleToggleApp(app.id)}
+                  className={`p-2 rounded-xl text-[11px] font-absans flex items-center justify-between border cursor-pointer transition-colors ${
+                    app.blocked
+                      ? "bg-white border-[#E5E7EB] text-[#111110] font-medium shadow-xs"
+                      : "bg-transparent border-dashed border-[#E5E7EB] text-[#999999]"
+                  }`}
+                >
+                  <span className="truncate">{app.name.split(" ")[0]}</span>
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      app.blocked ? "bg-emerald-500" : "bg-transparent border border-gray-300"
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Reclaimed Time & Distraction Prevented Log */}
+          <div className="rounded-2xl border border-[#E5E7EB] bg-white p-3.5 space-y-2 shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-apfel font-bold uppercase tracking-wider text-[#777777]">
+                Impulse Intercept Log
+              </span>
+              <span className="text-[10px] font-mono text-emerald-600 font-semibold">
+                ACTIVE PROTECTION
+              </span>
+            </div>
+            <div className="divide-y divide-[#F3F4F6] max-h-28 overflow-y-auto pr-1">
+              {interceptLogs.slice(0, 3).map((log) => (
+                <div key={log.id} className="py-2 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    <span className="font-apfel font-semibold text-[#111110]">{log.app}</span>
+                    <span className="text-[11px] text-[#777777]">intercepted</span>
+                  </div>
+                  <span className="font-mono text-[10px] text-[#888888]">{log.time}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* =============================================================== */}
+        {/* MOBILE BOTTOM NAVIGATION BAR (<lg: only)                        */}
+        {/* =============================================================== */}
+        <footer className="lg:hidden pt-[18px] flex items-center justify-around select-none border-t border-[#F3F4F6] text-[#888888] mt-4">
+          {[
+            { id: "slab", label: "Still" },
+            { id: "schedule", label: "Schedule" },
+            { id: "activity", label: "Activity" },
+            { id: "settings", label: "Settings" },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id as typeof activeTab);
+                  if (soundEnabled) audioEngine.playHaptic("click");
+                }}
+                className={`flex flex-col items-center gap-1.5 cursor-pointer transition-colors ${
+                  isActive ? "text-[#111110] font-semibold" : "text-[#888888] hover:text-[#333333]"
+                }`}
+              >
+                <span className="text-xs font-absans">{tab.label}</span>
+                <span
+                  className={`w-1 h-1 rounded-full transition-all ${
+                    isActive ? "bg-[#111110]" : "bg-transparent"
+                  }`}
+                />
+              </button>
+            );
+          })}
+        </footer>
+      </div>
 
         {/* ================================================================= */}
         {/* TAB 2: SCHEDULE (Daily Academic Timetable & Routines)             */}
