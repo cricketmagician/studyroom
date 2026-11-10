@@ -1209,25 +1209,22 @@ export default function SlabApp() {
       {/* MANAGE MODES DRAWER / MODAL                                       */}
       {/* ================================================================= */}
       {showModeDrawer && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center animate-in fade-in">
-          <div
-            className={`w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-6 space-y-5 animate-in slide-in-from-bottom duration-200 border ${
-              isAlabaster
-                ? "bg-[#EBE8E3] border-[#D6D2CA] text-[#1E1E1E]"
-                : "bg-[#161616] border-[#2A2A2A] text-white"
-            }`}
-          >
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center animate-in fade-in select-none">
+          <div className="w-full max-w-[390px] rounded-t-3xl sm:rounded-3xl p-6 space-y-4 animate-in slide-in-from-bottom duration-200 border border-[#E5E7EB] bg-white shadow-2xl text-[#111110]">
             <div className="flex items-center justify-between">
-              <h3 className="font-apfel text-lg font-bold">Select Focus Mode</h3>
+              <div>
+                <h3 className="font-apfel text-lg font-bold text-[#111110]">Select Focus Mode</h3>
+                <p className="text-xs text-[#777777] font-absans">Choose focus duration & strictness.</p>
+              </div>
               <button
                 onClick={() => setShowModeDrawer(false)}
-                className="p-1 rounded-full text-[#888888] hover:text-white"
+                className="p-1.5 rounded-full text-[#888888] hover:text-[#111110] cursor-pointer hover:bg-gray-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 pt-1">
               {modes.map((mode) => (
                 <div
                   key={mode.id}
@@ -1239,20 +1236,18 @@ export default function SlabApp() {
                   }}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                     selectedModeId === mode.id
-                      ? isAlabaster
-                        ? "bg-white border-[#C5BFB4] shadow-md"
-                        : "bg-[#222222] border-[#444444] shadow-md"
-                      : isAlabaster
-                      ? "bg-white/60 border-[#DFDBD4] hover:bg-white"
-                      : "bg-[#191919] border-[#252525] hover:bg-[#202020]"
+                      ? "bg-[#FAFAFA] border-[#111110] shadow-sm"
+                      : "bg-white border-[#E5E7EB] hover:bg-[#FAFAFA]"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-apfel font-bold text-sm">{mode.title}</div>
-                      <div className="text-xs text-[#777777]">{mode.subtitle}</div>
+                      <div className="font-apfel font-bold text-sm text-[#111110]">{mode.title}</div>
+                      <div className="text-xs text-[#777777] font-absans">{mode.subtitle}</div>
                     </div>
-                    <span className="font-mono text-xs font-semibold">{mode.durationMinutes}m</span>
+                    <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-gray-100 text-[#111110]">
+                      {mode.durationMinutes}m
+                    </span>
                   </div>
                 </div>
               ))}
