@@ -6,14 +6,14 @@ import {
   CheckCircle2,
   Plus,
   Trash2,
-  RotateCcw,
-  Sparkles,
-  ChevronRight,
   Headphones,
-  Award,
   AlertOctagon,
-  ArrowRight,
   X,
+  LogOut,
+  UserCheck,
+  KeyRound,
+  ArrowRight,
+  ShieldCheck,
 } from "lucide-react";
 
 // Synthesize tactile haptics & binaural focus audio via Web Audio API
@@ -130,6 +130,13 @@ class AudioEngine {
 const audioEngine = new AudioEngine();
 
 // Data Structures
+interface StudentUser {
+  name: string;
+  email: string;
+  exam: string;
+  studentId: string;
+}
+
 interface BlockedApp {
   id: string;
   name: string;
@@ -158,6 +165,16 @@ interface Flashcard {
 
 export default function BrickStudyApp() {
   const [mounted, setMounted] = useState(false);
+
+  // Authentication State (Brick iOS Login Flow)
+  const [currentUser, setCurrentUser] = useState<StudentUser | null>(null);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authName, setAuthName] = useState("");
+  const [authExam, setAuthExam] = useState("CMA Intermediate");
+
+  // App Navigation Tabs
   const [activeTab, setActiveTab] = useState<"focus" | "shield" | "drill" | "logs">("focus");
 
   // Brick Session State
@@ -270,6 +287,10 @@ export default function BrickStudyApp() {
   useEffect(() => {
     setMounted(true);
     try {
+      const savedUser = localStorage.getItem("brick_current_user");
+      if (savedUser) {
+        setCurrentUser(JSON.parse(savedUser));
+      }
       const savedMinutes = localStorage.getItem("brick_reclaimed");
       if (savedMinutes) setReclaimedMinutes(parseFloat(savedMinutes));
       const savedIntercepts = localStorage.getItem("brick_intercepts");
@@ -306,6 +327,54 @@ export default function BrickStudyApp() {
 
     return () => clearInterval(interval);
   }, [isBricked]);
+
+  // Authentication Handlers
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!authEmail.trim()) return;
+    const name = authMode === "register" && authName.trim() ? authName.trim() : authEmail.split("@")[0].toUpperCase();
+    const user: StudentUser = {
+      name,
+      email: authEmail.trim(),
+      exam: authExam,
+      studentId: `STU-${Math.floor(1000 + Math.random() * 9000)}`,
+    };
+    setCurrentUser(user);
+    try {
+      localStorage.setItem("brick_current_user", JSON.stringify(user));
+    } catch {
+      // ignore
+    }
+    audioEngine.playHaptic("unbrick");
+  };
+
+  const handleDemoSignIn = () => {
+    const demoUser: StudentUser = {
+      name: "Neeraj Singh",
+      email: "neeraj@cma.ac.in",
+      exam: "CMA Intermediate (Group 1)",
+      studentId: "CMA-2026-881",
+    };
+    setCurrentUser(demoUser);
+    try {
+      localStorage.setItem("brick_current_user", JSON.stringify(demoUser));
+    } catch {
+      // ignore
+    }
+    audioEngine.playHaptic("unbrick");
+  };
+
+  const handleSignOut = () => {
+    audioEngine.playHaptic("click");
+    setIsBricked(false);
+    audioEngine.toggleBinauralDrone(false);
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem("brick_current_user");
+    } catch {
+      // ignore
+    }
+  };
 
   // Binaural tone sync
   const toggleBinaural = () => {
@@ -462,6 +531,188 @@ export default function BrickStudyApp() {
     );
   }
 
+  // =========================================================================
+  // SCREEN 1: BRICK iOS AUTHENTICATION GATE (LOGIN & CLAIM DEVICE FLOW)
+  // =========================================================================
+  if (!currentUser) {
+    return (
+      <div
+        suppressHydrationWarning
+        className="min-h-screen bg-[#090909] text-[#EDEDED] selection:bg-[#333333] font-absans antialiased flex flex-col justify-between p-6 max-w-md mx-auto"
+      >
+        {/* Top Minimalist Header */}
+        <header className="flex items-center justify-between pt-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-2.5 h-2.5 rounded-sm bg-white" />
+            <span className="font-apfel text-xs tracking-[0.25em] font-bold text-white uppercase">
+              BRICK // OS
+            </span>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-[#222222] text-[#888888]">
+            SECURITY GATE
+          </span>
+        </header>
+
+        {/* Central Monolithic Authentication Slab */}
+        <div className="space-y-6 my-auto py-8">
+          {/* Visual Brick Illustration */}
+          <div className="w-20 h-20 mx-auto rounded-2xl bg-[#141414] border border-[#252525] p-3 flex items-center justify-center shadow-lg">
+            <img
+              src="/icons/lock-clock.svg"
+              alt="Brick Device"
+              className="w-10 h-10 invert opacity-90"
+            />
+          </div>
+
+          <div className="text-center space-y-1.5">
+            <h1 className="text-3xl font-apfel font-black tracking-tight uppercase text-white">
+              {authMode === "login" ? "AUTHENTICATE BRICK" : "CLAIM NEW BRICK"}
+            </h1>
+            <p className="text-xs font-absans text-[#888888] max-w-xs mx-auto leading-relaxed">
+              A physical barrier between you and your phone&apos;s infinite dopamine loops.
+            </p>
+          </div>
+
+          {/* Mode Switcher */}
+          <div className="grid grid-cols-2 p-1 rounded-xl bg-[#131313] border border-[#202020]">
+            <button
+              onClick={() => {
+                setAuthMode("login");
+                audioEngine.playHaptic("click");
+              }}
+              className={`py-2 rounded-lg text-xs font-mono tracking-wider transition-all cursor-pointer ${
+                authMode === "login"
+                  ? "bg-white text-[#0A0A0A] font-bold shadow-sm"
+                  : "text-[#777777] hover:text-[#CCCCCC]"
+              }`}
+            >
+              SIGN IN
+            </button>
+            <button
+              onClick={() => {
+                setAuthMode("register");
+                audioEngine.playHaptic("click");
+              }}
+              className={`py-2 rounded-lg text-xs font-mono tracking-wider transition-all cursor-pointer ${
+                authMode === "register"
+                  ? "bg-white text-[#0A0A0A] font-bold shadow-sm"
+                  : "text-[#777777] hover:text-[#CCCCCC]"
+              }`}
+            >
+              NEW STUDENT
+            </button>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleAuthSubmit} className="space-y-3.5">
+            {authMode === "register" && (
+              <div className="space-y-1">
+                <label className="text-[10px] font-mono uppercase tracking-wider text-[#777777]">
+                  FULL NAME
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Neeraj Singh"
+                  value={authName}
+                  onChange={(e) => setAuthName(e.target.value)}
+                  className="w-full px-3.5 py-3 rounded-xl bg-[#121212] border border-[#222222] text-sm text-white font-absans placeholder:text-[#444444] focus:outline-none focus:border-white transition-colors"
+                  required
+                />
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono uppercase tracking-wider text-[#777777]">
+                STUDENT ID OR EMAIL
+              </label>
+              <input
+                type="text"
+                placeholder="student@cma.ac.in"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                className="w-full px-3.5 py-3 rounded-xl bg-[#121212] border border-[#222222] text-sm text-white font-absans placeholder:text-[#444444] focus:outline-none focus:border-white transition-colors"
+                required
+              />
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-mono uppercase tracking-wider text-[#777777]">
+                  DEVICE PASSPHRASE / PIN
+                </label>
+                {authMode === "login" && (
+                  <span className="text-[10px] font-mono text-[#555555] hover:text-[#888888] cursor-pointer">
+                    RESET PIN
+                  </span>
+                )}
+              </div>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                className="w-full px-3.5 py-3 rounded-xl bg-[#121212] border border-[#222222] text-sm text-white font-mono placeholder:text-[#444444] focus:outline-none focus:border-white transition-colors tracking-widest"
+                required
+              />
+            </div>
+
+            {authMode === "register" && (
+              <div className="space-y-1">
+                <label className="text-[10px] font-mono uppercase tracking-wider text-[#777777]">
+                  TARGET EXAM
+                </label>
+                <select
+                  value={authExam}
+                  onChange={(e) => setAuthExam(e.target.value)}
+                  className="w-full px-3.5 py-3 rounded-xl bg-[#121212] border border-[#222222] text-xs font-mono text-white focus:outline-none"
+                >
+                  <option value="CMA Intermediate">CMA Intermediate</option>
+                  <option value="CMA Final">CMA Final</option>
+                  <option value="CA Intermediate">CA Intermediate</option>
+                  <option value="CS Professional">CS Executive / Professional</option>
+                </select>
+              </div>
+            )}
+
+            {/* Primary Submit Button */}
+            <button
+              type="submit"
+              className="w-full py-4 rounded-xl bg-white text-[#0A0A0A] font-apfel font-bold text-sm tracking-wide uppercase hover:bg-[#E5E5E5] transition-all cursor-pointer shadow-md active:translate-y-0.5"
+            >
+              {authMode === "login" ? "UNLOCK BRICK SESSION" : "ACTIVATE STUDENT PROFILE"}
+            </button>
+          </form>
+
+          {/* Quick Demo Instant Access */}
+          <div className="pt-2 border-t border-[#1C1C1C] space-y-2">
+            <div className="text-[10px] font-mono uppercase text-center text-[#555555] tracking-widest">
+              OR TEST INSTANTLY
+            </div>
+            <button
+              onClick={handleDemoSignIn}
+              type="button"
+              className="w-full py-3 rounded-xl bg-[#141414] hover:bg-[#1A1A1A] text-[#CCCCCC] hover:text-white border border-[#262626] font-mono text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>CONTINUE AS NEERAJ (DEMO CMA)</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Footer Security Seal */}
+        <footer className="text-center pt-4 border-t border-[#161616]">
+          <div className="flex items-center justify-center gap-2 text-[10px] font-mono text-[#555555]">
+            <ShieldCheck className="w-3 h-3 text-emerald-500" />
+            <span>256-BIT LOCAL ENCRYPTION • AIR-GAPPED HARDWARE MODE</span>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // SCREEN 2: BRICK iOS COCKPIT (AUTHENTICATED SESSION)
+  // =========================================================================
   return (
     <div
       suppressHydrationWarning
@@ -469,13 +720,13 @@ export default function BrickStudyApp() {
     >
       {/* Top Swiss Status Bar */}
       <header className="border-b border-[#181818] bg-[#0A0A0A]/90 backdrop-blur sticky top-0 z-30 px-5 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-white" />
           <span className="font-apfel text-xs tracking-[0.22em] font-bold text-white uppercase">
             BRICK // OS
           </span>
           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-[#222222] text-[#888888]">
-            ACADEMIC COCKPIT
+            {currentUser.name.toUpperCase().split(" ")[0]}
           </span>
         </div>
 
@@ -507,6 +758,15 @@ export default function BrickStudyApp() {
               alt="Haptics"
               className="w-3.5 h-3.5 invert opacity-70 hover:opacity-100"
             />
+          </button>
+
+          {/* Sign Out / Lock Device Button */}
+          <button
+            onClick={handleSignOut}
+            title="Lock session & return to login"
+            className="p-1.5 rounded-md border border-[#222222] text-[#777777] hover:text-white transition-colors cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
           </button>
 
           {/* Live Status Pill */}
@@ -1076,6 +1336,27 @@ export default function BrickStudyApp() {
         {/* ============================================================== */}
         {activeTab === "logs" && (
           <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Student Profile Card */}
+            <div className="p-4 rounded-xl bg-[#121212] border border-[#1E1E1E] flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-mono text-[#666666] uppercase tracking-wider">
+                  STUDENT IDENTITY
+                </span>
+                <div className="text-base font-apfel font-bold text-white mt-0.5">
+                  {currentUser.name}
+                </div>
+                <div className="text-xs font-absans text-[#888888]">
+                  {currentUser.exam} • {currentUser.studentId}
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="px-3 py-1.5 rounded-lg border border-[#262626] hover:border-red-900/60 text-xs font-mono text-[#888888] hover:text-red-400 transition-colors cursor-pointer"
+              >
+                LOCK SESSION
+              </button>
+            </div>
+
             {/* High Level Metrics */}
             <div className="grid grid-cols-2 gap-3">
               <div className="p-4 rounded-xl bg-[#121212] border border-[#1E1E1E]">
