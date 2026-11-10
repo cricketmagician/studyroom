@@ -250,66 +250,79 @@ export default function CMALearningDashboard() {
           {/* ============================================================= */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Card 1: Lilac/Pink Pastel */}
-            <div className="p-5 rounded-[24px] bg-[#F6EEFA] border border-[#ECDDF4] shadow-[0_4px_16px_-4px_rgba(139,92,246,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
-              <div className="flex items-center justify-between">
+            <div className="p-5 rounded-[24px] bg-[#F6EEFA] border border-[#ECDDF4] shadow-[0_4px_16px_-4px_rgba(139,92,246,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5 relative overflow-hidden">
+              <div className="flex items-center justify-between relative z-10">
                 <div className="w-9 h-9 rounded-full bg-white/90 text-[#8B5CF6] flex items-center justify-center shadow-xs">
                   <MaterialIcon name="star" className="w-4 h-4 text-[#8B5CF6]" />
                 </div>
                 <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6]/40" />
               </div>
-              <div>
+              <div className="relative z-10">
                 <div className="text-2xl font-apfel font-bold text-[#111110]">3 Lessons</div>
                 <div className="text-xs text-[#6B5A79] font-absans mt-0.5">
                   Total Completed Courses
                 </div>
               </div>
+              {/* Subtle watermark open-book illustration matching Image 2 */}
+              <div className="absolute -right-2 -bottom-2 text-[#8B5CF6]/10 pointer-events-none">
+                <MaterialIcon name="study-library" className="w-20 h-20" />
+              </div>
             </div>
 
             {/* Card 2: Mint Green Pastel */}
-            <div className="p-5 rounded-[24px] bg-[#EAF6EE] border border-[#D6EFE0] shadow-[0_4px_16px_-4px_rgba(16,185,129,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
-              <div className="flex items-center justify-between">
+            <div className="p-5 rounded-[24px] bg-[#EAF6EE] border border-[#D6EFE0] shadow-[0_4px_16px_-4px_rgba(16,185,129,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5 relative overflow-hidden">
+              <div className="flex items-center justify-between relative z-10">
                 <div className="w-9 h-9 rounded-full bg-white/90 text-[#10B981] flex items-center justify-center shadow-xs">
                   <MaterialIcon name="schedule" className="w-4 h-4 text-[#10B981]" />
                 </div>
                 <Sparkles className="w-3.5 h-3.5 text-[#10B981]/40" />
               </div>
-              <div>
+              <div className="relative z-10">
                 <div className="text-2xl font-apfel font-bold text-[#111110]">24 Hours</div>
                 <div className="text-xs text-[#456A52] font-absans mt-0.5">
                   Total Classes Watched
                 </div>
               </div>
+              <div className="absolute -right-2 -bottom-2 text-[#10B981]/10 pointer-events-none">
+                <MaterialIcon name="study-library" className="w-20 h-20" />
+              </div>
             </div>
 
             {/* Card 3: Amber/Peach Pastel */}
-            <div className="p-5 rounded-[24px] bg-[#FFF6EB] border border-[#FCE9D0] shadow-[0_4px_16px_-4px_rgba(245,158,11,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
-              <div className="flex items-center justify-between">
+            <div className="p-5 rounded-[24px] bg-[#FFF6EB] border border-[#FCE9D0] shadow-[0_4px_16px_-4px_rgba(245,158,11,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5 relative overflow-hidden">
+              <div className="flex items-center justify-between relative z-10">
                 <div className="w-9 h-9 rounded-full bg-white/90 text-[#F59E0B] flex items-center justify-center shadow-xs">
-                  <MaterialIcon name="practice-zone" className="w-4 h-4 text-[#F59E0B]" />
+                  <MaterialIcon name="task-alt" className="w-4 h-4 text-[#F59E0B]" />
                 </div>
                 <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]/40" />
               </div>
-              <div>
+              <div className="relative z-10">
                 <div className="text-2xl font-apfel font-bold text-[#111110]">87%</div>
                 <div className="text-xs text-[#7B5B2E] font-absans mt-0.5">
                   Scored On Your Last Quiz
                 </div>
               </div>
+              <div className="absolute -right-2 -bottom-2 text-[#F59E0B]/10 pointer-events-none">
+                <MaterialIcon name="study-library" className="w-20 h-20" />
+              </div>
             </div>
 
             {/* Card 4: Soft Blue Pastel */}
-            <div className="p-5 rounded-[24px] bg-[#EDF4FD] border border-[#D7E6FA] shadow-[0_4px_16px_-4px_rgba(59,130,246,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
-              <div className="flex items-center justify-between">
+            <div className="p-5 rounded-[24px] bg-[#EDF4FD] border border-[#D7E6FA] shadow-[0_4px_16px_-4px_rgba(59,130,246,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5 relative overflow-hidden">
+              <div className="flex items-center justify-between relative z-10">
                 <div className="w-9 h-9 rounded-full bg-white/90 text-[#3B82F6] flex items-center justify-center shadow-xs">
                   <MaterialIcon name="trending-up" className="w-4 h-4 text-[#3B82F6]" />
                 </div>
                 <Sparkles className="w-3.5 h-3.5 text-[#3B82F6]/40" />
               </div>
-              <div>
+              <div className="relative z-10">
                 <div className="text-2xl font-apfel font-bold text-[#111110]">+15%</div>
                 <div className="text-xs text-[#4A6487] font-absans mt-0.5">
                   Total Progress This Week
                 </div>
+              </div>
+              <div className="absolute -right-2 -bottom-2 text-[#3B82F6]/10 pointer-events-none">
+                <MaterialIcon name="study-library" className="w-20 h-20" />
               </div>
             </div>
           </div>
