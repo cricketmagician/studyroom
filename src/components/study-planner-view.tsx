@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, Calendar, Plus, Check, Clock, Sparkles, AlertCircle, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, Plus, Check, Clock, Sparkles, AlertCircle, Trash2, ExternalLink } from "lucide-react";
 
 interface StudyTask {
   id: string;
@@ -137,6 +137,34 @@ export function StudyPlannerView({ onBack }: { onBack?: () => void }) {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Official ICMAI Guidelines & Curriculum Links */}
+        <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />
+            <span className="text-zinc-300 font-medium">Official Exam References:</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://www.icmai.in/ClntStudents/ExaminationGuidelines"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-zinc-200 hover:text-white flex items-center gap-1.5 font-mono text-[11px] transition-colors"
+            >
+              <span>Examination Guidelines</span>
+              <ExternalLink className="w-3 h-3 text-emerald-400" />
+            </a>
+            <a
+              href="https://www.icmai.in/upload/Students/Syllabus2022/Curriculum_2022.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-zinc-200 hover:text-white flex items-center gap-1.5 font-mono text-[11px] transition-colors"
+            >
+              <span>Syllabus 2022</span>
+              <ExternalLink className="w-3 h-3 text-emerald-400" />
+            </a>
+          </div>
         </div>
       </div>
 

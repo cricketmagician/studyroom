@@ -311,10 +311,10 @@ export default function CMALearningDashboard() {
               {/* Hero Greeting from Image 2 */}
               <div className="space-y-1">
                 <h1 className="text-2xl sm:text-3xl font-apfel font-bold tracking-tight text-[#111110]">
-                  Welcome Back, Learner! 🎓
+                  Welcome Back, CMA Aspirant! 🎓
                 </h1>
                 <p className="text-sm text-[#77756F] font-absans">
-                  Continue Your Learning Journey And Achieve Your Goals.
+                  ICMAI CMA Intermediate • Syllabus 2022 Exam Preparation Hub
                 </p>
               </div>
 
@@ -433,11 +433,11 @@ export default function CMALearningDashboard() {
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm text-[#059669] text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
                     <MaterialIcon name="study-library" className="w-3.5 h-3.5 text-[#059669]" />
-                    <span>Beginner</span>
+                    <span>Paper 8 • Cost Accounting</span>
                   </span>
                   <span className="px-3 py-1 rounded-full bg-white/90 text-[#333333] text-xs font-mono font-medium flex items-center gap-1.5 shadow-2xs">
                     <MaterialIcon name="schedule" className="w-3.5 h-3.5 text-[#666666]" />
-                    <span>45 Min</span>
+                    <span>Syllabus 2022</span>
                   </span>
                 </div>
 
@@ -469,6 +469,93 @@ export default function CMALearningDashboard() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* ============================================================= */}
+          {/* OFFICIAL ICMAI RESOURCES (Syllabus 2022 & Examination Hub)     */}
+          {/* ============================================================= */}
+          <div className="p-6 rounded-[28px] bg-gradient-to-r from-[#18181B] via-[#242427] to-[#18181B] text-white shadow-md border border-zinc-800 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <h3 className="font-apfel font-bold text-sm tracking-wide text-white">
+                  Official ICMAI Examination &amp; Curriculum Resources
+                </h3>
+              </div>
+              <span className="text-[11px] font-mono text-zinc-400">ICMAI Syllabus 2022</span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
+              <a
+                href="https://www.icmai.in/upload/Students/Syllabus2022/Curriculum_2022.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex flex-col justify-between group"
+              >
+                <span className="font-apfel font-semibold text-white group-hover:text-emerald-300">
+                  Official Curriculum
+                </span>
+                <span className="text-[10px] font-mono text-zinc-400 mt-2 flex items-center justify-between">
+                  Syllabus 2022 <span className="text-emerald-400">PDF ↗</span>
+                </span>
+              </a>
+
+              <a
+                href="https://icmai.co.in/upload/Students/Syllabus2022/CMA_Prospectus_Syllabus_2022.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex flex-col justify-between group"
+              >
+                <span className="font-apfel font-semibold text-white group-hover:text-emerald-300">
+                  CMA Prospectus
+                </span>
+                <span className="text-[10px] font-mono text-zinc-400 mt-2 flex items-center justify-between">
+                  2025 Edition <span className="text-emerald-400">PDF ↗</span>
+                </span>
+              </a>
+
+              <a
+                href="https://icmai.in/ClntStudents/ClntMQPList?menuId=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex flex-col justify-between group"
+              >
+                <span className="font-apfel font-semibold text-white group-hover:text-emerald-300">
+                  Model Papers (MQP)
+                </span>
+                <span className="text-[10px] font-mono text-zinc-400 mt-2 flex items-center justify-between">
+                  Official MQP <span className="text-emerald-400">Portal ↗</span>
+                </span>
+              </a>
+
+              <a
+                href="https://icmai.in/ClntStudents/ClntQuestionPaperList?menuId=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex flex-col justify-between group"
+              >
+                <span className="font-apfel font-semibold text-white group-hover:text-emerald-300">
+                  Past Exam Papers
+                </span>
+                <span className="text-[10px] font-mono text-zinc-400 mt-2 flex items-center justify-between">
+                  Term Archive <span className="text-emerald-400">Portal ↗</span>
+                </span>
+              </a>
+
+              <a
+                href="https://www.icmai.in/ClntStudents/ExaminationGuidelines"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex flex-col justify-between group col-span-2 sm:col-span-1"
+              >
+                <span className="font-apfel font-semibold text-white group-hover:text-emerald-300">
+                  Exam Guidelines
+                </span>
+                <span className="text-[10px] font-mono text-zinc-400 mt-2 flex items-center justify-between">
+                  ICMAI Rules <span className="text-emerald-400">Portal ↗</span>
+                </span>
+              </a>
             </div>
           </div>
 

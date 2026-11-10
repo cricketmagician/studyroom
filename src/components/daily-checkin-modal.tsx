@@ -19,6 +19,7 @@ interface DailyCheckinModalProps {
 const CMA_SUBJECTS = [
   {
     id: "cost",
+    paperCode: "Paper 8",
     name: "Cost Accounting",
     topic: "Marginal Costing & Break-Even",
     color: "#10B981",
@@ -28,6 +29,7 @@ const CMA_SUBJECTS = [
   },
   {
     id: "financial",
+    paperCode: "Paper 6",
     name: "Financial Accounting",
     topic: "Consignment & Company Accounts",
     color: "#8B5CF6",
@@ -37,8 +39,9 @@ const CMA_SUBJECTS = [
   },
   {
     id: "tax",
-    name: "Direct Taxation",
-    topic: "Capital Gains & Deductions 80C",
+    paperCode: "Paper 7",
+    name: "Direct & Indirect Taxation",
+    topic: "Capital Gains, GST & Deductions",
     color: "#F59E0B",
     bgPastel: "#FFF6EB",
     borderPastel: "#FCE9D0",
@@ -46,7 +49,8 @@ const CMA_SUBJECTS = [
   },
   {
     id: "law",
-    name: "Business Laws",
+    paperCode: "Paper 5",
+    name: "Business Laws & Ethics",
     topic: "Companies Act & Commercial Law",
     color: "#3B82F6",
     bgPastel: "#EFF6FE",
@@ -190,10 +194,15 @@ export function DailyCheckinModal({
                   <div className="flex items-center gap-2.5 min-w-0 pr-2">
                     <span className="text-xl shrink-0">{sub.icon}</span>
                     <div className="truncate">
-                      <div className="text-xs font-apfel font-bold text-[#111110] truncate">
-                        {sub.name}
+                      <div className="flex items-center gap-1.5 truncate">
+                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-black/5 text-[#71717A]">
+                          {sub.paperCode}
+                        </span>
+                        <span className="text-xs font-apfel font-bold text-[#111110] truncate">
+                          {sub.name}
+                        </span>
                       </div>
-                      <div className="text-[10px] text-[#71717A] truncate font-absans">
+                      <div className="text-[10px] text-[#71717A] truncate font-absans mt-0.5">
                         {sub.topic}
                       </div>
                     </div>

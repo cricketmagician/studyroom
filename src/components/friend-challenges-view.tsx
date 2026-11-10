@@ -45,8 +45,17 @@ export function FriendChallengesView({ onBack }: { onBack?: () => void }) {
       desc: "Solve 100 MCQs with at least 80% accuracy before Sunday midnight.",
       participants: 24,
       timeLeft: "5 Days Left",
-      badge: "Practice Drill",
+      badge: "Paper 8 Drill",
       progress: 40,
+    },
+    {
+      id: "c3",
+      title: "Companies Act 2013 Case Laws Sprint",
+      desc: "Complete 15 case study analyses on Directors & Corporate Meetings.",
+      participants: 14,
+      timeLeft: "6 Days Left",
+      badge: "Paper 5 Challenge",
+      progress: 25,
     },
   ];
 

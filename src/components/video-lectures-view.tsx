@@ -6,6 +6,7 @@ import { ArrowLeft, Play, CheckCircle2, Clock, User, X, Sparkles, Filter } from 
 interface LectureVideo {
   id: string;
   title: string;
+  paperCode: string;
   subject: string;
   duration: string;
   faculty: string;
@@ -17,6 +18,7 @@ const CMA_LECTURES: LectureVideo[] = [
   {
     id: "v-1",
     title: "Marginal Costing Masterclass: CVP & Break-Even Analysis",
+    paperCode: "Paper 8",
     subject: "Cost Accounting",
     duration: "48 Min",
     faculty: "CA / CMA Rajesh Sharma",
@@ -26,6 +28,7 @@ const CMA_LECTURES: LectureVideo[] = [
   {
     id: "v-2",
     title: "Standard Costing: Material & Labour Variance Deconstruction",
+    paperCode: "Paper 8",
     subject: "Cost Accounting",
     duration: "52 Min",
     faculty: "CA / CMA Rajesh Sharma",
@@ -35,6 +38,7 @@ const CMA_LECTURES: LectureVideo[] = [
   {
     id: "v-3",
     title: "Activity Based Costing (ABC) vs Traditional Absorption Costing",
+    paperCode: "Paper 8",
     subject: "Cost Accounting",
     duration: "42 Min",
     faculty: "CMA Ananya Verma",
@@ -44,6 +48,7 @@ const CMA_LECTURES: LectureVideo[] = [
   {
     id: "v-4",
     title: "Financial Accounting: Consignment Accounts & Valuation of Stock",
+    paperCode: "Paper 6",
     subject: "Financial Accounting",
     duration: "55 Min",
     faculty: "CA Priya Nair",
@@ -53,6 +58,7 @@ const CMA_LECTURES: LectureVideo[] = [
   {
     id: "v-5",
     title: "Direct Taxation: Capital Gains Section 45 to 55 & Exemptions 54",
+    paperCode: "Paper 7",
     subject: "Direct Taxation",
     duration: "65 Min",
     faculty: "CA Manish Gupta",
@@ -62,6 +68,7 @@ const CMA_LECTURES: LectureVideo[] = [
   {
     id: "v-6",
     title: "Companies Act 2013: Share Capital, Debentures & Dividend Rules",
+    paperCode: "Paper 5",
     subject: "Business Laws",
     duration: "40 Min",
     faculty: "Adv. Sunita Rao",
@@ -146,8 +153,11 @@ export function VideoLecturesView({ onBack }: { onBack?: () => void }) {
                   <Play className="w-5 h-5 fill-current translate-x-0.5" />
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800">
+                    {video.paperCode}
+                  </span>
+                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
                     {video.subject}
                   </span>
                   <button

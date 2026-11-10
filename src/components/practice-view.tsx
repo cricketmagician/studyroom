@@ -210,26 +210,35 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
       </div>
 
       {/* =============================================================== */}
-      {/* SECTION 2: Hindrances / Target Focus Sets                       */}
+      {/* SECTION 2: Official ICMAI Examination Sets (Syllabus 2022)     */}
       {/* =============================================================== */}
       <div className="space-y-3 pt-2">
-        <h2 className="text-xs font-mono font-medium uppercase tracking-wider text-[#88867E]">
-          Hindrances
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-mono font-medium uppercase tracking-wider text-[#88867E]">
+            Official ICMAI Examination Sets
+          </h2>
+          <span className="text-[10px] font-mono font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            Syllabus 2022
+          </span>
+        </div>
 
         <div className="space-y-3">
           {[
             {
               id: "t1",
-              title: "Sensuous Desire",
-              desc: "Persistent urges to gratify the senses or avoid discomfort.",
+              title: "Official Model Question Papers (MQP)",
+              desc: "ICMAI official term-end test series with blueprints, step-wise marks distribution, and time-bound mocks.",
               illustration: "/illustrations/topic-test.svg",
+              paperTag: "CMA Inter Papers 5 to 12",
+              url: "https://icmai.in/ClntStudents/ClntMQPList?menuId=1",
             },
             {
               id: "t2",
-              title: "Ill Will & Aversion",
-              desc: "Feelings of hostility, resentment, or resistance toward learning.",
+              title: "Previous Examination Papers Archive",
+              desc: "Authentic question papers from past examination terms with examiner marking schemes and suggested answers.",
               illustration: "/illustrations/distraction-phone.svg",
+              paperTag: "Term-wise Archive",
+              url: "https://icmai.in/ClntStudents/ClntQuestionPaperList?menuId=1",
             },
           ].map((topic) => (
             <div
@@ -237,7 +246,12 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
               onClick={() => setSelectedTopic(topic.title)}
               className="p-5 rounded-2xl bg-white border border-[#EBE8E1] hover:border-[#D0CABE] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex items-center justify-between gap-4 group"
             >
-              <div className="space-y-1 flex-1">
+              <div className="space-y-1.5 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
+                    {topic.paperTag}
+                  </span>
+                </div>
                 <h3 className="font-serif text-base font-bold text-[#18181B] group-hover:text-black">
                   {topic.title}
                 </h3>
@@ -265,39 +279,53 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
           <div className="w-full max-w-md rounded-3xl bg-white border border-[#EBE8E1] p-6 space-y-4 shadow-2xl">
             <div className="space-y-1">
               <span className="text-[11px] font-mono text-[#059669] bg-[#EAF7EE] px-2.5 py-0.5 rounded-full font-semibold border border-[#D1F2DD]">
-                Ready for Practice
+                Official ICMAI Resource
               </span>
               <h3 className="font-serif text-xl font-bold text-[#111110] pt-1">
                 {selectedTopic}
               </h3>
               <p className="text-xs text-[#71717A] leading-relaxed">
-                Contains verified syllabus modules, answer keys, and timed mock exam timer.
+                Direct access to ICMAI official question repositories, suggested answer keys, and syllabus 2022 marking blueprints.
               </p>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#EBE8E1] space-y-2 text-xs">
               <div className="flex items-center gap-2 text-[#27272A] font-medium">
                 <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
-                <span>Instant Evaluation &amp; Feedback</span>
+                <span>Paper 5: Business Laws &amp; Ethics</span>
               </div>
               <div className="flex items-center gap-2 text-[#27272A] font-medium">
                 <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
-                <span>Paper 8: Cost Accounting &amp; Direct Tax</span>
+                <span>Paper 6: Financial Accounting</span>
+              </div>
+              <div className="flex items-center gap-2 text-[#27272A] font-medium">
+                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                <span>Paper 7: Direct &amp; Indirect Taxation</span>
+              </div>
+              <div className="flex items-center gap-2 text-[#27272A] font-medium">
+                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                <span>Paper 8: Cost Accounting</span>
               </div>
             </div>
 
             <div className="flex items-center gap-3 pt-2">
-              <button
-                onClick={() => setSelectedTopic(null)}
-                className="flex-1 py-3 rounded-xl bg-[#111110] text-white hover:bg-black font-apfel font-semibold text-xs tracking-wide uppercase cursor-pointer"
+              <a
+                href={
+                  selectedTopic.includes("Model")
+                    ? "https://icmai.in/ClntStudents/ClntMQPList?menuId=1"
+                    : "https://icmai.in/ClntStudents/ClntQuestionPaperList?menuId=1"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 py-3 rounded-xl bg-[#111110] text-white hover:bg-black font-apfel font-semibold text-xs tracking-wide uppercase text-center cursor-pointer"
               >
-                Start Session
-              </button>
+                Open Official Portal
+              </a>
               <button
                 onClick={() => setSelectedTopic(null)}
                 className="px-4 py-3 rounded-xl border border-[#EBE8E1] text-[#666560] hover:text-[#111110] text-xs cursor-pointer"
               >
-                Cancel
+                Close
               </button>
             </div>
           </div>
