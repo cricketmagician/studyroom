@@ -66,6 +66,40 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 }
 
 /* Custom Scrollbar */
+/* Tegaki Hand-Drawn Stroke Animation */
+@keyframes tegakiDraw {
+  0% {
+    stroke-dashoffset: 240;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.tegaki-stroke-animated {
+  stroke-dasharray: 240;
+  stroke-dashoffset: 240;
+  animation: tegakiDraw 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards 0.2s;
+}
+
+@keyframes tegakiFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(1.5deg);
+  }
+}
+
+.tegaki-float {
+  animation: tegakiFloat 3s ease-in-out infinite;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
