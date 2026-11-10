@@ -257,7 +257,11 @@ export default function BrickStudyApp() {
             className="p-1.5 rounded text-[#777777] hover:text-white transition-colors cursor-pointer"
             title={soundEnabled ? "Mute haptics" : "Enable haptics"}
           >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <img
+              src={soundEnabled ? "/icons/volume-on.svg" : "/icons/volume-off.svg"}
+              alt="Haptic sound"
+              className="w-4 h-4 invert opacity-70 hover:opacity-100"
+            />
           </button>
           <div className="flex items-center gap-1.5 font-mono text-[11px] text-[#888888]">
             <span
@@ -299,7 +303,19 @@ export default function BrickStudyApp() {
                   : "bg-[#0A0A0A] text-white shadow-sm"
               }`}
             >
-              {isBricked ? <Lock className="w-5 h-5 text-emerald-400" /> : <Smartphone className="w-5 h-5" />}
+              {isBricked ? (
+                <img
+                  src="/icons/lock-clock.svg"
+                  alt="Brick Active"
+                  className="w-6 h-6 invert"
+                />
+              ) : (
+                <img
+                  src="/icons/shield.svg"
+                  alt="Ready to Brick"
+                  className="w-6 h-6 invert"
+                />
+              )}
             </div>
 
             {/* Slab Typography */}
@@ -410,7 +426,7 @@ export default function BrickStudyApp() {
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#888888]" />
+              <img src="/icons/shield.svg" alt="Shield" className="w-4 h-4 invert opacity-70" />
               <h2 className="text-xs font-apfel uppercase tracking-[0.2em] font-bold text-[#888888]">
                 APP BLOCKER & SHIELD MATRIX
               </h2>
@@ -485,7 +501,7 @@ export default function BrickStudyApp() {
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-[#888888]" />
+              <img src="/icons/book.svg" alt="Study protocol" className="w-4 h-4 invert opacity-70" />
               <h2 className="text-xs font-apfel uppercase tracking-[0.2em] font-bold text-[#888888]">
                 TODAY&apos;S FOCUS PROTOCOL
               </h2>
