@@ -2,43 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import {
-  BookOpen,
-  Video,
-  CheckSquare,
-  TrendingUp,
-  Trophy,
-  Calendar,
-  Bell,
-  Search,
-  ArrowUpRight,
-  Star,
-  Clock,
-  Award,
-  Play,
-  User,
-  Home,
-  BarChart3,
-  Sparkles,
-  ChevronRight,
-  CheckCircle2,
-  Bookmark,
-  Flame,
-  FileText,
-  Compass,
-  ArrowRight,
-  HelpCircle,
-  X,
-  Target,
-  GraduationCap,
-} from "lucide-react";
+import { MaterialIcon, MaterialIconName } from "@/components/material-icon";
+import { Sparkles, ArrowRight, X, Flame } from "lucide-react";
 
 // The 6 Modules from Image 1: Recommended App Structure
 interface StudyModule {
   id: string;
   title: string;
   subtitle: string;
-  icon: React.ElementType;
+  iconName: MaterialIconName;
   color: string;
   bgPastel: string;
   borderPastel: string;
@@ -50,7 +22,7 @@ const MODULES: StudyModule[] = [
     id: "library",
     title: "Study Library",
     subtitle: "PDFs, notes and books",
-    icon: BookOpen,
+    iconName: "study-library",
     color: "#8B5CF6",
     bgPastel: "#F4EFFE",
     borderPastel: "#E5DAFA",
@@ -60,7 +32,7 @@ const MODULES: StudyModule[] = [
     id: "lectures",
     title: "Video Lectures",
     subtitle: "Recorded classes",
-    icon: Video,
+    iconName: "video-lectures",
     color: "#10B981",
     bgPastel: "#EAF7EE",
     borderPastel: "#D2EFE0",
@@ -70,7 +42,7 @@ const MODULES: StudyModule[] = [
     id: "practice",
     title: "Practice Zone",
     subtitle: "MCQs and mock tests",
-    icon: CheckSquare,
+    iconName: "practice-zone",
     color: "#F59E0B",
     bgPastel: "#FEF7EC",
     borderPastel: "#FDEBCB",
@@ -80,7 +52,7 @@ const MODULES: StudyModule[] = [
     id: "analytics",
     title: "Study Analytics",
     subtitle: "Subject-wise study hours",
-    icon: TrendingUp,
+    iconName: "study-analytics",
     color: "#3B82F6",
     bgPastel: "#EFF6FE",
     borderPastel: "#DBEAFE",
@@ -90,7 +62,7 @@ const MODULES: StudyModule[] = [
     id: "challenges",
     title: "Friend Challenges",
     subtitle: "Study competitions",
-    icon: Trophy,
+    iconName: "friend-challenges",
     color: "#EC4899",
     bgPastel: "#FDF2F8",
     borderPastel: "#FCE7F3",
@@ -100,7 +72,7 @@ const MODULES: StudyModule[] = [
     id: "planner",
     title: "Study Planner",
     subtitle: "Goals and exam countdown",
-    icon: Calendar,
+    iconName: "study-planner",
     color: "#06B6D4",
     bgPastel: "#ECFEFF",
     borderPastel: "#CFFAFE",
@@ -123,7 +95,7 @@ export default function CMALearningDashboard() {
   return (
     <div className="min-h-screen w-full bg-[#FAF9F5] text-[#111110] font-absans flex flex-col lg:flex-row select-none">
       {/* =============================================================== */}
-      {/* DESKTOP SIDEBAR (Full width desktop dashboard studio)           */}
+      {/* DESKTOP SIDEBAR (Using downloaded Material Symbols icons)       */}
       {/* =============================================================== */}
       <aside className="hidden lg:flex w-64 bg-[#FCFBF8] border-r border-[#EFECE6] flex-col justify-between p-6 shrink-0 sticky top-0 h-screen select-none">
         <div className="space-y-8">
@@ -135,7 +107,7 @@ export default function CMALearningDashboard() {
             </span>
             <div className="flex items-center gap-2.5 pt-1">
               <div className="w-8 h-8 rounded-xl bg-[#111110] text-white flex items-center justify-center shadow-xs">
-                <GraduationCap className="w-4 h-4" />
+                <MaterialIcon name="school" className="w-4 h-4" />
               </div>
               <div>
                 <h1 className="font-apfel text-sm font-bold tracking-tight text-[#111110]">
@@ -146,19 +118,18 @@ export default function CMALearningDashboard() {
             </div>
           </div>
 
-          {/* Navigation Links */}
+          {/* Navigation Links using downloaded Material Symbols */}
           <nav className="space-y-1">
             {[
-              { id: "home", label: "Dashboard", icon: Home },
-              { id: "library", label: "Study Library", icon: BookOpen },
-              { id: "lectures", label: "Video Lectures", icon: Video },
-              { id: "practice", label: "Practice Zone", icon: CheckSquare },
-              { id: "analytics", label: "Study Analytics", icon: BarChart3 },
-              { id: "challenges", label: "Friend Challenges", icon: Trophy },
-              { id: "planner", label: "Study Planner", icon: Calendar },
+              { id: "home", label: "Dashboard", iconName: "home" as MaterialIconName },
+              { id: "library", label: "Study Library", iconName: "study-library" as MaterialIconName },
+              { id: "lectures", label: "Video Lectures", iconName: "video-lectures" as MaterialIconName },
+              { id: "practice", label: "Practice Zone", iconName: "practice-zone" as MaterialIconName },
+              { id: "analytics", label: "Study Analytics", iconName: "study-analytics" as MaterialIconName },
+              { id: "challenges", label: "Friend Challenges", iconName: "friend-challenges" as MaterialIconName },
+              { id: "planner", label: "Study Planner", iconName: "study-planner" as MaterialIconName },
             ].map((item) => {
               const isActive = activeTab === item.id;
-              const Icon = item.icon;
               return (
                 <button
                   key={item.id}
@@ -170,7 +141,10 @@ export default function CMALearningDashboard() {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-[#88867E]"}`} />
+                    <MaterialIcon
+                      name={item.iconName}
+                      className={`w-4 h-4 ${isActive ? "text-white" : "text-[#88867E]"}`}
+                    />
                     <span>{item.label}</span>
                   </div>
                   {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />}
@@ -236,10 +210,10 @@ export default function CMALearningDashboard() {
             </div>
           </div>
 
-          {/* Right Header: Search & Bell */}
+          {/* Right Header: Search & Bell with Material Icons */}
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#EBE8E1] text-xs text-[#88867E] shadow-2xs w-60">
-              <Search className="w-3.5 h-3.5 text-[#AAA79E]" />
+              <MaterialIcon name="search" className="w-4 h-4 text-[#AAA79E]" />
               <input
                 type="text"
                 value={searchQuery}
@@ -253,7 +227,7 @@ export default function CMALearningDashboard() {
               className="w-10 h-10 rounded-full bg-white border border-[#EBE8E1] flex items-center justify-center text-[#666560] hover:text-[#111110] transition-colors relative cursor-pointer shadow-2xs"
               title="Notifications"
             >
-              <Bell className="w-4 h-4" />
+              <MaterialIcon name="notifications" className="w-4 h-4" />
               <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#FF5F56] ring-2 ring-white" />
             </button>
           </div>
@@ -272,14 +246,14 @@ export default function CMALearningDashboard() {
           </div>
 
           {/* ============================================================= */}
-          {/* 4 PASTEL SQUIRCLE STAT CARDS (Image 2 style)                   */}
+          {/* 4 PASTEL SQUIRCLE STAT CARDS (Downloaded Material Symbols)     */}
           {/* ============================================================= */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Card 1: Lilac/Pink Pastel */}
             <div className="p-5 rounded-[24px] bg-[#F6EEFA] border border-[#ECDDF4] shadow-[0_4px_16px_-4px_rgba(139,92,246,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
               <div className="flex items-center justify-between">
                 <div className="w-9 h-9 rounded-full bg-white/90 text-[#8B5CF6] flex items-center justify-center shadow-xs">
-                  <Star className="w-4 h-4 fill-[#8B5CF6]/20 text-[#8B5CF6]" />
+                  <MaterialIcon name="star" className="w-4 h-4 text-[#8B5CF6]" />
                 </div>
                 <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6]/40" />
               </div>
@@ -295,7 +269,7 @@ export default function CMALearningDashboard() {
             <div className="p-5 rounded-[24px] bg-[#EAF6EE] border border-[#D6EFE0] shadow-[0_4px_16px_-4px_rgba(16,185,129,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
               <div className="flex items-center justify-between">
                 <div className="w-9 h-9 rounded-full bg-white/90 text-[#10B981] flex items-center justify-center shadow-xs">
-                  <Clock className="w-4 h-4 text-[#10B981]" />
+                  <MaterialIcon name="schedule" className="w-4 h-4 text-[#10B981]" />
                 </div>
                 <Sparkles className="w-3.5 h-3.5 text-[#10B981]/40" />
               </div>
@@ -311,7 +285,7 @@ export default function CMALearningDashboard() {
             <div className="p-5 rounded-[24px] bg-[#FFF6EB] border border-[#FCE9D0] shadow-[0_4px_16px_-4px_rgba(245,158,11,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
               <div className="flex items-center justify-between">
                 <div className="w-9 h-9 rounded-full bg-white/90 text-[#F59E0B] flex items-center justify-center shadow-xs">
-                  <Award className="w-4 h-4 text-[#F59E0B]" />
+                  <MaterialIcon name="practice-zone" className="w-4 h-4 text-[#F59E0B]" />
                 </div>
                 <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]/40" />
               </div>
@@ -327,7 +301,7 @@ export default function CMALearningDashboard() {
             <div className="p-5 rounded-[24px] bg-[#EDF4FD] border border-[#D7E6FA] shadow-[0_4px_16px_-4px_rgba(59,130,246,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
               <div className="flex items-center justify-between">
                 <div className="w-9 h-9 rounded-full bg-white/90 text-[#3B82F6] flex items-center justify-center shadow-xs">
-                  <TrendingUp className="w-4 h-4 text-[#3B82F6]" />
+                  <MaterialIcon name="trending-up" className="w-4 h-4 text-[#3B82F6]" />
                 </div>
                 <Sparkles className="w-3.5 h-3.5 text-[#3B82F6]/40" />
               </div>
@@ -341,7 +315,7 @@ export default function CMALearningDashboard() {
           </div>
 
           {/* ============================================================= */}
-          {/* FEATURED: "CONTINUE LEARNING" HERO CARD (Image 2 design)       */}
+          {/* FEATURED: "CONTINUE LEARNING" HERO CARD                       */}
           {/* ============================================================= */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -366,14 +340,14 @@ export default function CMALearningDashboard() {
               </svg>
 
               <div className="relative z-10 space-y-4 max-w-lg">
-                {/* Pill Badges */}
+                {/* Pill Badges with Material Icons */}
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm text-[#059669] text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
-                    <BookOpen className="w-3.5 h-3.5" />
+                    <MaterialIcon name="study-library" className="w-3.5 h-3.5 text-[#059669]" />
                     <span>Beginner</span>
                   </span>
                   <span className="px-3 py-1 rounded-full bg-white/90 text-[#333333] text-xs font-mono font-medium flex items-center gap-1.5 shadow-2xs">
-                    <Clock className="w-3.5 h-3.5 text-[#666666]" />
+                    <MaterialIcon name="schedule" className="w-3.5 h-3.5 text-[#666666]" />
                     <span>45 Min</span>
                   </span>
                 </div>
@@ -388,7 +362,7 @@ export default function CMALearningDashboard() {
                   </p>
                 </div>
 
-                {/* Bottom Row: Progress + White Circle Action Button */}
+                {/* Bottom Row: Progress + Material Arrow-Outward Action Button */}
                 <div className="pt-2 flex items-center justify-between">
                   <div className="text-xs sm:text-sm font-apfel font-bold text-[#0F291E]">
                     9 Of 12 Lessons
@@ -399,7 +373,10 @@ export default function CMALearningDashboard() {
                     className="w-11 h-11 rounded-full bg-white text-[#0F291E] hover:scale-105 active:scale-95 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center cursor-pointer group"
                     title="Resume Course"
                   >
-                    <ArrowUpRight className="w-5 h-5 text-[#0F291E] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    <MaterialIcon
+                      name="arrow-outward"
+                      className="w-5 h-5 text-[#0F291E] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+                    />
                   </button>
                 </div>
               </div>
@@ -407,7 +384,7 @@ export default function CMALearningDashboard() {
           </div>
 
           {/* ============================================================= */}
-          {/* THE 6 MODULES: RECOMMENDED APP STRUCTURE (Image 1)             */}
+          {/* THE 6 MODULES: RECOMMENDED APP STRUCTURE (Material Icons)      */}
           {/* ============================================================= */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -423,38 +400,35 @@ export default function CMALearningDashboard() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {MODULES.map((mod) => {
-                const Icon = mod.icon;
-                return (
-                  <div
-                    key={mod.id}
-                    onClick={() => setActiveModuleModal(mod)}
-                    className="p-5 rounded-[24px] bg-white border border-[#EBE8E1] hover:border-[#D0CABE] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div
-                        className="w-11 h-11 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105"
-                        style={{ backgroundColor: mod.bgPastel, color: mod.color }}
-                      >
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <span className="text-[11px] font-mono text-[#88867E] bg-[#FAF9F5] px-2.5 py-1 rounded-full border border-[#EFECE6]">
-                        {mod.count}
-                      </span>
+              {MODULES.map((mod) => (
+                <div
+                  key={mod.id}
+                  onClick={() => setActiveModuleModal(mod)}
+                  className="p-5 rounded-[24px] bg-white border border-[#EBE8E1] hover:border-[#D0CABE] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
+                >
+                  <div className="flex items-start justify-between">
+                    <div
+                      className="w-11 h-11 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105"
+                      style={{ backgroundColor: mod.bgPastel, color: mod.color }}
+                    >
+                      <MaterialIcon name={mod.iconName} className="w-5 h-5" />
                     </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-apfel font-bold text-base text-[#111110] group-hover:text-[#000]">
-                          {mod.title}
-                        </h3>
-                        <ArrowRight className="w-4 h-4 text-[#C4C2BC] group-hover:text-[#111110] group-hover:translate-x-1 transition-all" />
-                      </div>
-                      <p className="text-xs text-[#77756F] font-absans">{mod.subtitle}</p>
-                    </div>
+                    <span className="text-[11px] font-mono text-[#88867E] bg-[#FAF9F5] px-2.5 py-1 rounded-full border border-[#EFECE6]">
+                      {mod.count}
+                    </span>
                   </div>
-                );
-              })}
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-apfel font-bold text-base text-[#111110] group-hover:text-[#000]">
+                        {mod.title}
+                      </h3>
+                      <ArrowRight className="w-4 h-4 text-[#C4C2BC] group-hover:text-[#111110] group-hover:translate-x-1 transition-all" />
+                    </div>
+                    <p className="text-xs text-[#77756F] font-absans">{mod.subtitle}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -462,7 +436,7 @@ export default function CMALearningDashboard() {
           <div className="p-6 rounded-[28px] bg-white border border-[#EBE8E1] shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#F5F3ED]">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#10B981]" />
+                <MaterialIcon name="study-planner" className="w-4 h-4 text-[#10B981]" />
                 <h3 className="font-apfel font-bold text-sm text-[#111110]">
                   Today&apos;s Target Revision Schedule
                 </h3>
@@ -526,19 +500,18 @@ export default function CMALearningDashboard() {
         </main>
 
         {/* =============================================================== */}
-        {/* FLOATING DARK CAPSULE DOCK NAVBAR (Image 2 mobile view)         */}
+        {/* FLOATING DARK CAPSULE DOCK NAVBAR (Material Symbols)            */}
         {/* =============================================================== */}
         <div className="fixed bottom-5 inset-x-0 flex justify-center z-40 px-4 pointer-events-none lg:hidden">
           <nav className="pointer-events-auto flex items-center justify-between gap-1 p-1.5 rounded-full bg-[#111110] shadow-[0_12px_36px_-6px_rgba(0,0,0,0.35)] border border-white/10 text-white w-full max-w-xs">
             {[
-              { id: "home", icon: Home, label: "Home" },
-              { id: "library", icon: BookOpen, label: "Library" },
-              { id: "lectures", icon: Play, label: "Lectures" },
-              { id: "analytics", icon: BarChart3, label: "Stats" },
-              { id: "profile", icon: User, label: "Profile" },
+              { id: "home", iconName: "home" as MaterialIconName, label: "Home" },
+              { id: "library", iconName: "study-library" as MaterialIconName, label: "Library" },
+              { id: "lectures", iconName: "play" as MaterialIconName, label: "Lectures" },
+              { id: "analytics", iconName: "study-analytics" as MaterialIconName, label: "Stats" },
+              { id: "profile", iconName: "profile" as MaterialIconName, label: "Profile" },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
-              const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
@@ -548,7 +521,7 @@ export default function CMALearningDashboard() {
                   }`}
                   title={tab.label}
                 >
-                  <Icon className="w-4 h-4" />
+                  <MaterialIcon name={tab.iconName} className="w-5 h-5" />
                 </button>
               );
             })}
@@ -571,7 +544,7 @@ export default function CMALearningDashboard() {
                     color: activeModuleModal.color,
                   }}
                 >
-                  <activeModuleModal.icon className="w-6 h-6" />
+                  <MaterialIcon name={activeModuleModal.iconName} className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="font-apfel text-lg font-bold text-[#111110]">
