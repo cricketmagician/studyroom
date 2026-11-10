@@ -1,1484 +1,622 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
+import Link from "next/link";
 import {
-  Flame,
-  CheckCircle2,
-  Plus,
-  Trash2,
-  Headphones,
-  AlertOctagon,
-  X,
-  ChevronRight,
-  Sun,
-  Moon,
-  Volume2,
-  VolumeX,
-  ArrowRight,
-  Sparkles,
-  Shield,
-  Layers,
-  CircleDot,
-  Fingerprint,
-  LayoutDashboard,
+  BookOpen,
+  Video,
+  CheckSquare,
+  TrendingUp,
+  Trophy,
   Calendar,
-  Activity,
-  Settings,
-  LogOut,
-  Radio,
-  Menu,
+  Bell,
+  Search,
+  ArrowUpRight,
+  Star,
+  Clock,
+  Award,
+  Play,
+  User,
+  Home,
+  BarChart3,
+  Sparkles,
+  ChevronRight,
+  CheckCircle2,
+  Bookmark,
+  Flame,
+  FileText,
+  Compass,
+  ArrowRight,
+  HelpCircle,
+  X,
+  Target,
+  GraduationCap,
 } from "lucide-react";
 
-// Web Audio API engine for tactile mechanical clicks & haptics
-class AudioEngine {
-  private ctx: AudioContext | null = null;
-  private droneOsc: OscillatorNode | null = null;
-  private droneGain: GainNode | null = null;
-
-  private getContext(): AudioContext | null {
-    if (typeof window === "undefined") return null;
-    if (!this.ctx) {
-      const AudioCtx =
-        window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (AudioCtx) this.ctx = new AudioCtx();
-    }
-    if (this.ctx && this.ctx.state === "suspended") {
-      this.ctx.resume();
-    }
-    return this.ctx;
-  }
-
-  playHaptic(type: "slab" | "unslab" | "block" | "click" | "complete") {
-    try {
-      const ctx = this.getContext();
-      if (!ctx) return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      const now = ctx.currentTime;
-
-      if (type === "slab") {
-        // Heavy, satisfying physical dampening thud
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(130, now);
-        osc.frequency.exponentialRampToValueAtTime(50, now + 0.16);
-        gain.gain.setValueAtTime(0.38, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
-        osc.start(now);
-        osc.stop(now + 0.16);
-      } else if (type === "unslab") {
-        // High precision spring release
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(200, now);
-        osc.frequency.exponentialRampToValueAtTime(520, now + 0.18);
-        gain.gain.setValueAtTime(0.24, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-        osc.start(now);
-        osc.stop(now + 0.18);
-      } else if (type === "block") {
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(110, now);
-        osc.frequency.exponentialRampToValueAtTime(45, now + 0.22);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-        osc.start(now);
-        osc.stop(now + 0.22);
-      } else if (type === "complete") {
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(523.25, now);
-        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.2);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-        osc.start(now);
-        osc.stop(now + 0.2);
-      } else {
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(750, now);
-        gain.gain.setValueAtTime(0.07, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
-        osc.start(now);
-        osc.stop(now + 0.035);
-      }
-    } catch {
-      // AudioContext blocked
-    }
-  }
-
-  toggleBinauralDrone(enable: boolean) {
-    try {
-      const ctx = this.getContext();
-      if (!ctx) return;
-      if (enable) {
-        if (this.droneOsc) return;
-        this.droneOsc = ctx.createOscillator();
-        this.droneGain = ctx.createGain();
-        this.droneOsc.type = "sine";
-        this.droneOsc.frequency.setValueAtTime(196, ctx.currentTime);
-        this.droneGain.gain.setValueAtTime(0.001, ctx.currentTime);
-        this.droneGain.gain.exponentialRampToValueAtTime(0.04, ctx.currentTime + 1.5);
-        this.droneOsc.connect(this.droneGain);
-        this.droneGain.connect(ctx.destination);
-        this.droneOsc.start();
-      } else {
-        if (this.droneOsc && this.droneGain) {
-          this.droneGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
-          setTimeout(() => {
-            try {
-              this.droneOsc?.stop();
-              this.droneOsc?.disconnect();
-              this.droneOsc = null;
-              this.droneGain = null;
-            } catch {
-              // ignore
-            }
-          }, 900);
-        }
-      }
-    } catch {
-      // Audio error
-    }
-  }
-}
-
-const audioEngine = new AudioEngine();
-
-// Data models
-interface UserSession {
-  email: string;
-  name: string;
-}
-
-interface BlockedApp {
-  id: string;
-  name: string;
-  category: string;
-  iconLetter: string;
-  blocked: boolean;
-  intercepts: number;
-}
-
-interface FocusMode {
+// The 6 Modules from Image 1: Recommended App Structure
+interface StudyModule {
   id: string;
   title: string;
   subtitle: string;
-  durationMinutes: number;
-  subject: string;
+  icon: React.ElementType;
+  color: string;
+  bgPastel: string;
+  borderPastel: string;
+  count: string;
 }
 
-interface StudySlot {
-  id: string;
-  subject: string;
-  topic: string;
-  durationMinutes: number;
-  completed: boolean;
-  timeSlot: string;
-}
+const MODULES: StudyModule[] = [
+  {
+    id: "library",
+    title: "Study Library",
+    subtitle: "PDFs, notes and books",
+    icon: BookOpen,
+    color: "#8B5CF6",
+    bgPastel: "#F4EFFE",
+    borderPastel: "#E5DAFA",
+    count: "48 Books & Notes",
+  },
+  {
+    id: "lectures",
+    title: "Video Lectures",
+    subtitle: "Recorded classes",
+    icon: Video,
+    color: "#10B981",
+    bgPastel: "#EAF7EE",
+    borderPastel: "#D2EFE0",
+    count: "124 Videos",
+  },
+  {
+    id: "practice",
+    title: "Practice Zone",
+    subtitle: "MCQs and mock tests",
+    icon: CheckSquare,
+    color: "#F59E0B",
+    bgPastel: "#FEF7EC",
+    borderPastel: "#FDEBCB",
+    count: "1,200+ Questions",
+  },
+  {
+    id: "analytics",
+    title: "Study Analytics",
+    subtitle: "Subject-wise study hours",
+    icon: TrendingUp,
+    color: "#3B82F6",
+    bgPastel: "#EFF6FE",
+    borderPastel: "#DBEAFE",
+    count: "42h This Month",
+  },
+  {
+    id: "challenges",
+    title: "Friend Challenges",
+    subtitle: "Study competitions",
+    icon: Trophy,
+    color: "#EC4899",
+    bgPastel: "#FDF2F8",
+    borderPastel: "#FCE7F3",
+    count: "Rank #4 in Group",
+  },
+  {
+    id: "planner",
+    title: "Study Planner",
+    subtitle: "Goals and exam countdown",
+    icon: Calendar,
+    color: "#06B6D4",
+    bgPastel: "#ECFEFF",
+    borderPastel: "#CFFAFE",
+    count: "48 Days to Exam",
+  },
+];
 
-export default function SlabApp() {
-  const [mounted, setMounted] = useState(false);
+export default function CMALearningDashboard() {
+  const [activeTab, setActiveTab] = useState<string>("home");
+  const [activeModuleModal, setActiveModuleModal] = useState<StudyModule | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Authentication: User session (defaults to null to showcase the Apple-grade login experience)
-  const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
-  const [showEmailForm, setShowEmailForm] = useState(false);
-  const [inputEmail, setInputEmail] = useState("");
-  const [inputPassword, setInputPassword] = useState("");
-
-  // App Theme: 'alabaster' (Screen 4 & 5) or 'dark' (Stealth obsidian)
-  const [theme, setTheme] = useState<"alabaster" | "dark">("alabaster");
-
-  // Navigation: "slab" | "schedule" | "activity" | "settings"
-  const [activeTab, setActiveTab] = useState<"slab" | "schedule" | "activity" | "settings">("slab");
-
-  // Slab Physical State
-  const [isSlabbed, setIsSlabbed] = useState(false);
-  const [secondsRemaining, setSecondsRemaining] = useState(50 * 60);
-  const [reclaimedSeconds, setReclaimedSeconds] = useState(12 * 3600 + 51 * 60);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [binauralAudio, setBinauralAudio] = useState(false);
-
-  // Focus Modes
-  const [modes] = useState<FocusMode[]>([
-    {
-      id: "mode-no-socials",
-      title: "No Socials",
-      subtitle: "Blocks 4 apps • 3 websites",
-      durationMinutes: 50,
-      subject: "Cost Accounting",
-    },
-    {
-      id: "mode-deep-study",
-      title: "Deep Academic Flow",
-      subtitle: "Blocks 6 apps • Strict Mode",
-      durationMinutes: 90,
-      subject: "Direct Taxation",
-    },
-    {
-      id: "mode-spaced-revision",
-      title: "Spaced Revision",
-      subtitle: "Blocks all media • 30m sprint",
-      durationMinutes: 30,
-      subject: "Revision MCQs",
-    },
-  ]);
-  const [selectedModeId, setSelectedModeId] = useState("mode-no-socials");
-  const [showModeDrawer, setShowModeDrawer] = useState(false);
-
-  // Blocked Apps Matrix
-  const [apps, setApps] = useState<BlockedApp[]>([
-    { id: "ig", name: "Instagram", category: "Social & Reels", iconLetter: "IG", blocked: true, intercepts: 9 },
-    { id: "yt", name: "YouTube Shorts", category: "Video & Media", iconLetter: "YT", blocked: true, intercepts: 5 },
-    { id: "x", name: "X (Twitter)", category: "Microblogging", iconLetter: "X", blocked: true, intercepts: 3 },
-    { id: "reddit", name: "Reddit", category: "Forums", iconLetter: "RD", blocked: true, intercepts: 2 },
-    { id: "tiktok", name: "TikTok", category: "Shortform", iconLetter: "TT", blocked: true, intercepts: 0 },
-    { id: "netflix", name: "Netflix & OTT", category: "Entertainment", iconLetter: "NF", blocked: false, intercepts: 0 },
-  ]);
-
-  // Today's Study Slots (Schedule Tab)
-  const [studySlots, setStudySlots] = useState<StudySlot[]>([
-    {
-      id: "slot-1",
-      subject: "Cost Accounting",
-      topic: "Marginal Costing & Break-Even Decision Matrix",
-      durationMinutes: 50,
-      completed: false,
-      timeSlot: "09:00 - 09:50 AM",
-    },
-    {
-      id: "slot-2",
-      subject: "Direct Taxation",
-      topic: "Capital Gains u/s 45-55 & Deductions u/s 80C-80U",
-      durationMinutes: 45,
-      completed: false,
-      timeSlot: "11:30 - 12:15 PM",
-    },
-    {
-      id: "slot-3",
-      subject: "Spaced Revision",
-      topic: "Formula Sheet & 20 High-Yield Exam MCQs",
-      durationMinutes: 30,
-      completed: false,
-      timeSlot: "04:00 - 04:30 PM",
-    },
-  ]);
-
-  // Simulated Block Screen Modal
-  const [simulatedBlockApp, setSimulatedBlockApp] = useState<BlockedApp | null>(null);
-  const [unslabProgress, setUnslabProgress] = useState(0);
-  const unslabHoldInterval = useRef<NodeJS.Timeout | null>(null);
-
-  // Intercept Audit Logs
-  const [interceptLogs, setInterceptLogs] = useState<
-    { id: string; app: string; time: string; focusSubject: string }[]
-  >([
-    { id: "log-1", app: "Instagram", time: "11:15", focusSubject: "Cost Accounting" },
-    { id: "log-2", app: "YouTube Shorts", time: "12:02", focusSubject: "Cost Accounting" },
-    { id: "log-3", app: "X (Twitter)", time: "16:40", focusSubject: "Direct Taxation" },
-  ]);
-
-  // Carousel Slides for Apple-grade Onboarding
-  const [carouselIndex, setCarouselIndex] = useState(0);
-  const carouselSlides = [
-    {
-      id: "physical-lock",
-      caption: "Tactile ceramic lock to break screen addiction.",
-      illustration: "/illustrations/desk-coffee.svg",
-    },
-    {
-      id: "curated-study",
-      caption: "Curated academic sprints & revision blocks.",
-      illustration: "/illustrations/study-notes.svg",
-    },
-    {
-      id: "app-shield",
-      caption: "Strict distraction intercept matrix.",
-      illustration: "/illustrations/reading-bench.svg",
-    },
-    {
-      id: "binaural-drone",
-      caption: "Synthesized 40Hz acoustic focus sanctuary.",
-      illustration: "/illustrations/bookshelf.svg",
-    },
-  ];
-
-  const handleSocialLogin = (provider: "Google" | "GitHub") => {
-    if (soundEnabled) audioEngine.playHaptic("unslab");
-    const user: UserSession = {
-      email: provider === "Google" ? "neeraj@student.ac.in" : "neerajsingh@github.com",
-      name: "NEERAJ",
-    };
-    setCurrentUser(user);
-    try {
-      localStorage.setItem("still_user", JSON.stringify(user));
-    } catch {
-      // ignore
-    }
+  const user = {
+    name: "Neeraj Singh",
+    role: "CMA Aspirant",
+    streakDays: 6,
+    examCountdown: 48,
   };
 
-  // Safe SSR Mount & LocalStorage load
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const savedUser =
-        localStorage.getItem("still_user") ||
-        localStorage.getItem("intersemester_user") ||
-        localStorage.getItem("slab_user");
-      if (savedUser) setCurrentUser(JSON.parse(savedUser));
-      const savedTheme = localStorage.getItem("slab_theme") as "alabaster" | "dark" | null;
-      if (savedTheme) setTheme(savedTheme);
-      const savedReclaimed = localStorage.getItem("slab_reclaimed_sec");
-      if (savedReclaimed) setReclaimedSeconds(parseInt(savedReclaimed, 10));
-    } catch {
-      // storage unavailable
-    }
-  }, []);
-
-  // Timer countdown loop
-  useEffect(() => {
-    if (!isSlabbed) return;
-    const interval = setInterval(() => {
-      setSecondsRemaining((prev) => {
-        if (prev <= 1) {
-          setIsSlabbed(false);
-          audioEngine.playHaptic("complete");
-          audioEngine.toggleBinauralDrone(false);
-          setBinauralAudio(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-      setReclaimedSeconds((prev) => {
-        const next = prev + 1;
-        try {
-          localStorage.setItem("slab_reclaimed_sec", next.toString());
-        } catch {
-          // ignore
-        }
-        return next;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isSlabbed]);
-
-  // Active Focus Mode
-  const activeMode = modes.find((m) => m.id === selectedModeId) || modes[0];
-
-  // Slab Toggle (The physical action)
-  const handleToggleSlab = () => {
-    if (soundEnabled) audioEngine.playHaptic(isSlabbed ? "unslab" : "slab");
-    if (!isSlabbed) {
-      setSecondsRemaining(activeMode.durationMinutes * 60);
-      setIsSlabbed(true);
-      if (binauralAudio) audioEngine.toggleBinauralDrone(true);
-    } else {
-      setIsSlabbed(false);
-      audioEngine.toggleBinauralDrone(false);
-    }
-  };
-
-  // App Toggle
-  const handleToggleApp = (id: string) => {
-    if (soundEnabled) audioEngine.playHaptic("click");
-    setApps((prev) =>
-      prev.map((app) => (app.id === id ? { ...app, blocked: !app.blocked } : app))
-    );
-  };
-
-  // Test Open App Simulation
-  const simulateOpenApp = (app: BlockedApp) => {
-    if (!isSlabbed) {
-      alert(`SLAB is idle. ${app.name} opens normally.`);
-      return;
-    }
-    if (!app.blocked) {
-      alert(`${app.name} is whitelisted in ${activeMode.title}.`);
-      return;
-    }
-    if (soundEnabled) audioEngine.playHaptic("block");
-    const now = new Date();
-    const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}`;
-
-    setApps((prev) =>
-      prev.map((a) => (a.id === app.id ? { ...a, intercepts: a.intercepts + 1 } : a))
-    );
-    setInterceptLogs((prev) => [
-      { id: `log-${Date.now()}`, app: app.name, time: timeStr, focusSubject: activeMode.subject },
-      ...prev,
-    ]);
-    setSimulatedBlockApp(app);
-  };
-
-  // Emergency Hold to Unslab
-  const startHoldUnslab = () => {
-    setUnslabProgress(0);
-    const start = Date.now();
-    const duration = 3000;
-
-    unslabHoldInterval.current = setInterval(() => {
-      const elapsed = Date.now() - start;
-      const pct = Math.min(100, Math.round((elapsed / duration) * 100));
-      setUnslabProgress(pct);
-
-      if (pct >= 100) {
-        if (unslabHoldInterval.current) clearInterval(unslabHoldInterval.current);
-        setIsSlabbed(false);
-        setSimulatedBlockApp(null);
-        setUnslabProgress(0);
-        audioEngine.playHaptic("unslab");
-        audioEngine.toggleBinauralDrone(false);
-      }
-    }, 40);
-  };
-
-  const cancelHoldUnslab = () => {
-    if (unslabHoldInterval.current) {
-      clearInterval(unslabHoldInterval.current);
-      unslabHoldInterval.current = null;
-    }
-    setUnslabProgress(0);
-  };
-
-  // Toggle Theme
-  const toggleTheme = () => {
-    const next = theme === "alabaster" ? "dark" : "alabaster";
-    setTheme(next);
-    audioEngine.playHaptic("click");
-    try {
-      localStorage.setItem("slab_theme", next);
-    } catch {
-      // ignore
-    }
-  };
-
-  // Login handler
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputEmail.trim()) return;
-    const user: UserSession = {
-      email: inputEmail.trim(),
-      name: inputEmail.split("@")[0].toUpperCase(),
-    };
-    setCurrentUser(user);
-    try {
-      localStorage.setItem("slab_user", JSON.stringify(user));
-    } catch {
-      // ignore
-    }
-    audioEngine.playHaptic("unslab");
-    setShowEmailForm(false);
-  };
-
-  // Instant demo login
-  const handleInstantDemoLogin = () => {
-    const user: UserSession = {
-      email: "neeraj@student.ac.in",
-      name: "NEERAJ",
-    };
-    setCurrentUser(user);
-    try {
-      localStorage.setItem("slab_user", JSON.stringify(user));
-    } catch {
-      // ignore
-    }
-    audioEngine.playHaptic("unslab");
-  };
-
-  // Sign out / Lock Device
-  const handleSignOut = () => {
-    audioEngine.playHaptic("click");
-    setIsSlabbed(false);
-    audioEngine.toggleBinauralDrone(false);
-    setCurrentUser(null);
-    try {
-      localStorage.removeItem("slab_user");
-    } catch {
-      // ignore
-    }
-  };
-
-  const formatReclaimed = (totalSec: number) => {
-    const hours = Math.floor(totalSec / 3600);
-    const mins = Math.floor((totalSec % 3600) / 60);
-    return `${hours}h ${mins}m today`;
-  };
-
-  const formatTimer = (totalSec: number) => {
-    const mins = Math.floor(totalSec / 60);
-    const secs = totalSec % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-white text-[#999999] flex items-center justify-center font-mono text-xs tracking-widest">
-        INITIALIZING STILL...
-      </div>
-    );
-  }
-
-  // =========================================================================
-  // APPLE SENIOR DESIGNER LEVEL LOGIN SCREEN (GOLDEN RATIO SPACING & HARMONY)
-  // Brand: STILL // Featuring Tegaki dynamic hand-drawn stroke accents
-  // & Golden Ratio (phi ~ 1.618) spacing scale [8, 13, 21, 26, 34, 52]
-  // =========================================================================
-  if (!currentUser) {
-    const activeSlide = carouselSlides[carouselIndex];
-
-    return (
-      <div
-        suppressHydrationWarning
-        className="min-h-screen bg-[#FBFBFD] sm:py-8 flex items-center justify-center"
-      >
-        <div className="w-full max-w-[400px] min-h-screen sm:min-h-[820px] bg-white sm:rounded-[36px] sm:border sm:border-[#E5E7EB] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.06)] flex flex-col justify-between px-[26px] pt-[26px] pb-[21px] relative overflow-hidden text-[#111110] font-absans select-none">
-          {/* Top Brand Header (Golden Height & Alignment) */}
-          <header className="flex items-center justify-between pb-[13px]">
-            <div className="flex items-center gap-[10px]">
-              {/* Tactile Monolith Mark (Golden 30px Box) */}
-              <div className="w-[30px] h-[30px] rounded-xl bg-[#111110] text-white flex items-center justify-center shadow-xs">
-                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M4 3h-1v1" />
-                  <path d="M20 3h1v1" />
-                  <path d="M4 21h-1v-1" />
-                  <path d="M20 21h1v-1" />
-                  <circle cx="12" cy="12" r="2.8" fill="currentColor" />
-                </svg>
-              </div>
-              <span className="font-apfel text-xs tracking-[0.24em] font-black uppercase text-[#111110]">
-                STILL
-              </span>
-            </div>
-
-            <button
-              onClick={() => alert("STILL Hardware Companion • Support 24/7 at support@stillfocus.com")}
-              className="text-xs font-absans text-[#888888] hover:text-[#111110] transition-colors cursor-pointer"
-            >
-              Support
-            </button>
-          </header>
-
-          {/* Centerpiece: Golden Proportion Hero Artwork & Typography */}
-          <div className="my-auto flex flex-col items-center w-full">
-            {/* Visual Stage: Golden Height with Premium Warm Alabaster Ceramic Plinth */}
-            <div className="w-full h-[250px] sm:h-[260px] flex items-center justify-center relative select-none">
-              {/* Soft Ambient Warm Halo */}
-              <div className="absolute w-[85%] h-[220px] rounded-full bg-gradient-to-tr from-[#FCEEE7]/60 via-[#F6F2E9]/70 to-[#ECE4D8]/50 blur-2xl -z-10 pointer-events-none" />
-
-              {/* Premium Tactile Ceramic Plinth Backdrop */}
-              <div className="w-full h-[240px] rounded-[32px] bg-gradient-to-b from-[#F8F6F2] via-[#F3EFE8] to-[#EAE5DC] border border-[#E8E2D6]/70 shadow-[0_12px_30px_-8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.9)] relative flex items-center justify-center p-4 overflow-hidden">
-                {/* Hand-Drawn Tegaki Delicate Organic Ring Accent */}
-                <svg
-                  viewBox="0 0 200 200"
-                  className="absolute inset-0 w-full h-full text-[#111110]/[0.03] pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <circle cx="100" cy="100" r="88" strokeDasharray="5 5" />
-                  <path d="M 30 170 Q 100 190 170 170" strokeLinecap="round" strokeDasharray="6 4" />
-                </svg>
-
-                {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
-                <div className="absolute top-[16%] left-[20%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none z-10">
-                  ✦
-                </div>
-                <div className="absolute top-[26%] right-[20%] w-2 h-2 rounded-full bg-[#FF5F56] select-none pointer-events-none z-10" />
-
-                {/* Full-Size Vector Artwork */}
-                <img
-                  src={activeSlide.illustration}
-                  alt={activeSlide.caption}
-                  className="w-full h-full max-h-[205px] object-contain filter contrast-105 transition-all duration-300 transform hover:scale-[1.02] relative z-0"
-                />
-              </div>
-            </div>
-
-            {/* Apple Senior Designer Typography: Golden Spacing (mt-34px) */}
-            <div className="mt-[28px] sm:mt-[34px] w-full text-left">
-              <h1 className="text-[34px] leading-[1.15] font-apfel font-bold tracking-tight text-[#111110]">
-                <span className="block animate-text-reveal-1">
-                  Silence the noise.
-                </span>
-                <span className="block animate-text-reveal-2 text-[#111110]">
-                  Reclaim your{" "}
-                  <span className="relative inline-block text-[#111110]">
-                    focus.
-                    {/* Tegaki Dynamic Organic Brush Stroke Underline */}
-                    <svg
-                      viewBox="0 0 110 14"
-                      className="absolute -bottom-2 left-0 w-full overflow-visible text-[#FF5F56] pointer-events-none tegaki-stroke-animated"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M 3 8 C 30 13, 75 13, 106 6" />
-                    </svg>
-                  </span>
-                </span>
-              </h1>
-              {/* Golden Gap (mt-13px) */}
-              <p className="mt-[13px] text-[14px] leading-[22px] font-absans text-[#666666] animate-text-reveal-3">
-                A tactile hardware sanctuary engineered for deep work.
-              </p>
-            </div>
-
-            {/* Inline Email Drawer if Toggled */}
-            {showEmailForm && (
-              <form
-                onSubmit={handleLoginSubmit}
-                className="w-full mt-[13px] p-[13px] rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] space-y-[10px] animate-in fade-in duration-150"
-              >
-                <div className="text-xs font-absans font-medium text-[#111110]">
-                  Enter your student or university email
-                </div>
-                <input
-                  type="email"
-                  placeholder="student@domain.ac.in"
-                  value={inputEmail}
-                  onChange={(e) => setInputEmail(e.target.value)}
-                  className="w-full px-[13px] py-[10px] rounded-xl border border-[#E5E7EB] bg-white text-xs font-absans text-[#111110] focus:outline-none focus:border-[#111110]"
-                  autoFocus
-                  required
-                />
-                <div className="flex items-center gap-[8px] pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setShowEmailForm(false)}
-                    className="w-1/3 py-[10px] text-xs font-absans text-[#666666] hover:text-[#111110] cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="w-2/3 py-[10px] rounded-xl bg-[#111110] text-white text-xs font-absans font-medium hover:bg-black cursor-pointer shadow-xs"
-                  >
-                    Continue
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* Primary & Secondary Authentication Buttons: Golden Gap (mt-34px) */}
-            <div className="w-full mt-[28px] sm:mt-[34px] space-y-[13px]">
-              {/* Primary Black Button: Continue with Google (Golden Height 52px) */}
-              <button
-                onClick={() => handleSocialLogin("Google")}
-                className="w-full h-[52px] px-4 rounded-2xl bg-[#111110] hover:bg-black active:scale-[0.99] text-white font-absans font-semibold text-[14px] transition-all flex items-center justify-center gap-3 cursor-pointer shadow-sm"
-              >
-                <span className="w-5 h-5 rounded-md bg-white flex items-center justify-center flex-shrink-0">
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5">
-                    <path
-                      fill="#4285F4"
-                      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                    />
-                  </svg>
-                </span>
-                <span>Continue with Google</span>
-              </button>
-
-              {/* Secondary Row: GitHub & Email (Golden Gap 13px) */}
-              <div className="grid grid-cols-2 gap-[13px]">
-                <button
-                  onClick={() => handleSocialLogin("GitHub")}
-                  className="h-[46px] px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                  </svg>
-                  <span>GitHub</span>
-                </button>
-
-                <button
-                  onClick={() => setShowEmailForm(!showEmailForm)}
-                  className="h-[46px] px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect width="20" height="16" x="2" y="4" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                  </svg>
-                  <span>Email</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Legal Notice (Golden Gap mt-13px) */}
-            <p className="mt-[13px] text-[11px] leading-[16px] text-center text-[#888888] font-absans">
-              By continuing you agree to our{" "}
-              <a href="#terms" className="underline text-[#555555] hover:text-[#111110]">
-                Terms
-              </a>{" "}
-              and{" "}
-              <a href="#privacy" className="underline text-[#555555] hover:text-[#111110]">
-                Privacy Policy
-              </a>
-              .
-            </p>
-          </div>
-
-          {/* Bottom Footer (Golden Padding pt-21px) */}
-          <footer className="pt-[21px] flex items-center justify-between text-[11px] text-[#888888] font-absans border-t border-[#F3F4F6]">
-            <span>© 2026 Still Technologies Inc.</span>
-            <div className="flex items-center gap-[13px]">
-              <a href="#privacy" className="hover:text-[#111110] transition-colors">
-                Privacy
-              </a>
-              <a href="#terms" className="hover:text-[#111110] transition-colors">
-                Terms
-              </a>
-            </div>
-          </footer>
-        </div>
-      </div>
-    );
-  }
-
-  // =========================================================================
-  // =========================================================================
-  // =========================================================================
-  // SCREEN 4 & 5: AUTHENTICATED STILL PHYSICAL FOCUS COCKPIT
-  // Ultra-Minimalist Studio Dashboard (Apple / Dieter Rams / Linear finish)
-  // =========================================================================
   return (
-    <div
-      suppressHydrationWarning
-      className="min-h-screen w-full bg-[#FAF9F5] flex flex-col lg:flex-row font-absans text-[#111110] select-none"
-    >
+    <div className="min-h-screen w-full bg-[#FAF9F5] text-[#111110] font-absans flex flex-col lg:flex-row select-none">
       {/* =============================================================== */}
-      {/* DESKTOP SIDEBAR (Ultra Minimalist, w-60)                         */}
+      {/* DESKTOP SIDEBAR (Full width desktop dashboard studio)           */}
       {/* =============================================================== */}
-      <aside className="hidden lg:flex w-60 bg-[#FAF9F5] border-r border-[#EBE8E1] flex-col justify-between p-6 shrink-0 sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-64 bg-[#FCFBF8] border-r border-[#EFECE6] flex-col justify-between p-6 shrink-0 sticky top-0 h-screen select-none">
         <div className="space-y-8">
-          {/* Brand Mark: Pure & Elegant */}
-          <div className="flex items-center gap-2.5 pt-1">
-            <div className="w-6 h-6 rounded-md bg-[#111110] text-white flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <circle cx="12" cy="12" r="3" fill="currentColor" />
-              </svg>
-            </div>
-            <span className="font-apfel text-xs tracking-[0.24em] font-black uppercase text-[#111110]">
-              STILL
+          {/* Brand & Recommended Tag */}
+          <div className="space-y-1.5">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#EAF7EE] text-[#059669] text-[11px] font-semibold border border-[#D1F2DD]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+              Recommended App Structure
             </span>
+            <div className="flex items-center gap-2.5 pt-1">
+              <div className="w-8 h-8 rounded-xl bg-[#111110] text-white flex items-center justify-center shadow-xs">
+                <GraduationCap className="w-4 h-4" />
+              </div>
+              <div>
+                <h1 className="font-apfel text-sm font-bold tracking-tight text-[#111110]">
+                  CMA Study Hub
+                </h1>
+                <p className="text-[10px] text-[#88867E]">Student learning dashboard</p>
+              </div>
+            </div>
           </div>
 
-          {/* Navigation Links: Clean typographic list */}
+          {/* Navigation Links */}
           <nav className="space-y-1">
             {[
-              { id: "slab", label: "Sanctuary", icon: LayoutDashboard },
-              { id: "schedule", label: "Schedule", icon: Calendar },
-              { id: "activity", label: "Activity", icon: Activity },
-              { id: "settings", label: "Settings", icon: Settings },
-            ].map((tab) => {
-              const isActive = activeTab === tab.id;
-              const Icon = tab.icon;
+              { id: "home", label: "Dashboard", icon: Home },
+              { id: "library", label: "Study Library", icon: BookOpen },
+              { id: "lectures", label: "Video Lectures", icon: Video },
+              { id: "practice", label: "Practice Zone", icon: CheckSquare },
+              { id: "analytics", label: "Study Analytics", icon: BarChart3 },
+              { id: "challenges", label: "Friend Challenges", icon: Trophy },
+              { id: "planner", label: "Study Planner", icon: Calendar },
+            ].map((item) => {
+              const isActive = activeTab === item.id;
+              const Icon = item.icon;
               return (
                 <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id as typeof activeTab);
-                    if (soundEnabled) audioEngine.playHaptic("click");
-                  }}
-                  className={`w-full px-3 py-2 rounded-lg text-[13px] font-absans flex items-center justify-between transition-colors cursor-pointer ${
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full px-3.5 py-2.5 rounded-xl text-[13px] font-medium flex items-center justify-between transition-all cursor-pointer ${
                     isActive
-                      ? "text-[#111110] font-semibold bg-black/[0.04]"
-                      : "text-[#77756F] hover:text-[#111110] hover:bg-black/[0.02]"
+                      ? "bg-[#111110] text-white shadow-xs font-semibold"
+                      : "text-[#666560] hover:text-[#111110] hover:bg-[#F3EFE7]"
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-[#111110]" : "text-[#9E9B93]"}`} />
-                    <span>{tab.label}</span>
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-[#88867E]"}`} />
+                    <span>{item.label}</span>
                   </div>
-                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#FF5F56]" />}
+                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />}
                 </button>
               );
             })}
           </nav>
         </div>
 
-        {/* Sidebar Footer: Hardware Status & Profile */}
-        <div className="space-y-4 pt-4 border-t border-[#EBE8E1] text-xs">
-          {/* Subtle hardware status */}
-          <div className="flex items-center justify-between text-[11px] text-[#88867E]">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Ceramic Puck</span>
-            </span>
-            <span className="font-mono text-[10px]">94%</span>
+        {/* Sidebar Footer: User Profile */}
+        <div className="pt-4 border-t border-[#EFECE6] space-y-3">
+          <div className="p-3 rounded-2xl bg-gradient-to-b from-[#F8F6F2] to-[#EAE5DC] border border-[#E8E2D6] space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-apfel font-bold text-[#111110]">CMA Inter Group 1</span>
+              <span className="font-mono text-[10px] text-emerald-700 font-semibold">
+                {user.examCountdown}d left
+              </span>
+            </div>
+            <div className="w-full h-1.5 bg-black/10 rounded-full overflow-hidden mt-1.5">
+              <div className="h-full bg-[#10B981] rounded-full" style={{ width: "68%" }} />
+            </div>
           </div>
 
-          {/* User profile row */}
           <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-[#111110] text-white flex items-center justify-center font-apfel text-[11px] font-bold">
-                {currentUser.name.slice(0, 2)}
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-[#111110] text-white flex items-center justify-center font-apfel text-xs font-bold">
+                {user.name.slice(0, 2)}
               </div>
-              <div className="truncate max-w-[95px]">
-                <div className="text-xs font-semibold text-[#111110] truncate">{currentUser.name}</div>
-                <div className="text-[10px] text-[#88867E] truncate font-mono">6d streak</div>
+              <div className="truncate max-w-[110px]">
+                <div className="text-xs font-bold text-[#111110] truncate">{user.name}</div>
+                <div className="text-[10px] text-[#88867E] truncate">{user.role}</div>
               </div>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="p-1.5 text-[#9E9B93] hover:text-red-500 transition-colors cursor-pointer"
-              title="Sign out"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-1 font-apfel font-bold text-amber-500 text-[11px] px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200/60">
+              <Flame className="w-3 h-3 fill-amber-500" />
+              <span>{user.streakDays}D</span>
+            </div>
           </div>
         </div>
       </aside>
 
       {/* =============================================================== */}
-      {/* MAIN CONTENT AREA WITH MINIMALIST HEADER                        */}
+      {/* MAIN CONTENT AREA                                               */}
       {/* =============================================================== */}
-      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden pb-24 lg:pb-12">
         {/* Top Header Bar */}
-        <header className="h-14 px-6 lg:px-10 border-b border-[#EBE8E1] bg-[#FAF9F5]/80 backdrop-blur-md flex items-center justify-between sticky top-0 z-30 select-none">
-          {/* Left: Section title */}
-          <div className="flex items-center gap-2.5 text-xs">
-            <div className="lg:hidden flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-[#111110] text-white flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor">
-                  <circle cx="12" cy="12" r="3" fill="currentColor" />
-                </svg>
-              </div>
-              <span className="font-apfel font-black tracking-widest text-xs uppercase">STILL</span>
+        <header className="h-16 px-6 lg:px-10 border-b border-[#EFECE6] bg-[#FAF9F5]/80 backdrop-blur-md flex items-center justify-between sticky top-0 z-30 select-none">
+          {/* Left: User Avatar & Welcome Details */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#111110] text-white flex items-center justify-center font-apfel text-xs font-bold shadow-xs">
+              {user.name.slice(0, 2)}
             </div>
-
-            <div className="hidden lg:flex items-center gap-2">
-              <span className="font-apfel font-bold text-[#111110]">
-                {activeTab === "slab" && "Sanctuary"}
-                {activeTab === "schedule" && "Schedule"}
-                {activeTab === "activity" && "Activity"}
-                {activeTab === "settings" && "Settings"}
-              </span>
-              <span className="text-[#CCC9BF]">•</span>
-              <span className="text-[11px] font-mono text-[#88867E]">
-                {isSlabbed ? "Focus locked" : "Hardware linked"}
-              </span>
+            <div>
+              <div className="text-xs font-apfel font-bold text-[#111110] flex items-center gap-1.5">
+                <span>{user.name}</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#EAF7EE] text-[#059669] font-medium border border-[#D1F2DD]">
+                  {user.role}
+                </span>
+              </div>
+              <div className="text-[11px] text-[#88867E] font-absans">
+                Target: CMA Intermediate 2026
+              </div>
             </div>
           </div>
 
-          {/* Right: Audio toggle & Reclaimed attention */}
+          {/* Right Header: Search & Bell */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                setSoundEnabled(!soundEnabled);
-                audioEngine.playHaptic("click");
-              }}
-              className="p-1.5 text-[#88867E] hover:text-[#111110] transition-colors cursor-pointer"
-              title={soundEnabled ? "Mute clicks" : "Enable clicks"}
-            >
-              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-            </button>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#EBE8E1] text-xs text-[#88867E] shadow-2xs w-60">
+              <Search className="w-3.5 h-3.5 text-[#AAA79E]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search notes, MCQs, lectures..."
+                className="bg-transparent border-none outline-none text-xs text-[#111110] placeholder-[#AAA79E] w-full"
+              />
+            </div>
 
-            <span className="text-xs font-mono text-[#111110] bg-white px-3 py-1 rounded-full border border-[#EBE8E1] shadow-2xs">
-              {formatReclaimed(reclaimedSeconds)}
-            </span>
+            <button
+              className="w-10 h-10 rounded-full bg-white border border-[#EBE8E1] flex items-center justify-center text-[#666560] hover:text-[#111110] transition-colors relative cursor-pointer shadow-2xs"
+              title="Notifications"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#FF5F56] ring-2 ring-white" />
+            </button>
           </div>
         </header>
 
-        {/* Studio Content Body */}
-        <main className="flex-1 p-6 lg:p-8 max-w-6xl w-full mx-auto space-y-6">
+        {/* Dashboard Main Canvas */}
+        <main className="flex-1 p-6 lg:p-10 max-w-6xl w-full mx-auto space-y-8">
+          {/* Hero Greeting from Image 2 */}
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-apfel font-bold tracking-tight text-[#111110]">
+              Welcome Back, Learner! 🎓
+            </h1>
+            <p className="text-sm text-[#77756F] font-absans">
+              Continue Your Learning Journey And Achieve Your Goals.
+            </p>
+          </div>
+
           {/* ============================================================= */}
-          {/* TAB 1: FOCUS SANCTUARY (Main Cockpit View)                     */}
+          {/* 4 PASTEL SQUIRCLE STAT CARDS (Image 2 style)                   */}
           {/* ============================================================= */}
-          {activeTab === "slab" && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              {/* Dual Grid Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                {/* Left Card: Tactile Focus Stage */}
-                <div className="lg:col-span-7 bg-white rounded-[28px] p-6 lg:p-8 border border-[#EBE8E1] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between space-y-6">
-                  {/* Top Bar inside card */}
-                  <div className="flex items-center justify-between text-xs text-[#88867E]">
-                    <span className="font-mono text-[11px] uppercase tracking-wider">Focus Stage</span>
-                    <button
-                      onClick={() => setShowModeDrawer(true)}
-                      className="font-absans text-xs text-[#111110] hover:text-[#555] flex items-center gap-1 cursor-pointer transition-colors"
-                    >
-                      <span>Change mode</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* Warm Alabaster Plinth with 3D Puck */}
-                  <div className="w-full h-[250px] flex items-center justify-center relative select-none">
-                    {/* Soft Halo */}
-                    <div className="absolute w-[80%] h-[210px] rounded-full bg-gradient-to-tr from-[#FCEEE7]/50 via-[#F6F2E9]/60 to-[#ECE4D8]/40 blur-2xl -z-10 pointer-events-none" />
-
-                    {/* Plinth Base */}
-                    <div className="w-full h-[230px] rounded-[28px] bg-gradient-to-b from-[#F8F6F2] via-[#F3EFE8] to-[#EAE5DC] border border-[#E8E2D6]/70 shadow-[0_8px_24px_-6px_rgba(0,0,0,0.03),inset_0_1px_1px_rgba(255,255,255,0.9)] relative flex items-center justify-center p-4 overflow-hidden">
-                      {/* Tegaki Ring */}
-                      <svg
-                        viewBox="0 0 200 200"
-                        className="absolute inset-0 w-full h-full text-[#111110]/[0.025] pointer-events-none"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      >
-                        <circle cx="100" cy="100" r="88" strokeDasharray="5 5" />
-                      </svg>
-
-                      {/* Tegaki Spark ✦ */}
-                      <div className="absolute top-[18%] left-[20%] text-[#FF5F56] text-lg select-none tegaki-float pointer-events-none z-10">
-                        ✦
-                      </div>
-                      <div className="absolute top-[28%] right-[20%] w-1.5 h-1.5 rounded-full bg-[#FF5F56] select-none pointer-events-none z-10" />
-
-                      {/* 3D Ceramic Puck */}
-                      <div
-                        onClick={handleToggleSlab}
-                        className={`w-40 h-40 rounded-[24px] transition-all duration-300 flex flex-col items-center justify-center relative select-none cursor-pointer ${
-                          isSlabbed
-                            ? "bg-white border-2 border-emerald-500 shadow-[0_12px_28px_-4px_rgba(16,185,129,0.18)] scale-98"
-                            : "bg-gradient-to-b from-white to-[#F2EFE8] border border-white/90 shadow-[0_18px_36px_-10px_rgba(0,0,0,0.12),inset_0_2px_2px_rgba(255,255,255,0.9)] hover:scale-[1.02] active:scale-95"
-                        }`}
-                      >
-                        {/* Brackets */}
-                        <svg
-                          viewBox="0 0 100 100"
-                          className={`absolute inset-2.5 w-[calc(100%-20px)] h-[calc(100%-20px)] pointer-events-none transition-colors ${
-                            isSlabbed ? "text-emerald-500/70" : "text-[#CCC8BF]"
-                          }`}
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3.5"
-                          strokeLinecap="round"
-                        >
-                          <path d="M 10 22 L 10 10 L 22 10" />
-                          <path d="M 78 10 L 90 10 L 90 22" />
-                          <path d="M 10 78 L 10 90 L 22 90" />
-                          <path d="M 78 90 L 90 90 L 90 78" />
-                        </svg>
-
-                        {/* Puck Center */}
-                        <div className="text-center">
-                          <span className="font-mono text-[9px] tracking-widest uppercase font-semibold text-[#88867E]">
-                            {isSlabbed ? "LOCKED" : "STILL"}
-                          </span>
-                          <span className="font-apfel text-3xl font-bold tracking-tight block mt-0.5">
-                            {formatTimer(secondsRemaining)}
-                          </span>
-                          <span className="text-[10px] font-absans text-[#88867E] block mt-0.5">
-                            {isSlabbed ? "In progress" : "Tap to engage"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mode Headline with Tegaki Underline */}
-                  <div className="text-left space-y-1">
-                    <h1 className="text-[28px] sm:text-[32px] leading-[1.18] font-apfel font-bold tracking-tight text-[#111110]">
-                      <span className="block">{isSlabbed ? "Focus locked." : "Silence the noise."}</span>
-                      <span className="block text-[#111110]">
-                        <span className="relative inline-block text-[#111110]">
-                          {activeMode.title}
-                          <svg
-                            viewBox="0 0 110 14"
-                            className="absolute -bottom-2 left-0 w-full overflow-visible text-[#FF5F56] pointer-events-none tegaki-stroke-animated"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M 3 8 C 30 13, 75 13, 106 6" />
-                          </svg>
-                        </span>
-                      </span>
-                    </h1>
-                    <p className="text-xs text-[#77756F] font-absans pt-1">
-                      {activeMode.subtitle} • {activeMode.durationMinutes}m focus block.
-                    </p>
-                  </div>
-
-                  {/* Action Zone: Single Clean Button + Subtext Controls */}
-                  <div className="space-y-3 pt-2">
-                    <button
-                      onClick={handleToggleSlab}
-                      className={`w-full h-12 rounded-xl font-absans font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99] ${
-                        isSlabbed
-                          ? "bg-[#D9383A] text-white hover:bg-[#C53032]"
-                          : "bg-[#111110] text-white hover:bg-black"
-                      }`}
-                    >
-                      <span>{isSlabbed ? "End Sprint" : "Tap or hold to Still"}</span>
-                    </button>
-
-                    {/* Subtle helper toggles */}
-                    <div className="flex items-center justify-center gap-4 text-xs text-[#77756F]">
-                      <button
-                        onClick={() => simulateOpenApp(apps[0])}
-                        className="hover:text-[#111110] transition-colors cursor-pointer flex items-center gap-1"
-                      >
-                        <Shield className="w-3.5 h-3.5" />
-                        <span>4 apps blocked</span>
-                      </button>
-                      <span>•</span>
-                      <button
-                        onClick={() => {
-                          const next = !binauralAudio;
-                          setBinauralAudio(next);
-                          audioEngine.toggleBinauralDrone(next);
-                        }}
-                        className={`transition-colors cursor-pointer flex items-center gap-1 ${
-                          binauralAudio ? "text-emerald-600 font-medium" : "hover:text-[#111110]"
-                        }`}
-                      >
-                        <Headphones className="w-3.5 h-3.5" />
-                        <span>{binauralAudio ? "40Hz Drone active" : "40Hz Drone off"}</span>
-                      </button>
-                    </div>
-                  </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Card 1: Lilac/Pink Pastel */}
+            <div className="p-5 rounded-[24px] bg-[#F6EEFA] border border-[#ECDDF4] shadow-[0_4px_16px_-4px_rgba(139,92,246,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-full bg-white/90 text-[#8B5CF6] flex items-center justify-center shadow-xs">
+                  <Star className="w-4 h-4 fill-[#8B5CF6]/20 text-[#8B5CF6]" />
                 </div>
-
-                {/* Right Card: Unified Schedule & Activity Stream */}
-                <div className="lg:col-span-5 bg-white rounded-[28px] p-6 border border-[#EBE8E1] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between space-y-6">
-                  {/* Today's Schedule Stream */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-[#F3F1EC]">
-                      <span className="text-xs font-apfel font-bold uppercase tracking-wider text-[#111110]">
-                        Today&apos;s Schedule
-                      </span>
-                      <span className="text-[11px] font-mono text-[#88867E]">
-                        {studySlots.filter((s) => s.completed).length} of {studySlots.length} done
-                      </span>
-                    </div>
-
-                    <div className="divide-y divide-[#F7F5F0]">
-                      {studySlots.map((slot) => (
-                        <div key={slot.id} className="py-2.5 flex items-center justify-between gap-3">
-                          <div className="space-y-0.5">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-mono text-[#88867E]">{slot.timeSlot}</span>
-                              <span className="text-[10px] font-mono text-[#AAA79E]">{slot.durationMinutes}m</span>
-                            </div>
-                            <div
-                              className={`text-xs font-apfel font-semibold ${
-                                slot.completed ? "line-through text-[#AAA79E]" : "text-[#111110]"
-                              }`}
-                            >
-                              {slot.subject}
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() => {
-                              audioEngine.playHaptic("complete");
-                              setStudySlots((prev) =>
-                                prev.map((s) => (s.id === slot.id ? { ...s, completed: !s.completed } : s))
-                              );
-                            }}
-                            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                              slot.completed
-                                ? "text-emerald-600 bg-emerald-50"
-                                : "text-[#C4C2BC] hover:text-[#111110]"
-                            }`}
-                          >
-                            <CheckCircle2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Shield Intercept Stream */}
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-center justify-between pb-2 border-b border-[#F3F1EC]">
-                      <span className="text-xs font-apfel font-bold uppercase tracking-wider text-[#111110]">
-                        Recent Intercepts
-                      </span>
-                      <span className="text-[10px] font-mono text-emerald-600 font-semibold">Active</span>
-                    </div>
-
-                    <div className="divide-y divide-[#F7F5F0]">
-                      {interceptLogs.slice(0, 3).map((log) => (
-                        <div key={log.id} className="py-2 flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                            <span className="font-apfel font-medium text-[#111110]">{log.app}</span>
-                            <span className="text-[11px] text-[#88867E]">intercepted</span>
-                          </div>
-                          <span className="font-mono text-[10px] text-[#AAA79E]">{log.time}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6]/40" />
+              </div>
+              <div>
+                <div className="text-2xl font-apfel font-bold text-[#111110]">3 Lessons</div>
+                <div className="text-xs text-[#6B5A79] font-absans mt-0.5">
+                  Total Completed Courses
                 </div>
               </div>
+            </div>
 
-              {/* Bottom Flat Row: Distraction Shield Pills */}
-              <div className="bg-white rounded-[24px] p-5 border border-[#EBE8E1] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-xs">
-                  <span className="font-apfel font-bold text-[#111110] block sm:inline">Distraction Shield:</span>
-                  <span className="text-[#88867E] ml-1">
-                    {apps.filter((a) => a.blocked).length} applications locked
+            {/* Card 2: Mint Green Pastel */}
+            <div className="p-5 rounded-[24px] bg-[#EAF6EE] border border-[#D6EFE0] shadow-[0_4px_16px_-4px_rgba(16,185,129,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-full bg-white/90 text-[#10B981] flex items-center justify-center shadow-xs">
+                  <Clock className="w-4 h-4 text-[#10B981]" />
+                </div>
+                <Sparkles className="w-3.5 h-3.5 text-[#10B981]/40" />
+              </div>
+              <div>
+                <div className="text-2xl font-apfel font-bold text-[#111110]">24 Hours</div>
+                <div className="text-xs text-[#456A52] font-absans mt-0.5">
+                  Total Classes Watched
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Amber/Peach Pastel */}
+            <div className="p-5 rounded-[24px] bg-[#FFF6EB] border border-[#FCE9D0] shadow-[0_4px_16px_-4px_rgba(245,158,11,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-full bg-white/90 text-[#F59E0B] flex items-center justify-center shadow-xs">
+                  <Award className="w-4 h-4 text-[#F59E0B]" />
+                </div>
+                <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]/40" />
+              </div>
+              <div>
+                <div className="text-2xl font-apfel font-bold text-[#111110]">87%</div>
+                <div className="text-xs text-[#7B5B2E] font-absans mt-0.5">
+                  Scored On Your Last Quiz
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: Soft Blue Pastel */}
+            <div className="p-5 rounded-[24px] bg-[#EDF4FD] border border-[#D7E6FA] shadow-[0_4px_16px_-4px_rgba(59,130,246,0.06)] flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-full bg-white/90 text-[#3B82F6] flex items-center justify-center shadow-xs">
+                  <TrendingUp className="w-4 h-4 text-[#3B82F6]" />
+                </div>
+                <Sparkles className="w-3.5 h-3.5 text-[#3B82F6]/40" />
+              </div>
+              <div>
+                <div className="text-2xl font-apfel font-bold text-[#111110]">+15%</div>
+                <div className="text-xs text-[#4A6487] font-absans mt-0.5">
+                  Total Progress This Week
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ============================================================= */}
+          {/* FEATURED: "CONTINUE LEARNING" HERO CARD (Image 2 design)       */}
+          {/* ============================================================= */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-apfel font-bold text-[#111110]">Continue Learning</h2>
+              <span className="text-xs font-absans text-[#88867E] hover:text-[#111110] cursor-pointer">
+                View All Courses
+              </span>
+            </div>
+
+            <div className="w-full rounded-[30px] bg-gradient-to-br from-[#D8EFE4] to-[#CDE8DC] border border-[#BDE0D0] p-6 sm:p-8 relative overflow-hidden shadow-[0_8px_24px_-6px_rgba(16,185,129,0.12)]">
+              {/* Organic Curved Ribbon Vector Background (from Image 2) */}
+              <svg
+                viewBox="0 0 400 200"
+                className="absolute right-0 bottom-0 w-80 sm:w-96 h-auto text-[#62B591]/25 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="18"
+                strokeLinecap="round"
+              >
+                <path d="M 50 180 C 180 50, 320 250, 380 40" />
+                <path d="M 120 200 C 240 100, 340 190, 390 100" strokeWidth="8" />
+              </svg>
+
+              <div className="relative z-10 space-y-4 max-w-lg">
+                {/* Pill Badges */}
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm text-[#059669] text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>Beginner</span>
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-white/90 text-[#333333] text-xs font-mono font-medium flex items-center gap-1.5 shadow-2xs">
+                    <Clock className="w-3.5 h-3.5 text-[#666666]" />
+                    <span>45 Min</span>
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  {apps.map((app) => (
-                    <button
-                      key={app.id}
-                      onClick={() => handleToggleApp(app.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-absans flex items-center gap-2 border cursor-pointer transition-colors ${
-                        app.blocked
-                          ? "bg-[#FAF9F5] border-[#E0DCD3] text-[#111110] font-medium"
-                          : "bg-transparent border-dashed border-[#EBE8E1] text-[#9E9B93]"
-                      }`}
-                    >
-                      <span>{app.name.split(" ")[0]}</span>
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          app.blocked ? "bg-emerald-500" : "bg-transparent border border-gray-300"
-                        }`}
-                      />
-                    </button>
-                  ))}
+                {/* Course Title & Description */}
+                <div className="space-y-1.5">
+                  <h3 className="text-xl sm:text-2xl font-apfel font-bold text-[#0F291E] tracking-tight">
+                    Cost &amp; Management Accounting
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#275340] font-absans leading-relaxed">
+                    Marginal Costing, Break-Even Analysis &amp; Standard Cost Variance
+                  </p>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* ============================================================= */}
-          {/* TAB 2: SCHEDULE (Dedicated Minimalist View)                    */}
-          {/* ============================================================= */}
-          {activeTab === "schedule" && (
-            <div className="bg-white rounded-[28px] p-8 border border-[#EBE8E1] shadow-2xs space-y-6 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F3F1EC]">
-                <div>
-                  <h2 className="text-xl font-apfel font-bold text-[#111110]">Focus Schedule</h2>
-                  <p className="text-xs text-[#88867E]">Today&apos;s academic intervals.</p>
-                </div>
-                <span className="text-xs font-mono text-[#88867E]">
-                  {studySlots.filter((s) => s.completed).length} / {studySlots.length} done
-                </span>
-              </div>
-
-              <div className="divide-y divide-[#F7F5F0]">
-                {studySlots.map((slot) => (
-                  <div key={slot.id} className="py-4 flex items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-mono text-[#88867E]">{slot.timeSlot}</span>
-                        <span className="text-[11px] font-mono text-[#AAA79E]">{slot.durationMinutes}m</span>
-                      </div>
-                      <div
-                        className={`text-sm font-apfel font-bold ${
-                          slot.completed ? "line-through text-[#AAA79E]" : "text-[#111110]"
-                        }`}
-                      >
-                        {slot.subject}
-                      </div>
-                      <div className="text-xs text-[#77756F]">{slot.topic}</div>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        audioEngine.playHaptic("complete");
-                        setStudySlots((prev) =>
-                          prev.map((s) => (s.id === slot.id ? { ...s, completed: !s.completed } : s))
-                        );
-                      }}
-                      className={`p-2 rounded-xl transition-colors cursor-pointer ${
-                        slot.completed ? "text-emerald-600 bg-emerald-50" : "text-[#C4C2BC] hover:text-[#111110]"
-                      }`}
-                    >
-                      <CheckCircle2 className="w-5 h-5" />
-                    </button>
+                {/* Bottom Row: Progress + White Circle Action Button */}
+                <div className="pt-2 flex items-center justify-between">
+                  <div className="text-xs sm:text-sm font-apfel font-bold text-[#0F291E]">
+                    9 Of 12 Lessons
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* ============================================================= */}
-          {/* TAB 3: ACTIVITY (Dedicated Minimalist View)                    */}
-          {/* ============================================================= */}
-          {activeTab === "activity" && (
-            <div className="bg-white rounded-[28px] p-8 border border-[#EBE8E1] shadow-2xs space-y-6 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F3F1EC]">
-                <div>
-                  <h2 className="text-xl font-apfel font-bold text-[#111110]">Activity & Telemetry</h2>
-                  <p className="text-xs text-[#88867E]">Reclaimed attention and screen impulses.</p>
-                </div>
-                <span className="text-xs font-mono font-bold text-amber-600">6D STREAK</span>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-[#FAF9F5] border border-[#EBE8E1]">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-[#88867E]">
-                  RECLAIMED ATTENTION TODAY
-                </div>
-                <div className="text-3xl font-apfel font-bold mt-1 text-[#111110]">
-                  {Math.floor(reclaimedSeconds / 3600)}h {Math.floor((reclaimedSeconds % 3600) / 60)}m
-                </div>
-                <div className="text-xs text-emerald-700 mt-1">Saved from distracting feeds and algorithms.</div>
-              </div>
-
-              <div className="divide-y divide-[#F7F5F0]">
-                {interceptLogs.map((log) => (
-                  <div key={log.id} className="py-3 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                      <span className="font-apfel font-semibold text-[#111110]">{log.app}</span>
-                      <span className="text-[#88867E]">during {log.focusSubject}</span>
-                    </div>
-                    <span className="font-mono text-[#AAA79E]">{log.time}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ============================================================= */}
-          {/* TAB 4: SETTINGS (Dedicated Minimalist View)                    */}
-          {/* ============================================================= */}
-          {activeTab === "settings" && (
-            <div className="bg-white rounded-[28px] p-8 border border-[#EBE8E1] shadow-2xs space-y-6 animate-in fade-in duration-200">
-              <div className="pb-3 border-b border-[#F3F1EC]">
-                <h2 className="text-xl font-apfel font-bold text-[#111110]">Settings</h2>
-                <p className="text-xs text-[#88867E]">Hardware profile and preferences.</p>
-              </div>
-
-              <div className="divide-y divide-[#F7F5F0] text-sm">
-                <div className="py-4 flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold text-[#111110]">Active Account</div>
-                    <div className="text-xs text-[#88867E]">{currentUser.email}</div>
-                  </div>
                   <button
-                    onClick={handleSignOut}
-                    className="text-xs text-red-600 hover:underline cursor-pointer"
+                    onClick={() => setActiveModuleModal(MODULES[1])}
+                    className="w-11 h-11 rounded-full bg-white text-[#0F291E] hover:scale-105 active:scale-95 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center cursor-pointer group"
+                    title="Resume Course"
                   >
-                    Log out
+                    <ArrowUpRight className="w-5 h-5 text-[#0F291E] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </button>
                 </div>
-
-                <div
-                  onClick={() => {
-                    setSoundEnabled(!soundEnabled);
-                    audioEngine.playHaptic("click");
-                  }}
-                  className="py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50/50 transition-colors"
-                >
-                  <div>
-                    <div className="font-semibold text-[#111110]">Tactile Audio Clicks</div>
-                    <div className="text-xs text-[#88867E]">Synthesized mechanical clicks</div>
-                  </div>
-                  <span className="text-xs font-mono text-[#88867E]">
-                    {soundEnabled ? "Enabled" : "Muted"}
-                  </span>
-                </div>
-
-                <div
-                  onClick={() => simulateOpenApp(apps[0])}
-                  className="py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50/50 transition-colors"
-                >
-                  <div>
-                    <div className="font-semibold text-[#111110]">Test Shield Intercept</div>
-                    <div className="text-xs text-[#88867E]">Preview full-screen hardware lock</div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-[#88867E]" />
-                </div>
               </div>
             </div>
-          )}
+          </div>
+
+          {/* ============================================================= */}
+          {/* THE 6 MODULES: RECOMMENDED APP STRUCTURE (Image 1)             */}
+          {/* ============================================================= */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-apfel font-bold text-[#111110]">
+                  CMA Study Hub Modules
+                </h2>
+                <p className="text-xs text-[#88867E]">
+                  Structured learning ecosystem for comprehensive exam preparation
+                </p>
+              </div>
+              <span className="text-xs font-mono text-[#88867E]">6 Core Modules</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {MODULES.map((mod) => {
+                const Icon = mod.icon;
+                return (
+                  <div
+                    key={mod.id}
+                    onClick={() => setActiveModuleModal(mod)}
+                    className="p-5 rounded-[24px] bg-white border border-[#EBE8E1] hover:border-[#D0CABE] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div
+                        className="w-11 h-11 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105"
+                        style={{ backgroundColor: mod.bgPastel, color: mod.color }}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-[11px] font-mono text-[#88867E] bg-[#FAF9F5] px-2.5 py-1 rounded-full border border-[#EFECE6]">
+                        {mod.count}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-apfel font-bold text-base text-[#111110] group-hover:text-[#000]">
+                          {mod.title}
+                        </h3>
+                        <ArrowRight className="w-4 h-4 text-[#C4C2BC] group-hover:text-[#111110] group-hover:translate-x-1 transition-all" />
+                      </div>
+                      <p className="text-xs text-[#77756F] font-absans">{mod.subtitle}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Quick Study Timetable Row */}
+          <div className="p-6 rounded-[28px] bg-white border border-[#EBE8E1] shadow-2xs space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#F5F3ED]">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#10B981]" />
+                <h3 className="font-apfel font-bold text-sm text-[#111110]">
+                  Today&apos;s Target Revision Schedule
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-[#88867E]">2 of 3 Done</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                {
+                  time: "09:00 - 10:15",
+                  sub: "Financial Accounting",
+                  topic: "Accounting for Consignment",
+                  done: true,
+                },
+                {
+                  time: "11:30 - 12:45",
+                  sub: "Cost Accounting",
+                  topic: "Marginal Costing MCQs",
+                  done: true,
+                },
+                {
+                  time: "15:00 - 16:30",
+                  sub: "Direct Taxation",
+                  topic: "Capital Gains & Deductions 80C",
+                  done: false,
+                },
+              ].map((task, i) => (
+                <div
+                  key={i}
+                  className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between ${
+                    task.done
+                      ? "bg-[#F7FBF8] border-[#D6EFE0]"
+                      : "bg-[#FCFBF9] border-[#EBE8E1]"
+                  }`}
+                >
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-mono text-[#88867E]">{task.time}</span>
+                    <div
+                      className={`text-xs font-apfel font-bold ${
+                        task.done ? "line-through text-[#88867E]" : "text-[#111110]"
+                      }`}
+                    >
+                      {task.sub}
+                    </div>
+                    <div className="text-[11px] text-[#77756F] truncate max-w-[160px]">
+                      {task.topic}
+                    </div>
+                  </div>
+                  <span
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                      task.done ? "bg-[#10B981] text-white" : "border border-[#D0CABE] text-transparent"
+                    }`}
+                  >
+                    ✓
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </main>
 
         {/* =============================================================== */}
-        {/* MOBILE BOTTOM NAVIGATION BAR (<lg: only)                        */}
+        {/* FLOATING DARK CAPSULE DOCK NAVBAR (Image 2 mobile view)         */}
         {/* =============================================================== */}
-        <footer className="lg:hidden sticky bottom-0 z-30 bg-white/95 backdrop-blur-md border-t border-[#EBE8E1] py-3 px-6 flex items-center justify-around select-none">
-          {[
-            { id: "slab", label: "Still" },
-            { id: "schedule", label: "Schedule" },
-            { id: "activity", label: "Activity" },
-            { id: "settings", label: "Settings" },
-          ].map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id as typeof activeTab);
-                  if (soundEnabled) audioEngine.playHaptic("click");
-                }}
-                className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-                  isActive ? "text-[#111110] font-semibold" : "text-[#88867E] hover:text-[#333333]"
-                }`}
-              >
-                <span className="text-xs font-absans">{tab.label}</span>
-                <span
-                  className={`w-1 h-1 rounded-full transition-all ${
-                    isActive ? "bg-[#111110]" : "bg-transparent"
+        <div className="fixed bottom-5 inset-x-0 flex justify-center z-40 px-4 pointer-events-none lg:hidden">
+          <nav className="pointer-events-auto flex items-center justify-between gap-1 p-1.5 rounded-full bg-[#111110] shadow-[0_12px_36px_-6px_rgba(0,0,0,0.35)] border border-white/10 text-white w-full max-w-xs">
+            {[
+              { id: "home", icon: Home, label: "Home" },
+              { id: "library", icon: BookOpen, label: "Library" },
+              { id: "lectures", icon: Play, label: "Lectures" },
+              { id: "analytics", icon: BarChart3, label: "Stats" },
+              { id: "profile", icon: User, label: "Profile" },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-11 h-11 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                    isActive ? "bg-white text-[#111110] shadow-sm scale-105" : "text-[#999999] hover:text-white"
                   }`}
-                />
-              </button>
-            );
-          })}
-        </footer>
+                  title={tab.label}
+                >
+                  <Icon className="w-4 h-4" />
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       </div>
 
-      {/* ================================================================= */}
-      {/* MANAGE MODES DRAWER / MODAL                                       */}
-      {/* ================================================================= */}
-      {showModeDrawer && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center animate-in fade-in select-none">
-          <div className="w-full max-w-[390px] rounded-t-3xl sm:rounded-3xl p-6 space-y-4 animate-in slide-in-from-bottom duration-200 border border-[#E5E7EB] bg-white shadow-2xl text-[#111110]">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-apfel text-lg font-bold text-[#111110]">Select Focus Mode</h3>
-                <p className="text-xs text-[#777777] font-absans">Choose focus duration & strictness.</p>
+      {/* =============================================================== */}
+      {/* MODULE DETAIL PREVIEW MODAL                                     */}
+      {/* =============================================================== */}
+      {activeModuleModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-in fade-in select-none">
+          <div className="w-full max-w-lg rounded-3xl bg-white border border-[#EBE8E1] p-6 space-y-5 animate-in slide-in-from-bottom duration-200 shadow-2xl">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                  style={{
+                    backgroundColor: activeModuleModal.bgPastel,
+                    color: activeModuleModal.color,
+                  }}
+                >
+                  <activeModuleModal.icon className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-apfel text-lg font-bold text-[#111110]">
+                    {activeModuleModal.title}
+                  </h3>
+                  <p className="text-xs text-[#77756F] font-absans">
+                    {activeModuleModal.subtitle}
+                  </p>
+                </div>
               </div>
+
               <button
-                onClick={() => setShowModeDrawer(false)}
-                className="p-1.5 rounded-full text-[#888888] hover:text-[#111110] cursor-pointer hover:bg-gray-100"
+                onClick={() => setActiveModuleModal(null)}
+                className="p-1.5 rounded-full text-[#88867E] hover:text-[#111110] hover:bg-gray-100 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-2.5 pt-1">
-              {modes.map((mode) => (
-                <div
-                  key={mode.id}
-                  onClick={() => {
-                    setSelectedModeId(mode.id);
-                    setSecondsRemaining(mode.durationMinutes * 60);
-                    setShowModeDrawer(false);
-                    audioEngine.playHaptic("click");
-                  }}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                    selectedModeId === mode.id
-                      ? "bg-[#FAFAFA] border-[#111110] shadow-sm"
-                      : "bg-white border-[#E5E7EB] hover:bg-[#FAFAFA]"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-apfel font-bold text-sm text-[#111110]">{mode.title}</div>
-                      <div className="text-xs text-[#777777] font-absans">{mode.subtitle}</div>
-                    </div>
-                    <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-gray-100 text-[#111110]">
-                      {mode.durationMinutes}m
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ================================================================= */}
-      {/* SIMULATED FULL-SCREEN SLAB BLOCK SCREEN                           */}
-      {/* ================================================================= */}
-      {simulatedBlockApp && (
-        <div className="fixed inset-0 z-50 bg-[#000000] text-white flex flex-col justify-between p-8 animate-in fade-in duration-200 select-none">
-          {/* Top Bar */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-white" />
-              <span className="font-apfel text-xs tracking-[0.3em] font-bold">
-                SLAB IS ACTIVE
+            <div className="p-4 rounded-2xl bg-[#FAF9F5] border border-[#EBE8E1] space-y-2">
+              <span className="text-[11px] font-mono text-[#88867E] uppercase tracking-wider block">
+                Available Resources
               </span>
-            </div>
-            <button
-              onClick={() => setSimulatedBlockApp(null)}
-              className="p-2 text-[#777777] hover:text-white cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Stark Center Blocked Message */}
-          <div className="max-w-xs mx-auto text-center space-y-6">
-            <div className="relative w-28 h-28 mx-auto rounded-3xl bg-[#141414] border border-[#2A2A2A] overflow-hidden flex items-center justify-center p-3">
-              <img
-                src="/illustrations/distraction-phone.svg"
-                alt="Distraction Intercepted"
-                className="w-full h-full object-contain"
-              />
-              <div className="absolute top-2 right-2 p-1 rounded-full bg-red-600/90 text-white shadow">
-                <AlertOctagon className="w-3.5 h-3.5" />
+              <div className="text-sm font-apfel font-bold text-[#111110]">
+                {activeModuleModal.count}
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <h1 className="text-3xl font-apfel font-black tracking-tight uppercase">
-                {simulatedBlockApp.name} IS SLABBED
-              </h1>
-              <p className="text-sm font-absans text-[#888888] leading-relaxed">
-                You committed to focusing on{" "}
-                <span className="text-white font-medium">{activeMode.subject}</span>. Put your device down.
+              <p className="text-xs text-[#666560] leading-relaxed">
+                Structured for ICAI / ICMAI Syllabus. Includes past year questions, revision RTPs,
+                and chapter-wise mock tests.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0D0D0D] border border-[#222222]">
-              <div className="text-[10px] font-mono text-[#666666] uppercase tracking-widest">
-                TIME REMAINING IN CURRENT BLOCK
-              </div>
-              <div className="text-4xl font-apfel font-bold text-white pt-1">
-                {formatTimer(secondsRemaining)}
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Actions */}
-          <div className="space-y-3 max-w-xs mx-auto w-full text-center">
-            <button
-              onClick={() => setSimulatedBlockApp(null)}
-              className="w-full py-4 rounded-full bg-white text-[#0A0A0A] font-apfel font-bold text-sm tracking-wide uppercase hover:bg-[#E5E5E5] transition-colors cursor-pointer"
-            >
-              Return to Study
-            </button>
-
-            {/* Emergency Hold to Unslab */}
-            <div className="pt-2 space-y-2">
+            <div className="flex items-center gap-3 pt-2">
               <button
-                onMouseDown={startHoldUnslab}
-                onMouseUp={cancelHoldUnslab}
-                onTouchStart={startHoldUnslab}
-                onTouchEnd={cancelHoldUnslab}
-                className="text-xs font-mono text-[#666666] hover:text-[#999999] transition-colors cursor-pointer select-none"
+                onClick={() => setActiveModuleModal(null)}
+                className="flex-1 py-3 rounded-xl bg-[#111110] text-white hover:bg-black font-apfel font-semibold text-xs tracking-wide uppercase transition-colors cursor-pointer"
               >
-                {unslabProgress > 0 ? `HOLDING... ${unslabProgress}%` : "Press & hold 3s to emergency unslab"}
+                Enter {activeModuleModal.title}
               </button>
-
-              {unslabProgress > 0 && (
-                <div className="w-full h-1 bg-[#222222] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-red-500 transition-all duration-75"
-                    style={{ width: `${unslabProgress}%` }}
-                  />
-                </div>
-              )}
+              <button
+                onClick={() => setActiveModuleModal(null)}
+                className="px-4 py-3 rounded-xl border border-[#EBE8E1] text-[#666560] hover:text-[#111110] hover:bg-gray-50 text-xs font-absans font-medium transition-colors cursor-pointer"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
