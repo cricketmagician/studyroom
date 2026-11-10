@@ -556,32 +556,38 @@ export default function SlabApp() {
 
           {/* Centerpiece: Golden Proportion Hero Artwork & Typography */}
           <div className="my-auto flex flex-col items-center w-full">
-            {/* Visual Stage: Golden Height (256px ~ 400px / 1.618) */}
+            {/* Visual Stage: Golden Height with Premium Warm Alabaster Ceramic Plinth */}
             <div className="w-full h-[250px] sm:h-[260px] flex items-center justify-center relative select-none">
-              {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
-              <div className="absolute top-[18%] left-[22%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none">
-                ✦
+              {/* Soft Ambient Warm Halo */}
+              <div className="absolute w-[85%] h-[220px] rounded-full bg-gradient-to-tr from-[#FCEEE7]/60 via-[#F6F2E9]/70 to-[#ECE4D8]/50 blur-2xl -z-10 pointer-events-none" />
+
+              {/* Premium Tactile Ceramic Plinth Backdrop */}
+              <div className="w-full h-[240px] rounded-[32px] bg-gradient-to-b from-[#F8F6F2] via-[#F3EFE8] to-[#EAE5DC] border border-[#E8E2D6]/70 shadow-[0_12px_30px_-8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.9)] relative flex items-center justify-center p-4 overflow-hidden">
+                {/* Hand-Drawn Tegaki Delicate Organic Ring Accent */}
+                <svg
+                  viewBox="0 0 200 200"
+                  className="absolute inset-0 w-full h-full text-[#111110]/[0.03] pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <circle cx="100" cy="100" r="88" strokeDasharray="5 5" />
+                  <path d="M 30 170 Q 100 190 170 170" strokeLinecap="round" strokeDasharray="6 4" />
+                </svg>
+
+                {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
+                <div className="absolute top-[16%] left-[20%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none z-10">
+                  ✦
+                </div>
+                <div className="absolute top-[26%] right-[20%] w-2 h-2 rounded-full bg-[#FF5F56] select-none pointer-events-none z-10" />
+
+                {/* Full-Size Vector Artwork */}
+                <img
+                  src={activeSlide.illustration}
+                  alt={activeSlide.caption}
+                  className="w-full h-full max-h-[205px] object-contain filter contrast-105 transition-all duration-300 transform hover:scale-[1.02] relative z-0"
+                />
               </div>
-              <div className="absolute top-[28%] right-[22%] w-2 h-2 rounded-full bg-[#FF5F56] select-none pointer-events-none" />
-
-              {/* Hand-Drawn Tegaki Delicate Organic Ring Accent in background */}
-              <svg
-                viewBox="0 0 200 200"
-                className="absolute inset-0 w-full h-full text-[#111110]/[0.035] pointer-events-none"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <circle cx="100" cy="100" r="88" strokeDasharray="5 5" />
-                <path d="M 30 170 Q 100 190 170 170" strokeLinecap="round" strokeDasharray="6 4" />
-              </svg>
-
-              {/* Full-Size Vector Artwork */}
-              <img
-                src={activeSlide.illustration}
-                alt={activeSlide.caption}
-                className="w-full h-full max-h-[235px] object-contain filter contrast-105 transition-all duration-300 transform hover:scale-[1.02]"
-              />
             </div>
 
             {/* Apple Senior Designer Typography: Golden Spacing (mt-34px) */}
