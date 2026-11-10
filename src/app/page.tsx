@@ -766,7 +766,7 @@ export default function SlabApp() {
         {/* =============================================================== */}
         {/* LEFT PANE: FOCUS STAGE & HARDWARE CONTROL (Full on Desktop)     */}
         {/* =============================================================== */}
-        <div className="w-full lg:w-[50%] flex flex-col justify-between space-y-6 lg:pr-8">
+        <div className={`w-full lg:w-[50%] flex-col justify-between space-y-6 lg:pr-8 ${activeTab === "slab" ? "flex" : "hidden lg:flex"}`}>
           {/* Top Header: Brand Monolith Mark & Telemetry Pill */}
           <header className="flex items-center justify-between pb-2">
             <div className="flex items-center gap-[10px]">
@@ -1100,45 +1100,11 @@ export default function SlabApp() {
           </div>
         </div>
 
-        {/* =============================================================== */}
-        {/* MOBILE BOTTOM NAVIGATION BAR (<lg: only)                        */}
-        {/* =============================================================== */}
-        <footer className="lg:hidden pt-[18px] flex items-center justify-around select-none border-t border-[#F3F4F6] text-[#888888] mt-4">
-          {[
-            { id: "slab", label: "Still" },
-            { id: "schedule", label: "Schedule" },
-            { id: "activity", label: "Activity" },
-            { id: "settings", label: "Settings" },
-          ].map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id as typeof activeTab);
-                  if (soundEnabled) audioEngine.playHaptic("click");
-                }}
-                className={`flex flex-col items-center gap-1.5 cursor-pointer transition-colors ${
-                  isActive ? "text-[#111110] font-semibold" : "text-[#888888] hover:text-[#333333]"
-                }`}
-              >
-                <span className="text-xs font-absans">{tab.label}</span>
-                <span
-                  className={`w-1 h-1 rounded-full transition-all ${
-                    isActive ? "bg-[#111110]" : "bg-transparent"
-                  }`}
-                />
-              </button>
-            );
-          })}
-        </footer>
-      </div>
-
         {/* ================================================================= */}
         {/* TAB 2: SCHEDULE (Daily Academic Timetable & Routines)             */}
         {/* ================================================================= */}
         {activeTab === "schedule" && (
-          <main className="my-auto py-2 space-y-4 animate-in fade-in duration-200">
+          <main className="lg:hidden w-full my-auto py-2 space-y-4 animate-in fade-in duration-200">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-apfel font-bold text-[#111110] tracking-tight">
@@ -1235,7 +1201,7 @@ export default function SlabApp() {
         {/* TAB 3: ACTIVITY (Reclaimed Metrics & Blocked Impulse Log)         */}
         {/* ================================================================= */}
         {activeTab === "activity" && (
-          <main className="my-auto py-2 space-y-4 animate-in fade-in duration-200">
+          <main className="lg:hidden w-full my-auto py-2 space-y-4 animate-in fade-in duration-200">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-apfel font-bold text-[#111110] tracking-tight">
@@ -1289,7 +1255,7 @@ export default function SlabApp() {
         {/* TAB 4: SETTINGS (Hardware Profile & Log Out)                      */}
         {/* ================================================================= */}
         {activeTab === "settings" && (
-          <main className="my-auto py-2 space-y-4 animate-in fade-in duration-200">
+          <main className="lg:hidden w-full my-auto py-2 space-y-4 animate-in fade-in duration-200">
             <div>
               <h2 className="text-2xl font-apfel font-bold text-[#111110] tracking-tight">
                 Settings & Device
@@ -1344,9 +1310,9 @@ export default function SlabApp() {
         )}
 
         {/* ================================================================= */}
-        {/* BOTTOM NAVIGATION BAR (Exact 4 Tabs: Still, Schedule, Activity, Settings) */}
+        {/* BOTTOM NAVIGATION BAR (Exact 4 Tabs: Still, Schedule, Activity, Settings - Mobile Only) */}
         {/* ================================================================= */}
-        <footer className="pt-[18px] flex items-center justify-around select-none border-t border-[#F3F4F6] text-[#888888]">
+        <footer className="lg:hidden pt-[18px] flex items-center justify-around select-none border-t border-[#F3F4F6] text-[#888888]">
           {[
             { id: "slab", label: "Still" },
             { id: "schedule", label: "Schedule" },
