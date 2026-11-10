@@ -554,84 +554,62 @@ export default function SlabApp() {
             </button>
           </header>
 
-          {/* Centerpiece: Clean Framed Illustration Card */}
-          <div className="my-auto py-3 space-y-5">
-            <div className="rounded-2xl border border-[#E5E7EB] bg-white overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
-              {/* Vector Illustration Canvas with Subtle Tegaki Hand-Drawn Flourishes */}
-              <div className="h-60 bg-[#FAFAFA] flex items-center justify-center relative p-5 overflow-hidden">
-                {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
-                <div className="absolute top-[32%] left-[48%] text-[#FF5F56] text-lg select-none tegaki-float pointer-events-none">
-                  ✦
-                </div>
-                <div className="absolute top-[48%] left-[42%] w-1.5 h-1.5 rounded-full bg-[#FF5F56] select-none pointer-events-none" />
-
-                {/* Hand-Drawn Tegaki Loop in background */}
-                <svg
-                  viewBox="0 0 100 100"
-                  className="absolute inset-4 w-[calc(100%-32px)] h-[calc(100%-32px)] text-[#000000]/[0.03] pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                >
-                  <circle cx="50" cy="50" r="44" strokeDasharray="4 4" />
-                </svg>
-
-                {/* Active Vector Illustration */}
-                <img
-                  src={activeSlide.illustration}
-                  alt={activeSlide.caption}
-                  className="w-full h-full object-contain filter contrast-110 opacity-90 transition-all duration-300"
-                />
+          {/* Centerpiece: Unboxed Full-Size Hero Artwork with Tegaki Flourishes */}
+          <div className="my-auto py-2 flex flex-col items-center space-y-4">
+            {/* Full-Size Floating Illustration (No Box, No Border) */}
+            <div className="w-full h-64 sm:h-72 flex items-center justify-center relative select-none px-2">
+              {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
+              <div className="absolute top-[18%] left-[24%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none">
+                ✦
               </div>
+              <div className="absolute top-[28%] right-[22%] w-2 h-2 rounded-full bg-[#FF5F56] select-none pointer-events-none" />
 
-              {/* Bottom Card Bar: Caption + Carousel Dots */}
-              <div className="border-t border-[#E5E7EB] px-4 py-3 bg-white flex items-center justify-between">
-                <span className="text-xs font-absans font-medium text-[#111110]">
-                  {activeSlide.caption}
-                </span>
+              {/* Hand-Drawn Tegaki Delicate Organic Ring Accent in background */}
+              <svg
+                viewBox="0 0 200 200"
+                className="absolute inset-0 w-full h-full text-[#111110]/[0.035] pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <circle cx="100" cy="100" r="88" strokeDasharray="5 5" />
+                <path d="M 30 170 Q 100 190 170 170" strokeLinecap="round" strokeDasharray="6 4" />
+              </svg>
 
-                {/* Interactive Carousel Indicators */}
-                <div className="flex items-center gap-1.5">
-                  {carouselSlides.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        setCarouselIndex(i);
-                        if (soundEnabled) audioEngine.playHaptic("click");
-                      }}
-                      aria-label={`Slide ${i + 1}`}
-                      className={`transition-all duration-200 cursor-pointer ${
-                        carouselIndex === i
-                          ? "w-4 h-1.5 bg-[#111110] rounded-full"
-                          : "w-1.5 h-1.5 bg-[#D1D5DB] rounded-xs hover:bg-[#9CA3AF]"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
+              {/* Full-Size Vector Artwork */}
+              <img
+                src={activeSlide.illustration}
+                alt={activeSlide.caption}
+                className="w-full h-full max-h-[270px] object-contain filter contrast-105 transition-all duration-300 transform hover:scale-[1.02]"
+              />
             </div>
 
-            {/* Apple Senior Designer Typography with Tegaki Animated Stroke */}
-            <div className="space-y-1.5 pt-1">
-              <h1 className="text-[32px] sm:text-[34px] leading-[1.12] font-apfel font-bold tracking-tight text-[#111110]">
-                Silence the noise.{" "}
-                <span className="relative inline-block text-[#111110]">
-                  reclaim focus.
-                  {/* Tegaki Dynamic Organic Brush Stroke Underline */}
-                  <svg
-                    viewBox="0 0 140 16"
-                    className="absolute -bottom-1.5 left-0 w-full overflow-visible text-[#111110] pointer-events-none tegaki-stroke-animated"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M 3 11 C 35 3, 85 4, 136 8 C 105 10, 60 12, 22 13" />
-                  </svg>
+            {/* Apple Senior Designer Typography with Staggered Text Reveal & Tegaki Animated Stroke */}
+            <div className="space-y-2.5 pt-2 text-left w-full">
+              <h1 className="text-[34px] sm:text-[38px] leading-[1.12] font-apfel font-bold tracking-tight text-[#111110]">
+                <span className="block animate-text-reveal-1">
+                  Silence the noise.
+                </span>
+                <span className="block animate-text-reveal-2 text-[#111110]">
+                  Reclaim your{" "}
+                  <span className="relative inline-block text-[#111110]">
+                    focus.
+                    {/* Tegaki Dynamic Organic Brush Stroke Underline */}
+                    <svg
+                      viewBox="0 0 110 14"
+                      className="absolute -bottom-2.5 left-0 w-full overflow-visible text-[#FF5F56] pointer-events-none tegaki-stroke-animated"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M 3 8 C 30 13, 75 13, 106 6" />
+                    </svg>
+                  </span>
                 </span>
               </h1>
-              <p className="text-sm font-absans text-[#666666] leading-relaxed">
+              <p className="text-sm font-absans text-[#666666] leading-relaxed animate-text-reveal-3">
                 A tactile hardware sanctuary engineered for deep work.
               </p>
             </div>

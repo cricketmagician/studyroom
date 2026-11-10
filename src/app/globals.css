@@ -100,6 +100,58 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   animation: tegakiFloat 3s ease-in-out infinite;
 }
 
+/* Apple-grade Text Reveal & Shimmer Animations */
+@keyframes textFadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+
+.animate-text-reveal-1 {
+  opacity: 0;
+  animation: textFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s;
+}
+
+.animate-text-reveal-2 {
+  opacity: 0;
+  animation: textFadeInUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.25s;
+}
+
+.animate-text-reveal-3 {
+  opacity: 0;
+  animation: textFadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.45s;
+}
+
+@keyframes textShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.text-shimmer-highlight {
+  background: linear-gradient(
+    90deg,
+    #111110 0%,
+    #777777 50%,
+    #111110 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: textShimmer 4s ease-in-out infinite;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
