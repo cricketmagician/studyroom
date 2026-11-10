@@ -194,60 +194,13 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
             </div>
           </div>
 
-          {/* Minimalist Editorial Illustration (Calm student seated on stool reading) */}
-          <div className="w-32 sm:w-36 shrink-0 flex items-center justify-center">
-            <svg
-              viewBox="0 0 160 145"
-              className="w-full h-auto text-[#1E293B]"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              {/* Background Ambient Eye / Halo */}
-              <path
-                d="M 20 65 Q 80 15 140 65 Q 80 115 20 65 Z"
-                fill="#EADCCB"
-                stroke="none"
-                opacity="0.65"
-              />
-              <circle cx="80" cy="65" r="12" fill="#FFFFFF" stroke="currentColor" strokeWidth="1.2" />
-
-              {/* Stool */}
-              <line x1="50" y1="105" x2="115" y2="105" strokeWidth="2.5" />
-              <line x1="60" y1="105" x2="52" y2="135" strokeWidth="1.8" />
-              <line x1="105" y1="105" x2="113" y2="135" strokeWidth="1.8" />
-
-              {/* Seated Figure */}
-              <circle cx="78" cy="46" r="10" fill="#FFFFFF" stroke="currentColor" strokeWidth="1.6" />
-              <path d="M 72 46 C 70 38, 84 38, 86 44 C 87 50, 78 53, 76 56" fill="#1E293B" />
-              <circle cx="73" cy="45" r="3.5" fill="#C2D8EC" stroke="currentColor" strokeWidth="1" />
-
-              <path d="M 76 56 Q 70 75 75 92 Q 76 103 95 103" strokeWidth="1.8" />
-              <path d="M 78 66 Q 88 75 97 79" strokeWidth="1.6" />
-              <circle cx="87" cy="74" r="4.5" fill="#C2D8EC" stroke="currentColor" strokeWidth="1" />
-
-              {/* Legs */}
-              <path d="M 95 103 L 110 103 Q 114 118 117 134" strokeWidth="1.8" />
-              <circle cx="110" cy="103" r="4.5" fill="#C2D8EC" stroke="currentColor" strokeWidth="1" />
-              <circle cx="117" cy="134" r="3" fill="#FFFFFF" stroke="currentColor" strokeWidth="1" />
-
-              {/* Document / Open PDF */}
-              <rect
-                x="94"
-                y="68"
-                width="16"
-                height="22"
-                rx="2"
-                fill="#FFFFFF"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                transform="rotate(10 94 68)"
-              />
-              <line x1="98" y1="74" x2="107" y2="76" strokeWidth="1" />
-              <line x1="98" y1="78" x2="105" y2="80" strokeWidth="1" />
-            </svg>
+          {/* Downloaded Editorial Illustration (Reading Bench from user's pack) */}
+          <div className="w-28 sm:w-36 shrink-0 flex items-center justify-center">
+            <img
+              src="/illustrations/reading-bench.svg"
+              alt="PDF Practice"
+              className="max-h-28 sm:max-h-32 w-auto object-contain"
+            />
           </div>
         </div>
 
