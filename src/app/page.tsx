@@ -384,6 +384,28 @@ export default function BrickStudyApp() {
           </div>
         </section>
 
+        {/* Deep Focus Sanctuary Banner */}
+        <section className="p-4 rounded-xl border border-[#1E1E1E] bg-[#121212] flex items-center justify-between gap-4">
+          <div className="space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#777777]">
+              // DEEP WORK SANCTUARY
+            </span>
+            <h3 className="text-sm font-apfel font-bold text-white">
+              Zero Notifications. Pure Flow.
+            </h3>
+            <p className="text-xs font-absans text-[#888888] leading-relaxed">
+              Targeting <span className="text-[#E0E0E0]">{activeSlot.subject}</span> — all dopamine loops intercepted until timer completion.
+            </p>
+          </div>
+          <div className="w-20 h-20 shrink-0 rounded-xl bg-[#161616] border border-[#262626] p-2.5 flex items-center justify-center overflow-hidden">
+            <img
+              src="/illustrations/reading-bench.svg"
+              alt="Deep Work"
+              className="w-full h-full object-contain invert opacity-90"
+            />
+          </div>
+        </section>
+
         {/* Feature 1: The App Blocker / Distraction Shield Matrix (User requested) */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
@@ -570,8 +592,15 @@ export default function BrickStudyApp() {
 
           {/* Stark Center Blocked Message */}
           <div className="max-w-xs mx-auto text-center space-y-6">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-[#141414] border border-[#2A2A2A] flex items-center justify-center">
-              <Ban className="w-10 h-10 text-red-500" />
+            <div className="relative w-28 h-28 mx-auto rounded-3xl bg-[#141414] border border-[#2A2A2A] overflow-hidden flex items-center justify-center p-3">
+              <img
+                src="/illustrations/distraction-phone.svg"
+                alt="Distraction Intercepted"
+                className="w-full h-full object-contain"
+              />
+              <div className="absolute top-2 right-2 p-1 rounded-full bg-red-600/90 text-white shadow">
+                <Ban className="w-3.5 h-3.5" />
+              </div>
             </div>
 
             <div className="space-y-2">
