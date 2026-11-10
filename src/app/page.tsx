@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { MaterialIcon, MaterialIconName } from "@/components/material-icon";
+import { StudyTracker } from "@/components/study-tracker";
 import { Sparkles, ArrowRight, X, Flame } from "lucide-react";
 
 // The 6 Modules from Image 1: Recommended App Structure
@@ -235,15 +236,21 @@ export default function CMALearningDashboard() {
 
         {/* Dashboard Main Canvas */}
         <main className="flex-1 p-6 lg:p-10 max-w-6xl w-full mx-auto space-y-8">
-          {/* Hero Greeting from Image 2 */}
-          <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-apfel font-bold tracking-tight text-[#111110]">
-              Welcome Back, Learner! 🎓
-            </h1>
-            <p className="text-sm text-[#77756F] font-absans">
-              Continue Your Learning Journey And Achieve Your Goals.
-            </p>
-          </div>
+          {activeTab === "analytics" ? (
+            <div className="py-2">
+              <StudyTracker onBack={() => setActiveTab("home")} />
+            </div>
+          ) : (
+            <>
+              {/* Hero Greeting from Image 2 */}
+              <div className="space-y-1">
+                <h1 className="text-2xl sm:text-3xl font-apfel font-bold tracking-tight text-[#111110]">
+                  Welcome Back, Learner! 🎓
+                </h1>
+                <p className="text-sm text-[#77756F] font-absans">
+                  Continue Your Learning Journey And Achieve Your Goals.
+                </p>
+              </div>
 
           {/* ============================================================= */}
           {/* 4 PASTEL SQUIRCLE STAT CARDS (Downloaded Material Symbols)     */}
@@ -416,7 +423,13 @@ export default function CMALearningDashboard() {
               {MODULES.map((mod) => (
                 <div
                   key={mod.id}
-                  onClick={() => setActiveModuleModal(mod)}
+                  onClick={() => {
+                    if (mod.id === "analytics") {
+                      setActiveTab("analytics");
+                    } else {
+                      setActiveModuleModal(mod);
+                    }
+                  }}
                   className="p-5 rounded-[24px] bg-white border border-[#EBE8E1] hover:border-[#D0CABE] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
                 >
                   <div className="flex items-start justify-between">
@@ -510,7 +523,32 @@ export default function CMALearningDashboard() {
               ))}
             </div>
           </div>
-        </main>
+
+          {/* Study Tracker Section on Main Dashboard */}
+          <div className="pt-4 border-t border-[#EFECE6] space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-apfel font-bold text-[#111110]">
+                  Live Study Tracker
+                </h2>
+                <p className="text-xs text-[#88867E]">
+                  Real-time analytics and subject-wise learning hours
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveTab("analytics")}
+                className="text-xs font-semibold text-[#10B981] hover:text-[#059669] flex items-center gap-1 cursor-pointer"
+              >
+                <span>Full Analytics</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <StudyTracker showBack={false} />
+          </div>
+        </>
+      )}
+    </main>
 
         {/* =============================================================== */}
         {/* FLOATING DARK CAPSULE DOCK NAVBAR (Material Symbols)            */}
