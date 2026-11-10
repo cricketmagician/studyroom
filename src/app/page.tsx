@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { MaterialIcon, MaterialIconName } from "@/components/material-icon";
 import { StudyTracker } from "@/components/study-tracker";
+import { PracticeView } from "@/components/practice-view";
 import { Sparkles, ArrowRight, X, Flame } from "lucide-react";
 
 // The 6 Modules from Image 1: Recommended App Structure
@@ -240,6 +241,10 @@ export default function CMALearningDashboard() {
             <div className="py-2">
               <StudyTracker onBack={() => setActiveTab("home")} />
             </div>
+          ) : activeTab === "practice" ? (
+            <div className="py-2">
+              <PracticeView onBack={() => setActiveTab("home")} />
+            </div>
           ) : (
             <>
               {/* Hero Greeting from Image 2 */}
@@ -426,6 +431,8 @@ export default function CMALearningDashboard() {
                   onClick={() => {
                     if (mod.id === "analytics") {
                       setActiveTab("analytics");
+                    } else if (mod.id === "practice") {
+                      setActiveTab("practice");
                     } else {
                       setActiveModuleModal(mod);
                     }
