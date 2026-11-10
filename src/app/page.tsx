@@ -515,9 +515,9 @@ export default function SlabApp() {
   }
 
   // =========================================================================
-  // APPLE SENIOR DESIGNER LEVEL LOGIN SCREEN
+  // APPLE SENIOR DESIGNER LEVEL LOGIN SCREEN (GOLDEN RATIO SPACING & HARMONY)
   // Brand: STILL // Featuring Tegaki dynamic hand-drawn stroke accents
-  // & Original hardware-companion focus sanctuary design
+  // & Golden Ratio (phi ~ 1.618) spacing scale [8, 13, 21, 26, 34, 52]
   // =========================================================================
   if (!currentUser) {
     const activeSlide = carouselSlides[carouselIndex];
@@ -525,14 +525,14 @@ export default function SlabApp() {
     return (
       <div
         suppressHydrationWarning
-        className="min-h-screen bg-[#FBFBFD] sm:py-6 flex items-center justify-center"
+        className="min-h-screen bg-[#FBFBFD] sm:py-8 flex items-center justify-center"
       >
-        <div className="w-full max-w-[410px] min-h-screen sm:min-h-[810px] bg-white sm:rounded-[32px] sm:border sm:border-[#E5E7EB] sm:shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col justify-between px-7 pt-7 pb-6 relative overflow-hidden text-[#111110] font-absans select-none">
-          {/* Top Brand Header */}
-          <header className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              {/* Minimalist Tactile Monolith Mark */}
-              <div className="w-7 h-7 rounded-lg bg-[#111110] text-white flex items-center justify-center shadow-xs">
+        <div className="w-full max-w-[400px] min-h-screen sm:min-h-[820px] bg-white sm:rounded-[36px] sm:border sm:border-[#E5E7EB] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.06)] flex flex-col justify-between px-[26px] pt-[26px] pb-[21px] relative overflow-hidden text-[#111110] font-absans select-none">
+          {/* Top Brand Header (Golden Height & Alignment) */}
+          <header className="flex items-center justify-between pb-[13px]">
+            <div className="flex items-center gap-[10px]">
+              {/* Tactile Monolith Mark (Golden 30px Box) */}
+              <div className="w-[30px] h-[30px] rounded-xl bg-[#111110] text-white flex items-center justify-center shadow-xs">
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <path d="M4 3h-1v1" />
                   <path d="M20 3h1v1" />
@@ -554,12 +554,12 @@ export default function SlabApp() {
             </button>
           </header>
 
-          {/* Centerpiece: Unboxed Full-Size Hero Artwork with Tegaki Flourishes */}
-          <div className="my-auto py-2 flex flex-col items-center space-y-4">
-            {/* Full-Size Floating Illustration (No Box, No Border) */}
-            <div className="w-full h-64 sm:h-72 flex items-center justify-center relative select-none px-2">
+          {/* Centerpiece: Golden Proportion Hero Artwork & Typography */}
+          <div className="my-auto flex flex-col items-center w-full">
+            {/* Visual Stage: Golden Height (256px ~ 400px / 1.618) */}
+            <div className="w-full h-[250px] sm:h-[260px] flex items-center justify-center relative select-none">
               {/* Coral Red Hand-Drawn Spark & Dot Accent (Tegaki inspired) */}
-              <div className="absolute top-[18%] left-[24%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none">
+              <div className="absolute top-[18%] left-[22%] text-[#FF5F56] text-xl select-none tegaki-float pointer-events-none">
                 ✦
               </div>
               <div className="absolute top-[28%] right-[22%] w-2 h-2 rounded-full bg-[#FF5F56] select-none pointer-events-none" />
@@ -580,13 +580,13 @@ export default function SlabApp() {
               <img
                 src={activeSlide.illustration}
                 alt={activeSlide.caption}
-                className="w-full h-full max-h-[270px] object-contain filter contrast-105 transition-all duration-300 transform hover:scale-[1.02]"
+                className="w-full h-full max-h-[235px] object-contain filter contrast-105 transition-all duration-300 transform hover:scale-[1.02]"
               />
             </div>
 
-            {/* Apple Senior Designer Typography with Staggered Text Reveal & Tegaki Animated Stroke */}
-            <div className="space-y-2.5 pt-2 text-left w-full">
-              <h1 className="text-[34px] sm:text-[38px] leading-[1.12] font-apfel font-bold tracking-tight text-[#111110]">
+            {/* Apple Senior Designer Typography: Golden Spacing (mt-34px) */}
+            <div className="mt-[28px] sm:mt-[34px] w-full text-left">
+              <h1 className="text-[34px] leading-[1.15] font-apfel font-bold tracking-tight text-[#111110]">
                 <span className="block animate-text-reveal-1">
                   Silence the noise.
                 </span>
@@ -597,7 +597,7 @@ export default function SlabApp() {
                     {/* Tegaki Dynamic Organic Brush Stroke Underline */}
                     <svg
                       viewBox="0 0 110 14"
-                      className="absolute -bottom-2.5 left-0 w-full overflow-visible text-[#FF5F56] pointer-events-none tegaki-stroke-animated"
+                      className="absolute -bottom-2 left-0 w-full overflow-visible text-[#FF5F56] pointer-events-none tegaki-stroke-animated"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2.2"
@@ -609,7 +609,8 @@ export default function SlabApp() {
                   </span>
                 </span>
               </h1>
-              <p className="text-sm font-absans text-[#666666] leading-relaxed animate-text-reveal-3">
+              {/* Golden Gap (mt-13px) */}
+              <p className="mt-[13px] text-[14px] leading-[22px] font-absans text-[#666666] animate-text-reveal-3">
                 A tactile hardware sanctuary engineered for deep work.
               </p>
             </div>
@@ -618,7 +619,7 @@ export default function SlabApp() {
             {showEmailForm && (
               <form
                 onSubmit={handleLoginSubmit}
-                className="p-3.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] space-y-2.5 animate-in fade-in duration-150"
+                className="w-full mt-[13px] p-[13px] rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] space-y-[10px] animate-in fade-in duration-150"
               >
                 <div className="text-xs font-absans font-medium text-[#111110]">
                   Enter your student or university email
@@ -628,21 +629,21 @@ export default function SlabApp() {
                   placeholder="student@domain.ac.in"
                   value={inputEmail}
                   onChange={(e) => setInputEmail(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-xs font-absans text-[#111110] focus:outline-none focus:border-[#111110]"
+                  className="w-full px-[13px] py-[10px] rounded-xl border border-[#E5E7EB] bg-white text-xs font-absans text-[#111110] focus:outline-none focus:border-[#111110]"
                   autoFocus
                   required
                 />
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-[8px] pt-1">
                   <button
                     type="button"
                     onClick={() => setShowEmailForm(false)}
-                    className="w-1/3 py-2 text-xs font-absans text-[#666666] hover:text-[#111110] cursor-pointer"
+                    className="w-1/3 py-[10px] text-xs font-absans text-[#666666] hover:text-[#111110] cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="w-2/3 py-2 rounded-lg bg-[#111110] text-white text-xs font-absans font-medium hover:bg-black cursor-pointer shadow-xs"
+                    className="w-2/3 py-[10px] rounded-xl bg-[#111110] text-white text-xs font-absans font-medium hover:bg-black cursor-pointer shadow-xs"
                   >
                     Continue
                   </button>
@@ -650,12 +651,12 @@ export default function SlabApp() {
               </form>
             )}
 
-            {/* Primary & Secondary Authentication Buttons */}
-            <div className="space-y-3 pt-1">
-              {/* Primary Black Button: Continue with Google */}
+            {/* Primary & Secondary Authentication Buttons: Golden Gap (mt-34px) */}
+            <div className="w-full mt-[28px] sm:mt-[34px] space-y-[13px]">
+              {/* Primary Black Button: Continue with Google (Golden Height 52px) */}
               <button
                 onClick={() => handleSocialLogin("Google")}
-                className="w-full py-3.5 px-4 rounded-xl bg-[#111110] hover:bg-black active:scale-[0.99] text-white font-absans font-semibold text-sm transition-all flex items-center justify-center gap-3 cursor-pointer shadow-sm"
+                className="w-full h-[52px] px-4 rounded-2xl bg-[#111110] hover:bg-black active:scale-[0.99] text-white font-absans font-semibold text-[14px] transition-all flex items-center justify-center gap-3 cursor-pointer shadow-sm"
               >
                 <span className="w-5 h-5 rounded-md bg-white flex items-center justify-center flex-shrink-0">
                   <svg viewBox="0 0 24 24" className="w-3.5 h-3.5">
@@ -680,11 +681,11 @@ export default function SlabApp() {
                 <span>Continue with Google</span>
               </button>
 
-              {/* Secondary Row: GitHub & Email */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Secondary Row: GitHub & Email (Golden Gap 13px) */}
+              <div className="grid grid-cols-2 gap-[13px]">
                 <button
                   onClick={() => handleSocialLogin("GitHub")}
-                  className="py-3 px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  className="h-[46px] px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
@@ -694,7 +695,7 @@ export default function SlabApp() {
 
                 <button
                   onClick={() => setShowEmailForm(!showEmailForm)}
-                  className="py-3 px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  className="h-[46px] px-4 rounded-xl border border-[#E5E7EB] bg-white hover:bg-gray-50 active:scale-[0.99] text-[#111110] font-absans font-medium text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -713,8 +714,8 @@ export default function SlabApp() {
               </div>
             </div>
 
-            {/* Legal Notice */}
-            <p className="text-[11px] text-center text-[#888888] font-absans leading-relaxed pt-1">
+            {/* Legal Notice (Golden Gap mt-13px) */}
+            <p className="mt-[13px] text-[11px] leading-[16px] text-center text-[#888888] font-absans">
               By continuing you agree to our{" "}
               <a href="#terms" className="underline text-[#555555] hover:text-[#111110]">
                 Terms
@@ -727,10 +728,10 @@ export default function SlabApp() {
             </p>
           </div>
 
-          {/* Bottom Footer */}
-          <footer className="pt-4 flex items-center justify-between text-xs text-[#888888] font-absans border-t border-[#F2F2F2]">
+          {/* Bottom Footer (Golden Padding pt-21px) */}
+          <footer className="pt-[21px] flex items-center justify-between text-[11px] text-[#888888] font-absans border-t border-[#F3F4F6]">
             <span>© 2026 Still Technologies Inc.</span>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-[13px]">
               <a href="#privacy" className="hover:text-[#111110] transition-colors">
                 Privacy
               </a>
