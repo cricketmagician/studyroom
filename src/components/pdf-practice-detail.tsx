@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Heart, Cloud, Download, X, ExternalLink, Check, FileText } from "lucide-react";
 import { useMaterials } from "@/lib/hooks";
+import { ModernPdfViewer } from "@/components/modern-pdf-viewer";
 
 export interface PdfSession {
   id: string;
@@ -298,80 +299,28 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
         })}
       </div>
 
-      {/* =============================================================== */}
-      {/* PDF VIEWER / SESSION MODAL (Triggered when clicking any PDF)     */}
-      {/* =============================================================== */}
-      {activePdf && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-lg rounded-3xl bg-white border border-[#EBE8E1] p-6 space-y-5 shadow-2xl animate-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#F7EFE4] text-[#8C6D4C] flex items-center justify-center">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="inline-flex items-center gap-1 text-[11px] font-mono text-[#059669] bg-[#EAF7EE] px-2 py-0.5 rounded-full font-semibold border border-[#D1F2DD]">
-                    <Check className="w-3 h-3 stroke-[2.5]" />
-                    <span>Opened &amp; Progress Updated</span>
-                  </div>
-                  <h3 className="font-serif text-lg font-bold text-[#18181B] mt-1">
-                    {activePdf.title}
-                  </h3>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setActivePdf(null)}
-                className="p-1.5 rounded-full text-[#88867E] hover:text-[#111110] hover:bg-gray-100 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Document Preview Box */}
-            <div className="p-4 rounded-2xl bg-[#FAF9F5] border border-[#EBE8E1] space-y-2.5">
-              <div className="flex items-center justify-between text-xs text-[#71717A] font-mono">
-                <span>Reading Estimate: {activePdf.duration}</span>
-                <span>Format: PDF Document</span>
-              </div>
-              <p className="text-xs text-[#52525B] leading-relaxed">
-                Contains verified syllabus theory notes, formula reference tables, and
-                illustrative solved questions for CMA Intermediate Group 1.
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3 pt-1">
-              {activePdf.url ? (
-                <a
-                  href={activePdf.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 py-3 rounded-xl bg-[#18181B] text-white hover:bg-black font-apfel font-semibold text-xs tracking-wide uppercase flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                >
-                  <span>Open Full PDF</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              ) : (
-                <button
-                  onClick={() => setActivePdf(null)}
-                  className="flex-1 py-3 rounded-xl bg-[#18181B] text-white hover:bg-black font-apfel font-semibold text-xs tracking-wide uppercase cursor-pointer transition-colors"
-                >
-                  Continue Reading
-                </button>
-              )}
-
-              <button
-                onClick={() => setActivePdf(null)}
-                className="px-4 py-3 rounded-xl border border-[#EBE8E1] text-[#666560] hover:text-[#111110] hover:bg-gray-50 text-xs font-medium cursor-pointer transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modern In-App Fullscreen PDF Viewer */}
+      <ModernPdfViewer
+        isOpen={!!activePdf}
+        onClose={() => setActivePdf(null)}
+        isCompleted={activePdf ? !!openedIds[activePdf.id] : false}
+        onMarkCompleted={(docId) => {
+          if (activePdf) markPdfOpened(activePdf);
+        }}
+        document={
+          activePdf
+            ? {
+                id: activePdf.id,
+                title: activePdf.title,
+                pages: activePdf.duration,
+                size: activePdf.size,
+                url: activePdf.url,
+                paperCode: "Paper 8",
+                subject: "CMA Intermediate Practice",
+              }
+            : null
+        }
+      />
     </div>
   );
 }

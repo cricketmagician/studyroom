@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Search, ArrowLeft, Download, FileText, ExternalLink, Bookmark, Filter, Check } from "lucide-react";
 import { useMaterials } from "@/lib/hooks";
+import { ModernPdfViewer } from "@/components/modern-pdf-viewer";
 
 interface LibraryBook {
   id: string;
@@ -338,66 +339,24 @@ export function StudyLibraryView({ onBack }: { onBack?: () => void }) {
         })}
       </div>
 
-      {/* PDF Reader Preview Dialog */}
-      {activePdf && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-xl rounded-3xl bg-white border border-[#EBE8E1] p-6 sm:p-7 space-y-5 shadow-2xl">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#F4EFFE] text-[#8B5CF6] flex items-center justify-center">
-                  <FileText className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-mono font-semibold text-[#8B5CF6] bg-[#F4EFFE] px-2.5 py-0.5 rounded-full">
-                    {activePdf.subject}
-                  </span>
-                  <h3 className="font-apfel font-bold text-base text-[#111110] mt-1 line-clamp-2">
-                    {activePdf.title}
-                  </h3>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-[#FAF9F5] border border-[#EBE8E1] space-y-2 text-xs">
-              <div className="flex items-center justify-between font-mono text-[#71717A]">
-                <span>Document Length: {activePdf.pages} Pages</span>
-                <span>Size: {activePdf.size}</span>
-              </div>
-              <p className="text-[#52525B] leading-relaxed">
-                Structured for CMA Intermediate examinations. Includes complete concept summaries, illustrative problems, and suggested step answers.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3 pt-2">
-              {activePdf.downloadUrl ? (
-                <a
-                  href={activePdf.downloadUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 py-3 rounded-xl bg-[#111110] text-white hover:bg-black font-apfel font-semibold text-xs tracking-wide uppercase flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>Open PDF in Tab</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              ) : (
-                <button
-                  onClick={() => setActivePdf(null)}
-                  className="flex-1 py-3 rounded-xl bg-[#111110] text-white hover:bg-black font-apfel font-semibold text-xs tracking-wide uppercase cursor-pointer"
-                >
-                  Start Reading
-                </button>
-              )}
-
-              <button
-                onClick={() => setActivePdf(null)}
-                className="px-5 py-3 rounded-xl border border-[#EBE8E1] text-[#666560] hover:text-[#111110] text-xs font-medium cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modern In-App Fullscreen PDF Viewer */}
+      <ModernPdfViewer
+        isOpen={!!activePdf}
+        onClose={() => setActivePdf(null)}
+        document={
+          activePdf
+            ? {
+                id: activePdf.id,
+                title: activePdf.title,
+                subject: activePdf.subject,
+                paperCode: activePdf.isOfficial ? "Official" : "Paper 8",
+                pages: activePdf.pages,
+                size: activePdf.size,
+                url: activePdf.downloadUrl,
+              }
+            : null
+        }
+      />
     </div>
   );
 }

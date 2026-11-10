@@ -20,6 +20,7 @@ import {
 import { MaterialIcon } from "@/components/material-icon";
 import { useMaterials } from "@/lib/hooks";
 import { Material, saveLocalMaterial, removeLocalMaterial } from "@/lib/materials";
+import { ModernPdfViewer, PdfDocument } from "@/components/modern-pdf-viewer";
 
 const CMA_SUBJECT_OPTIONS = [
   { paper: "Paper 8", name: "Cost Accounting" },
@@ -32,6 +33,7 @@ const CMA_SUBJECT_OPTIONS = [
 export default function AdminPortalPage() {
   const { items: uploadedMaterials } = useMaterials();
   const [activeTab, setActiveTab] = useState<"pdf" | "video">("pdf");
+  const [previewDoc, setPreviewDoc] = useState<PdfDocument | null>(null);
 
   // PDF Form state
   const [pdfTitle, setPdfTitle] = useState("");
@@ -644,16 +646,36 @@ export default function AdminPortalPage() {
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
                       <span>Live for Students</span>
                     </span>
-                    {item.url && (
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    {item.type === "pdf" ? (
+                      <button
+                        onClick={() =>
+                          setPreviewDoc({
+                            id: item.id,
+                            title: item.title,
+                            subject: item.subject,
+                            paperCode: item.paperCode,
+                            pages: item.duration,
+                            size: `${(item.size / (1024 * 1024)).toFixed(1)} MB`,
+                            url: item.url,
+                          })
+                        }
                         className="text-[#111110] hover:text-black font-semibold flex items-center gap-1 cursor-pointer"
                       >
-                        <span>Preview</span>
-                        <ExternalLink className="w-3 h-3 text-[#71717A]" />
-                      </a>
+                        <span>In-App Preview</span>
+                        <Eye className="w-3.5 h-3.5 text-[#71717A]" />
+                      </button>
+                    ) : (
+                      item.url && (
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#111110] hover:text-black font-semibold flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>Preview</span>
+                          <ExternalLink className="w-3 h-3 text-[#71717A]" />
+                        </a>
+                      )
                     )}
                   </div>
                 </div>
@@ -662,6 +684,13 @@ export default function AdminPortalPage() {
           )}
         </div>
       </main>
+
+      {/* Modern In-App PDF Previewer */}
+      <ModernPdfViewer
+        isOpen={!!previewDoc}
+        onClose={() => setPreviewDoc(null)}
+        document={previewDoc}
+      />
     </div>
   );
 }
