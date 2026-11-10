@@ -237,13 +237,13 @@ export default function BrickStudyApp() {
   return (
     <div
       suppressHydrationWarning
-      className="min-h-screen bg-[#090909] text-[#E5E5E5] selection:bg-[#333333] font-sans antialiased pb-24"
+      className="min-h-screen bg-[#090909] text-[#E5E5E5] selection:bg-[#333333] font-absans antialiased pb-24"
     >
       {/* Top Swiss Status Bar */}
       <header className="border-b border-[#1A1A1A] bg-[#090909]/90 backdrop-blur sticky top-0 z-30 px-5 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-sm bg-white" />
-          <span className="font-mono text-xs tracking-[0.2em] font-semibold text-white uppercase">
+          <span className="font-apfel text-xs tracking-[0.2em] font-bold text-white uppercase">
             BRICK // OS
           </span>
           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-[#262626] text-[#777777]">
@@ -305,25 +305,25 @@ export default function BrickStudyApp() {
             {/* Slab Typography */}
             {isBricked ? (
               <div className="space-y-1">
-                <div className="font-mono text-4xl font-bold tracking-tight text-white">
+                <div className="font-apfel text-5xl font-black tracking-tight text-white">
                   {formatTimer(secondsRemaining)}
                 </div>
                 <div className="text-xs font-mono tracking-widest text-emerald-400 font-semibold uppercase pt-1">
                   BRICK ACTIVE • {activeSlot.subject}
                 </div>
-                <div className="text-[11px] text-[#666666] pt-1">
+                <div className="text-[11px] font-absans text-[#666666] pt-1">
                   Tap to end session
                 </div>
               </div>
             ) : (
               <div className="space-y-1 text-[#0A0A0A]">
-                <div className="text-2xl font-black tracking-tight uppercase">
+                <div className="text-3xl font-apfel font-black tracking-tight uppercase">
                   BRICK DEVICE
                 </div>
                 <div className="text-[11px] font-mono tracking-wider text-[#555555] font-medium uppercase">
                   TAP TO ACTIVATE PHYSICAL SHIELD
                 </div>
-                <div className="text-[11px] text-[#777777] pt-2">
+                <div className="text-[11px] font-absans text-[#777777] pt-2">
                   Duration: {targetDuration} minutes • {apps.filter((a) => a.blocked).length} Apps Shielded
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function BrickStudyApp() {
             <div className="text-[10px] font-mono text-[#666666] uppercase tracking-wider">
               RECLAIMED
             </div>
-            <div className="text-lg font-bold font-mono text-white mt-1">
+            <div className="text-xl font-bold font-apfel text-white mt-1">
               {Math.floor(reclaimedMinutes / 60)}h {Math.floor(reclaimedMinutes % 60)}m
             </div>
           </div>
@@ -368,16 +368,16 @@ export default function BrickStudyApp() {
             <div className="text-[10px] font-mono text-[#666666] uppercase tracking-wider">
               IMPULSES STOPPED
             </div>
-            <div className="text-lg font-bold font-mono text-white mt-1 flex items-center gap-1.5">
+            <div className="text-xl font-bold font-apfel text-white mt-1 flex items-center gap-1.5">
               <span>{impulsesBlocked}</span>
-              <span className="text-[10px] text-emerald-400 font-normal">blocked</span>
+              <span className="text-[10px] font-absans text-emerald-400 font-normal">blocked</span>
             </div>
           </div>
           <div className="p-3.5 rounded-xl bg-[#121212] border border-[#1F1F1F]">
             <div className="text-[10px] font-mono text-[#666666] uppercase tracking-wider">
               STREAK
             </div>
-            <div className="text-lg font-bold font-mono text-white mt-1 flex items-center gap-1">
+            <div className="text-xl font-bold font-apfel text-white mt-1 flex items-center gap-1">
               <span>5</span>
               <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
             </div>
@@ -389,7 +389,7 @@ export default function BrickStudyApp() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-[#888888]" />
-              <h2 className="text-xs font-mono uppercase tracking-[0.2em] font-semibold text-[#888888]">
+              <h2 className="text-xs font-apfel uppercase tracking-[0.2em] font-bold text-[#888888]">
                 APP BLOCKER & SHIELD MATRIX
               </h2>
             </div>
@@ -464,7 +464,7 @@ export default function BrickStudyApp() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-[#888888]" />
-              <h2 className="text-xs font-mono uppercase tracking-[0.2em] font-semibold text-[#888888]">
+              <h2 className="text-xs font-apfel uppercase tracking-[0.2em] font-bold text-[#888888]">
                 TODAY&apos;S FOCUS PROTOCOL
               </h2>
             </div>
@@ -502,13 +502,13 @@ export default function BrickStudyApp() {
                         )}
                       </div>
                       <h3
-                        className={`text-sm font-semibold transition-colors ${
+                        className={`text-sm font-apfel font-bold tracking-tight transition-colors ${
                           slot.completed ? "line-through text-[#666666]" : "text-white"
                         }`}
                       >
                         {slot.subject}
                       </h3>
-                      <p className="text-xs text-[#888888]">{slot.topic}</p>
+                      <p className="text-xs font-absans text-[#888888]">{slot.topic}</p>
                     </div>
 
                     <button
@@ -575,20 +575,20 @@ export default function BrickStudyApp() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight uppercase">
+              <h1 className="text-3xl font-apfel font-black tracking-tight uppercase">
                 {simulatedBlockApp.name} IS BRICKED
               </h1>
-              <p className="text-sm text-[#888888] leading-relaxed">
+              <p className="text-sm font-absans text-[#888888] leading-relaxed">
                 You committed to focusing on{" "}
                 <span className="text-white font-medium">{activeSlot.subject}</span>. Put your phone down.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0D0D0D] border border-[#222222] font-mono">
-              <div className="text-[10px] text-[#666666] uppercase tracking-widest">
+            <div className="p-4 rounded-2xl bg-[#0D0D0D] border border-[#222222]">
+              <div className="text-[10px] font-mono text-[#666666] uppercase tracking-widest">
                 TIME REMAINING
               </div>
-              <div className="text-3xl font-bold text-white pt-1">
+              <div className="text-4xl font-apfel font-bold text-white pt-1">
                 {formatTimer(secondsRemaining)}
               </div>
             </div>
@@ -598,7 +598,7 @@ export default function BrickStudyApp() {
           <div className="space-y-3 max-w-xs mx-auto w-full text-center">
             <button
               onClick={() => setSimulatedBlockApp(null)}
-              className="w-full py-4 rounded-xl bg-white text-[#0A0A0A] font-bold text-sm tracking-wide uppercase hover:bg-[#E5E5E5] transition-colors cursor-pointer"
+              className="w-full py-4 rounded-xl bg-white text-[#0A0A0A] font-apfel font-bold text-sm tracking-wide uppercase hover:bg-[#E5E5E5] transition-colors cursor-pointer"
             >
               Return to Study
             </button>

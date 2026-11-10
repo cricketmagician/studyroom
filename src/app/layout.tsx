@@ -11,6 +11,33 @@ const absans = localFont({
   display: "swap",
 });
 
+const apfelGrotezk = localFont({
+  src: [
+    {
+      path: "./fonts/ApfelGrotezk-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/ApfelGrotezk-Mittel.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/ApfelGrotezk-Fett.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/ApfelGrotezk-Brukt.woff2",
+      weight: "900",
+      style: "normal",
+    },
+  ],
+  variable: "--font-apfel",
+  display: "swap",
+});
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -36,7 +63,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${absans.variable} ${inter.variable} ${manrope.variable}`}
+      className={`${apfelGrotezk.variable} ${absans.variable} ${inter.variable} ${manrope.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased font-sans selection:bg-orange-500/20">
