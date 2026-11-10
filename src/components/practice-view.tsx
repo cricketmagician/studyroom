@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Search, MoreVertical, Heart, ArrowLeft, ArrowRight, BookOpen, Video, FileText, CheckCircle2 } from "lucide-react";
 import { MaterialIcon } from "@/components/material-icon";
+import { PdfPracticeDetail } from "@/components/pdf-practice-detail";
 
 interface PracticeCard {
   id: string;
@@ -22,6 +23,11 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
     pdf: true,
   });
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [viewingDetail, setViewingDetail] = useState<"pdf" | null>(null);
+
+  if (viewingDetail === "pdf") {
+    return <PdfPracticeDetail onBack={() => setViewingDetail(null)} />;
+  }
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -138,7 +144,13 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
           {displayedCards.map((card) => (
             <div
               key={card.id}
-              onClick={() => setSelectedTopic(card.title)}
+              onClick={() => {
+                if (card.type === "pdf") {
+                  setViewingDetail("pdf");
+                } else {
+                  setSelectedTopic(card.title);
+                }
+              }}
               className="rounded-[30px] p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer border group"
               style={{
                 backgroundColor: card.bgPastel,
