@@ -141,3 +141,12 @@
 .adm-roster-stats { display:contents; }
 .adm-roster-stat,.adm-roster-stat b { white-space:nowrap; }
 @media (max-width:900px) { .adm .apple-glass-card { padding:var(--sp-3)!important; } .adm-roster button { padding:var(--sp-3); column-gap:var(--sp-2); } .adm-roster-stats { gap:var(--sp-3); } }
+
+/* Admin tab bar gets out of the way too: while scrolling down, typing or in a sheet. */
+@media (max-width:900px) {
+  .adm-tabbar { transition:transform .32s cubic-bezier(.2,.8,.2,1), opacity .2s; }
+  .adm-tabbar[data-tucked],
+  body:has(dialog[open]) .adm-tabbar,
+  body:has(.adm-main :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select):focus) .adm-tabbar { transform:translate(-50%, calc(100% + 34px)); opacity:0; pointer-events:none; }
+}
+@media (prefers-reduced-motion:reduce) { .adm-tabbar { transition:none; } }

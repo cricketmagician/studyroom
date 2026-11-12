@@ -588,3 +588,10 @@ body:has(.cma :is(input:not([type="checkbox"]):not([type="radio"]),textarea,sele
 body:has(.study-bottom-nav[data-tucked]) .cma-focus-status { transform:translate(-50%, 89px); }
 .cma-focus-status { transition:transform .32s cubic-bezier(.2,.8,.2,1); }
 @media (prefers-reduced-motion:reduce) { .study-bottom-nav,.cma-focus-status { transition:none; } }
+
+/* Header: clear at the top of the page, true frosted glass once you scroll (iOS large-title bar). */
+.cma-top { transition:background-color .25s, box-shadow .25s, border-color .25s, -webkit-backdrop-filter .25s, backdrop-filter .25s; }
+html:not([data-scrolled]) .cma-top { background:transparent; border-bottom-color:transparent; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
+html[data-scrolled] .cma-top { background:color-mix(in srgb,var(--bg-primary) 55%,transparent); -webkit-backdrop-filter:blur(24px) saturate(1.9); backdrop-filter:blur(24px) saturate(1.9); border-bottom-color:color-mix(in srgb,var(--cma-line) 80%,transparent); box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 10px 28px -20px rgba(0,0,0,.45); }
+.dark html[data-scrolled] .cma-top,html.dark[data-scrolled] .cma-top { box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 10px 28px -18px rgba(0,0,0,.9); }
+@media (prefers-reduced-transparency:reduce) { html[data-scrolled] .cma-top { background:var(--bg-primary); -webkit-backdrop-filter:none; backdrop-filter:none; } }

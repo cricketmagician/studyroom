@@ -4,24 +4,13 @@ import Link from 'next/link';
 import { BookOpenText as BookOpen, ChartLineUp as ChartNoAxesCombined, House, ListChecks as ListTodo, NotePencil as NotebookPen, UsersThree as Users, UserCircle as UserRound, ShieldCheck, DotsThreeCircle as Ellipsis, X, Repeat as Repeat2, GraduationCap } from "@phosphor-icons/react";
 import { useAuth } from '@/lib/auth';
 import { haptic } from '@/lib/haptics';
+import { useScrollChrome } from '@/lib/use-scroll-chrome';
 
 export function StudyNavigation({ active, onChange }: { active?: string; onChange?: (view: string) => void }) {
   const { profile } = useAuth();
   const dialog = useRef<HTMLDialogElement>(null);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [tucked, setTucked] = useState(false);
-  // Like iOS Safari: scrolling down tucks the tab bar away so it never sits on top of what you read; scrolling up brings it back.
-  useEffect(() => {
-    let last = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY, bottom = y + innerHeight >= document.documentElement.scrollHeight - 8;
-      if (Math.abs(y - last) < 8) return;
-      setTucked(y > last && y > 80 && !bottom);
-      last = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const tucked = useScrollChrome();
   const primary = [
     { name: 'Home', view: 'Overview', href: '/', icon: House },
     { name: 'Library', view: 'Library', href: '/?view=Library', icon: BookOpen },

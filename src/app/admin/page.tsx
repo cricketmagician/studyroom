@@ -35,6 +35,7 @@ import { SYLLABUS_DATA } from "@/lib/syllabus-data";
 import { ErrorText, Logo, LogoMark } from "@/components/auth-card";
 import { ArrowSquareOut as PArrowSquare, Books as PBooks, Broadcast as PBroadcast, CaretRight as PCaret, Clock as PClock, FilePdf as PFilePdf, Fire as PFire, House as PHome, Play as PPlay, Plus as PPlus, ShieldCheck as PShield, SignOut as PSignOut, Sparkle as PSparkle, UsersThree as PUsers } from "@phosphor-icons/react";
 import "./admin.css";
+import { useScrollChrome } from "@/lib/use-scroll-chrome";
 import { AdminAccess } from "@/components/admin-access";
 import { StudentDossier } from "@/components/student-dossier";
 import "@/components/study-hub.css";
@@ -401,6 +402,7 @@ function AdminWorkspace() {
     { id: "admins" as const, label: "Admins", icon: PShield },
   ];
   const go = (id: typeof tab) => { setTab(id); window.scrollTo({ top: 0 }); };
+  const tucked = useScrollChrome();
 
   return (
     <div className="cma adm">
@@ -1441,7 +1443,7 @@ function AdminWorkspace() {
       </div>
 
       {/* Phone: the same glass tab bar students know, with Upload in the middle. */}
-      <nav className="adm-tabbar" aria-label="Admin menu">
+      <nav className="adm-tabbar" aria-label="Admin menu" data-tucked={tucked || undefined}>
         {NAV.map(({ id, label, icon: Icon }) => (
           <button key={id} type="button" aria-current={tab === id ? "page" : undefined} data-upload={id === "publisher" ? "" : undefined} onClick={() => go(id)}>
             <Icon size={id === "publisher" ? 26 : 24} weight={tab === id || id === "publisher" ? "fill" : "duotone"} aria-hidden="true" /><span>{label}</span>
