@@ -1,8 +1,12 @@
-# Never upload local secrets or build output
+.git
+.secrets
 .env*
 !.env.example
-.next
 .next-local
-node_modules
+.local-uploads
+functions/node_modules
+functions/lib
+functions/.secret.local
+*-debug*.log
 .claude
-*.log
+.agents

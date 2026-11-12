@@ -7,16 +7,18 @@ import { Material } from "@/lib/materials";
 import { MaterialIcon } from "@/components/material-icon";
 
 export const pillButton =
-  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)]";
+  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)]";
 
-export const cardClass = "rounded-[30px] bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-[var(--shadow-sm)]";
+export const cardClass = "rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-[var(--shadow-sm)]";
 
-/** "Hello, Name!" over a big bold title, like the original dashboard. */
-export function PageTitle({ name, title }: { name?: string; title: string }) {
+export function PageTitle({ name, title, sub }: { name?: string; title: string; sub?: string }) {
   return (
-    <div>
-      {name && <p className="text-sm sm:text-base text-[var(--text-secondary)] tracking-tight">Hello, {name.split(" ")[0]}!</p>}
-      <h1 className="text-3xl sm:text-4xl font-heading font-black tracking-tight leading-tight mt-0.5">{title}</h1>
+    <div className="cma-page-heading !mb-0">
+      <div>
+        {name && <span className="cma-eyebrow">Hello, {name.split(" ")[0]}</span>}
+        <h1>{title}</h1>
+        {sub && <p>{sub}</p>}
+      </div>
     </div>
   );
 }

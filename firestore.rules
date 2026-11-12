@@ -16,9 +16,12 @@ service cloud.firestore {
     match /profiles/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;
       allow create: if signedIn() && request.auth.uid == uid &&
-        request.resource.data.keys().hasOnly(['name', 'email', 'role']) &&
+        request.resource.data.keys().hasOnly(['name', 'email', 'role', 'level', 'createdAt']) &&
+        request.resource.data.get('level', 'Intermediate') in ['Foundation', 'Intermediate', 'Final'] &&
+        request.resource.data.email == request.auth.token.email &&
+        request.resource.data.get('createdAt', request.time) == request.time &&
         request.resource.data.role == 'student' &&
-        request.resource.data.name is string && request.resource.data.name.size() <= 80;
+        request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80;
       allow update, delete: if false;
     }
 
@@ -56,6 +59,25 @@ service cloud.firestore {
         (request.resource.data.due == null || (request.resource.data.due is string && request.resource.data.due.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')));
     }
 
+    // Each student's private mistake book from mock tests, with a spaced-review schedule.
+    match /profiles/{uid}/mistakes/{mistakeId} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.keys().hasOnly(['paper', 'chapter', 'mock', 'kind', 'question', 'wrong', 'fix', 'marks', 'box', 'due', 'mastered', 'createdAt', 'updatedAt']) &&
+        request.resource.data.paper is string && request.resource.data.paper.size() > 0 && request.resource.data.paper.size() <= 4 &&
+        request.resource.data.chapter is string && request.resource.data.chapter.size() <= 200 &&
+        request.resource.data.mock is string && request.resource.data.mock.size() <= 80 &&
+        request.resource.data.kind in ['concept', 'calc', 'silly', 'read', 'formula', 'time'] &&
+        request.resource.data.question is string && request.resource.data.question.size() <= 2000 &&
+        request.resource.data.wrong is string && request.resource.data.wrong.size() > 0 && request.resource.data.wrong.size() <= 2000 &&
+        request.resource.data.fix is string && request.resource.data.fix.size() <= 2000 &&
+        request.resource.data.marks is int && request.resource.data.marks >= 0 && request.resource.data.marks <= 100 &&
+        request.resource.data.box is int && request.resource.data.box >= 0 && request.resource.data.box <= 5 &&
+        request.resource.data.due is string && request.resource.data.due.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}') &&
+        request.resource.data.mastered is bool &&
+        request.resource.data.updatedAt == request.time;
+    }
+
     // AI study pack per file. Only the server writes its content; the owning teacher reviews,
     // then publishes it (the only field they may change). Students read it once published.
     match /materials/{materialId}/ai/{docId} {
@@ -74,7 +96,7 @@ service cloud.firestore {
     match /materials/{id} {
       allow read: if signedIn();
       allow create: if isTeacher() &&
-        request.resource.data.keys().hasOnly(['title', 'type', 'url', 'storagePath', 'size', 'teacherId', 'teacherName', 'createdAt']) &&
+        request.resource.data.keys().hasOnly(['title', 'type', 'url', 'storagePath', 'size', 'teacherId', 'teacherName', 'createdAt', 'subjectId', 'subject', 'level', 'paperCode']) &&
         request.resource.data.teacherId == request.auth.uid &&
         request.resource.data.type in ['pdf', 'video'] &&
         request.resource.data.title is string &&

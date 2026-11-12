@@ -27,11 +27,11 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AuthCard title="Reset password" subtitle="We'll email you a link to set a new password.">
+    <AuthCard title="Reset password" subtitle="We will email you a link to set a new password.">
       {sent ? (
         <p role="status" className="text-center">If an account exists for this email, a reset link is on its way. Check your inbox.</p>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form method="post" onSubmit={handleSubmit}>
           <Field label="Email" name="email" type="email" autoComplete="email" />
           <ErrorText>{error}</ErrorText>
           <button type="submit" disabled={busy} className={buttonClass}>

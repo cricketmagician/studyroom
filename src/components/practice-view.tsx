@@ -135,7 +135,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
       {/* SECTION 1: Disciplines (Horizontal Carousel of Pastel Cards)   */}
       {/* =============================================================== */}
       <div className="space-y-3">
-        <h2 className="text-xs font-mono font-medium uppercase tracking-wider text-[#88867E]">
+        <h2 className="text-xs tabular-nums font-medium uppercase tracking-wider text-[#88867E]">
           Disciplines
         </h2>
 
@@ -163,7 +163,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
                   <h3 className="font-serif text-2xl font-bold text-[#18181B] tracking-tight">
                     {card.title}
                   </h3>
-                  <p className="text-[11px] font-mono font-semibold tracking-wider text-[#6B5A4E]/80 mt-1 uppercase">
+                  <p className="text-[11px] tabular-nums font-semibold tracking-wider text-[#6B5A4E]/80 mt-1 uppercase">
                     {card.sessions}
                   </p>
                 </div>
@@ -194,7 +194,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
 
               {/* Bottom Progress Bar */}
               <div className="pt-2 relative z-10 space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-mono font-medium text-[#4B5563]">
+                <div className="flex items-center justify-between text-xs tabular-nums font-medium text-[#4B5563]">
                   <span>{card.progress}% Done</span>
                 </div>
                 <div className="w-full h-1.5 rounded-full bg-black/10 overflow-hidden">
@@ -214,10 +214,10 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
       {/* =============================================================== */}
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-mono font-medium uppercase tracking-wider text-[#88867E]">
+          <h2 className="text-xs tabular-nums font-medium uppercase tracking-wider text-[#88867E]">
             Official ICMAI Examination Sets
           </h2>
-          <span className="text-[10px] font-mono font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+          <span className="text-[10px] tabular-nums font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
             Syllabus 2022
           </span>
         </div>
@@ -248,7 +248,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
             >
               <div className="space-y-1.5 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
+                  <span className="text-[10px] tabular-nums font-semibold px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
                     {topic.paperTag}
                   </span>
                 </div>
@@ -278,7 +278,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md rounded-3xl bg-white border border-[#EBE8E1] p-6 space-y-4 shadow-2xl">
             <div className="space-y-1">
-              <span className="text-[11px] font-mono text-[#059669] bg-[#EAF7EE] px-2.5 py-0.5 rounded-full font-semibold border border-[#D1F2DD]">
+              <span className="text-[11px] tabular-nums text-[#059669] bg-[#EAF7EE] px-2.5 py-0.5 rounded-full font-semibold border border-[#D1F2DD]">
                 Official ICMAI Resource
               </span>
               <h3 className="font-serif text-xl font-bold text-[#111110] pt-1">

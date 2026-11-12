@@ -126,7 +126,7 @@ export function FriendChallengesView({ onBack }: { onBack?: () => void }) {
                   <div className="w-10 h-10 rounded-2xl bg-[#FDF2F8] text-[#EC4899] flex items-center justify-center">
                     <Swords className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
+                  <span className="text-[10px] tabular-nums font-semibold px-2.5 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
                     {item.badge}
                   </span>
                 </div>
@@ -137,7 +137,7 @@ export function FriendChallengesView({ onBack }: { onBack?: () => void }) {
                 </div>
 
                 <div className="space-y-1.5 pt-1">
-                  <div className="flex items-center justify-between text-[11px] font-mono text-[#88867E]">
+                  <div className="flex items-center justify-between text-[11px] tabular-nums text-[#88867E]">
                     <span>{item.progress}% Completed</span>
                     <span>{item.timeLeft}</span>
                   </div>
@@ -179,7 +179,7 @@ export function FriendChallengesView({ onBack }: { onBack?: () => void }) {
             >
               <div className="flex items-center gap-3.5">
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold ${
+                  className={`w-7 h-7 rounded-full flex items-center justify-center tabular-nums text-xs font-bold ${
                     u.rank === 1
                       ? "bg-amber-100 text-amber-700"
                       : u.rank === 2
@@ -204,7 +204,7 @@ export function FriendChallengesView({ onBack }: { onBack?: () => void }) {
               </div>
 
               <div className="text-right">
-                <div className="text-sm font-mono font-bold text-[#111110]">{u.hours} hrs</div>
+                <div className="text-sm tabular-nums font-bold text-[#111110]">{u.hours} hrs</div>
                 <div className="text-[10px] text-[#A1A1AA]">This Week</div>
               </div>
             </div>
@@ -219,7 +219,7 @@ export function FriendChallengesView({ onBack }: { onBack?: () => void }) {
             <h3 className="font-apfel font-bold text-lg text-[#111110]">Create Study Challenge</h3>
             <div className="space-y-3 text-xs">
               <div>
-                <label className="font-mono uppercase text-[#71717A] text-[10px] font-bold block mb-1">
+                <label className="tabular-nums uppercase text-[#71717A] text-[10px] font-bold block mb-1">
                   Challenge Title
                 </label>
                 <input
@@ -232,14 +232,14 @@ export function FriendChallengesView({ onBack }: { onBack?: () => void }) {
               </div>
 
               <div>
-                <label className="font-mono uppercase text-[#71717A] text-[10px] font-bold block mb-1">
+                <label className="tabular-nums uppercase text-[#71717A] text-[10px] font-bold block mb-1">
                   Weekly Goal Target
                 </label>
                 <input
                   type="text"
                   value={newTarget}
                   onChange={(e) => setNewTarget(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-[#EBE8E1] outline-none font-mono"
+                  className="w-full p-2.5 rounded-xl border border-[#EBE8E1] outline-none tabular-nums"
                 />
               </div>
             </div>

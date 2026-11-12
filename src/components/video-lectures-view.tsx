@@ -179,10 +179,10 @@ export function VideoLecturesView({ onBack }: { onBack?: () => void }) {
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800">
+                  <span className="text-[10px] tabular-nums font-semibold px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800">
                     {video.paperCode}
                   </span>
-                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
+                  <span className="text-[10px] tabular-nums font-semibold px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
                     {video.subject}
                   </span>
                   <button
@@ -200,7 +200,7 @@ export function VideoLecturesView({ onBack }: { onBack?: () => void }) {
                   {video.title}
                 </h3>
                 <div className="flex items-center gap-3 text-[11px] text-[#88867E]">
-                  <span className="flex items-center gap-1 font-mono">
+                  <span className="flex items-center gap-1 tabular-nums">
                     <Clock className="w-3 h-3 text-[#AAA79E]" />
                     {video.duration}
                   </span>
@@ -226,7 +226,7 @@ export function VideoLecturesView({ onBack }: { onBack?: () => void }) {
           <div className="w-full max-w-2xl rounded-3xl bg-[#18181B] border border-white/10 text-white p-6 space-y-5 shadow-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-[11px] font-mono text-[#34D399] uppercase tracking-wider">
+                <span className="text-[11px] tabular-nums text-[#34D399] uppercase tracking-wider">
                   {activeVideo.subject}
                 </span>
                 <h3 className="font-apfel font-bold text-lg text-white mt-0.5">
@@ -259,7 +259,7 @@ export function VideoLecturesView({ onBack }: { onBack?: () => void }) {
                   <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer">
                     <Play className="w-8 h-8 fill-white translate-x-0.5" />
                   </div>
-                  <div className="absolute bottom-3 inset-x-4 flex items-center justify-between text-[11px] font-mono text-white/80">
+                  <div className="absolute bottom-3 inset-x-4 flex items-center justify-between text-[11px] tabular-nums text-white/80">
                     <span>00:00 / {activeVideo.duration}</span>
                     <div className="flex items-center gap-2">
                       {[1, 1.25, 1.5, 2].map((s) => (

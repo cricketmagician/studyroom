@@ -3,55 +3,21 @@ import { addDoc, collection, deleteDoc, doc, DocumentData, onSnapshot, orderBy, 
 import { db } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
 import { useAuth } from "@/lib/auth";
-import { Material, toMaterial, getLocalMaterials } from "@/lib/materials";
+import { Material, toMaterial } from "@/lib/materials";
 import { Task } from "@/lib/tasks";
+import { Mistake } from "@/lib/mistakes";
 
-/** All class files, newest first, kept live from Firestore and admin publishing. */
+/** Shared materials, stored in Firestore and visible across student devices. */
 export function useMaterials() {
+  const { user } = useAuth();
   const [items, setItems] = useState<Material[] | null>(null);
   const [error, setError] = useState("");
-
   useEffect(() => {
-    // Initial read from local published storage
-    const initialLocal = getLocalMaterials();
-    if (initialLocal.length > 0) {
-      setItems(initialLocal);
-    }
-
-    const unsubFirestore = onSnapshot(
-      query(collection(db, "materials"), orderBy("createdAt", "desc")),
-      (snap) => {
-        const firestoreList = snap.docs.map(toMaterial);
-        const localList = getLocalMaterials();
-        const map = new Map<string, Material>();
-        localList.forEach((m) => map.set(m.id, m));
-        firestoreList.forEach((m) => map.set(m.id, m));
-        setItems(Array.from(map.values()));
-      },
-      (err) => {
-        // Fallback to local materials if offline or rules block
-        setItems(getLocalMaterials());
-        setError(friendlyError(err));
-      }
-    );
-
-    const onLocalUpdate = () => {
-      const localList = getLocalMaterials();
-      setItems((prev) => {
-        const map = new Map<string, Material>();
-        (prev || []).forEach((m) => map.set(m.id, m));
-        localList.forEach((m) => map.set(m.id, m));
-        return Array.from(map.values());
-      });
-    };
-
-    window.addEventListener("cma_materials_updated", onLocalUpdate);
-    return () => {
-      unsubFirestore();
-      window.removeEventListener("cma_materials_updated", onLocalUpdate);
-    };
-  }, []);
-
+    if (!user) { setItems(null); return; }
+    return onSnapshot(query(collection(db, "materials"), orderBy("createdAt", "desc")),
+      snap => { setItems(snap.docs.map(toMaterial)); setError(""); },
+      err => setError(friendlyError(err)));
+  }, [user]);
   return { items, error };
 }
 
@@ -113,7 +79,7 @@ export async function createNote(uid: string) {
 }
 
 export function saveNote(uid: string, id: string, patch: Partial<Pick<Note, "title" | "body" | "pinned">>) {
-  return setDoc(doc(db, "profiles", uid, "notes", id), { ...patch, updatedAt: serverTimestamp() }, { merge: true });
+  return updateDoc(doc(db, "profiles", uid, "notes", id), { ...patch, updatedAt: serverTimestamp() });
 }
 
 export function deleteNote(uid: string, id: string) {
@@ -133,4 +99,23 @@ export function updateTask(uid: string, id: string, patch: Partial<Pick<Task, "t
 
 export function deleteTask(uid: string, id: string) {
   return deleteDoc(doc(db, "profiles", uid, "tasks", id));
+}
+
+const toMistake = (id: string, d: DocumentData): Mistake => ({
+  id, paper: d.paper ?? "", chapter: d.chapter ?? "", mock: d.mock ?? "", kind: d.kind ?? "concept", question: d.question ?? "", wrong: d.wrong ?? "",
+  fix: d.fix ?? "", marks: d.marks ?? 0, box: d.box ?? 0, due: d.due ?? "", mastered: Boolean(d.mastered), createdAt: d.createdAt ?? null,
+});
+export const useMistakes = () => useMine("mistakes", toMistake);
+type MistakeFields = Omit<Mistake, "id" | "createdAt">;
+
+export function addMistake(uid: string, m: MistakeFields) {
+  return addDoc(collection(db, "profiles", uid, "mistakes"), { ...m, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+}
+
+export function updateMistake(uid: string, id: string, patch: Partial<MistakeFields>) {
+  return updateDoc(doc(db, "profiles", uid, "mistakes", id), { ...patch, updatedAt: serverTimestamp() });
+}
+
+export function deleteMistake(uid: string, id: string) {
+  return deleteDoc(doc(db, "profiles", uid, "mistakes", id));
 }

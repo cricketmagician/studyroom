@@ -5,7 +5,7 @@ import { head } from "@vercel/blob";
 import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 
 // Fast, low-cost model: each PDF is read once per study pack, so cost scales with files, not students.
-export const MODEL = "gemini-3.8-flash";
+export const MODEL = "gemini-3.1-flash-lite";
 
 export const DAILY_QUESTIONS = 30; // per teacher, keeps the AI bill predictable
 // shortcut: PDFs are sent inline (Gemini caps inline requests at 20 MB incl. ~33% base64 overhead); use the Gemini Files API for bigger files.
@@ -21,7 +21,7 @@ export function gemini() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new HttpError(503, "AI is not set up yet. Ask the admin to add the Gemini API key.");
   // Retry brief overloads (503 "high demand") and rate limits a few times before giving up.
-  return new GoogleGenAI({ apiKey, httpOptions: { retryOptions: { attempts: 4, initialDelay: 2, maxDelay: 20, httpStatusCodes: [429, 500, 503] } } });
+  return new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1beta', timeout: 90000, retryOptions: { attempts: 3, initialDelay: 2, maxDelay: 20, httpStatusCodes: [429, 500, 503] } } });
 }
 
 /** The model's text, or a friendly error when it was blocked or cut off. */
@@ -40,10 +40,10 @@ export async function requireUser(request: Request) {
   const token = request.headers.get("authorization")?.match(/^Bearer (.+)$/)?.[1];
   if (!token) throw new HttpError(401, "Please log in again.");
   try {
-    const { uid } = await adminAuth.verifyIdToken(token);
+    const { uid, email } = await adminAuth.verifyIdToken(token);
     const profile = (await adminDb.doc(`profiles/${uid}`).get()).data();
     if (!profile) throw new HttpError(403, "Your account is not set up yet.");
-    return { uid, role: profile.role as "student" | "teacher", name: String(profile.name ?? "") };
+    return { uid, role: profile.role as "student" | "teacher", name: String(profile.name ?? ""), email: email || String(profile.email ?? "") };
   } catch (err) {
     if (err instanceof HttpError) throw err;
     throw new HttpError(401, "Please log in again.");
@@ -60,7 +60,7 @@ export async function takeQuota(uid: string, kind: string, limit: number) {
   });
 }
 
-export type MaterialDoc = { title: string; type: "pdf" | "video"; storagePath: string; teacherId: string; size: number };
+export type MaterialDoc = { title: string; type: "pdf" | "video"; storagePath?: string; url?: string; teacherId: string; size: number; local?: boolean };
 
 export async function loadMaterial(materialId: string) {
   if (typeof materialId !== "string" || !/^[A-Za-z0-9]{1,64}$/.test(materialId)) throw new HttpError(400, "Unknown file.");
@@ -69,15 +69,31 @@ export async function loadMaterial(materialId: string) {
   return snap.data() as MaterialDoc;
 }
 
-/** The PDF as base64, read from Vercel Blob. */
+/** The PDF as base64, read from Vercel Blob or direct HTTPS link. */
 export async function loadPdfBase64(m: MaterialDoc) {
   if (m.type !== "pdf") throw new HttpError(400, "AI help works on PDF files for now.");
-  if (m.size > MAX_PDF_BYTES) throw new HttpError(413, "This PDF is too big for AI help (limit 14 MB).");
-  // Look the file up by its stored path (never a URL from the database), then download it.
-  const { url } = await head(m.storagePath);
-  const res = await fetch(url);
+  if (m.size && m.size > MAX_PDF_BYTES) throw new HttpError(413, "This PDF is too big for AI help (limit 14 MB).");
+  
+  let fetchUrl = "";
+  if (m.storagePath) {
+    const { url } = await head(m.storagePath);
+    fetchUrl = url;
+  } else if (m.url && /^https?:\/\//i.test(m.url)) {
+    let u = m.url;
+    const gdrive = u.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (gdrive) {
+      u = `https://drive.google.com/uc?export=download&id=${gdrive[1]}`;
+    }
+    fetchUrl = u;
+  } else {
+    throw new HttpError(400, "AI study help needs an uploaded PDF file or valid HTTPS link.");
+  }
+
+  const res = await fetch(fetchUrl);
   if (!res.ok) throw new HttpError(502, "Couldn't read this file. Please try again.");
-  return Buffer.from(await res.arrayBuffer()).toString("base64");
+  const buf = Buffer.from(await res.arrayBuffer());
+  if (buf.length > MAX_PDF_BYTES) throw new HttpError(413, "This PDF is too big for AI help (limit 14 MB).");
+  return buf.toString("base64");
 }
 
 /** JSON error response; unexpected errors are logged and hidden from the user. */

@@ -194,7 +194,7 @@ export function StudyLibraryView({ onBack }: { onBack?: () => void }) {
               Official ICMAI Curriculum &amp; Examination Portals (Syllabus 2022)
             </h2>
           </div>
-          <span className="text-[10px] font-mono text-zinc-400">Verified Direct Institute Links</span>
+          <span className="text-[10px] tabular-nums text-zinc-400">Verified Direct Institute Links</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-xs">
@@ -207,7 +207,7 @@ export function StudyLibraryView({ onBack }: { onBack?: () => void }) {
             <span className="font-apfel font-semibold text-white group-hover:text-emerald-300">
               Syllabus 2022 PDF
             </span>
-            <span className="text-[10px] font-mono text-zinc-400 mt-1 flex items-center justify-between">
+            <span className="text-[10px] tabular-nums text-zinc-400 mt-1 flex items-center justify-between">
               Curriculum <ExternalLink className="w-3 h-3 text-zinc-500 group-hover:text-emerald-300" />
             </span>
           </a>
@@ -221,7 +221,7 @@ export function StudyLibraryView({ onBack }: { onBack?: () => void }) {
             <span className="font-apfel font-semibold text-white group-hover:text-emerald-300">
               Prospectus 2025
             </span>
-            <span className="text-[10px] font-mono text-zinc-400 mt-1 flex items-center justify-between">
+            <span className="text-[10px] tabular-nums text-zinc-400 mt-1 flex items-center justify-between">
               Official Guide <ExternalLink className="w-3 h-3 text-zinc-500 group-hover:text-emerald-300" />
             </span>
           </a>
@@ -235,7 +235,7 @@ export function StudyLibraryView({ onBack }: { onBack?: () => void }) {
             <span className="font-apfel font-semibold text-white group-hover:text-emerald-300">
               Model Question Papers
             </span>
-            <span className="text-[10px] font-mono text-zinc-400 mt-1 flex items-center justify-between">
+            <span className="text-[10px] tabular-nums text-zinc-400 mt-1 flex items-center justify-between">
               MQPs List <ExternalLink className="w-3 h-3 text-zinc-500 group-hover:text-emerald-300" />
             </span>
           </a>
@@ -249,7 +249,7 @@ export function StudyLibraryView({ onBack }: { onBack?: () => void }) {
             <span className="font-apfel font-semibold text-white group-hover:text-emerald-300">
               Past Exam Papers
             </span>
-            <span className="text-[10px] font-mono text-zinc-400 mt-1 flex items-center justify-between">
+            <span className="text-[10px] tabular-nums text-zinc-400 mt-1 flex items-center justify-between">
               Term Archive <ExternalLink className="w-3 h-3 text-zinc-500 group-hover:text-emerald-300" />
             </span>
           </a>
@@ -299,7 +299,7 @@ export function StudyLibraryView({ onBack }: { onBack?: () => void }) {
 
                 <div className="flex items-center gap-2">
                   <span
-                    className={`text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full border ${
+                    className={`text-[10px] tabular-nums font-semibold px-2.5 py-0.5 rounded-full border ${
                       book.isOfficial
                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                         : "bg-[#FAF9F5] border-[#EFECE6] text-[#71717A]"
@@ -321,7 +321,7 @@ export function StudyLibraryView({ onBack }: { onBack?: () => void }) {
                 <h3 className="font-apfel font-bold text-sm text-[#111110] group-hover:text-black line-clamp-2 leading-snug">
                   {book.title}
                 </h3>
-                <div className="flex items-center gap-3 text-[11px] font-mono text-[#88867E]">
+                <div className="flex items-center gap-3 text-[11px] tabular-nums text-[#88867E]">
                   <span>{book.pages} Pages</span>
                   <span>•</span>
                   <span>{book.size}</span>

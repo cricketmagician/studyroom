@@ -1,51 +1,62 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Link from "next/link";
-import { CirclePlay, FileText } from "lucide-react";
+import { PlayCircle as CirclePlay, Eye, EyeSlash as EyeOff, FileText, LockSimple as Lock, EnvelopeSimple as Mail, Timer, UserCircle as UserRound, UsersThree as Users } from "@phosphor-icons/react";
+import { HandNote } from "@/components/hand-note";
+import "./auth.css";
+
+/** Abhyas (Sanskrit: daily practice): an open book with a rising sun. Same artwork as public/brand/abhyas-mark.svg. */
+export function LogoMark({ size = 36 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 72 72" aria-hidden="true" className="shrink-0">
+      <rect width="72" height="72" rx="20" fill="#465d40" />
+      <circle cx="36" cy="33" r="9" fill="#f3c25e" />
+      <path d="M14 46c8-5 15-5 22 0 7-5 14-5 22 0" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+      <path d="M14 53c8-5 15-5 22 0 7-5 14-5 22 0" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" opacity=".55" />
+    </svg>
+  );
+}
 
 export function Logo() {
   return (
-    <Link href="/" className="inline-flex items-center gap-2 rounded-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)]">
-      <span className="w-9 h-9 rounded-xl bg-[var(--accent)] text-white flex items-center justify-center font-heading font-black text-lg shadow-sm">
-        S
-      </span>
-      <span className="font-heading font-black text-lg tracking-tight text-[var(--text-primary)]">Studyroom</span>
+    <Link href="/" className="inline-flex items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)]" aria-label="Abhyas home">
+      <LogoMark />
+      <span className="logo-wordmark font-heading font-bold text-xl tracking-tight text-[var(--text-primary)]">abhyas<span className="text-[var(--brand)]">.</span></span>
     </Link>
   );
 }
 
+const PERKS = [
+  { icon: CirclePlay, label: "Video classes", tint: "blue" },
+  { icon: FileText, label: "PDF notes", tint: "amber" },
+  { icon: Timer, label: "Study timer", tint: "green" },
+  { icon: Users, label: "Study with friends", tint: "pink" },
+];
+
 export function AuthCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <main className="min-h-screen px-4 py-8 sm:py-12 flex items-center">
-      <div className="mx-auto w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center">
-        {/* Photo side, like the original hero card (desktop only) */}
-        <div className="hidden lg:block relative rounded-[32px] overflow-hidden shadow-lg bg-[#EFE6D8]">
-          {/* eslint-disable-next-line @next/next/no-img-element -- static decorative photo */}
-          <img src="/student-hero-banner.jpg" alt="" className="w-full h-[600px] object-cover object-[58%_center]" />
-          <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 backdrop-blur-md border border-white/20 text-white text-xs font-semibold">
-            ✨ Your class, in one place
-          </span>
-          <span className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/50 to-transparent" />
-          <div className="absolute inset-x-4 bottom-4 backdrop-blur-md bg-white/40 border border-white/60 rounded-2xl p-3.5 flex items-center justify-between shadow-xl">
-            <span className="flex items-center gap-2.5">
-              <span className="w-9 h-9 rounded-full bg-white text-[var(--accent)] flex items-center justify-center"><FileText className="w-4 h-4" /></span>
-              <span className="text-xs font-bold text-white leading-tight">Notes &amp; PDFs<br /><span className="font-medium text-white/85">from your teacher</span></span>
-            </span>
-            <span className="flex items-center gap-2.5">
-              <span className="w-9 h-9 rounded-full bg-[var(--accent)] text-white flex items-center justify-center"><CirclePlay className="w-4 h-4" /></span>
-              <span className="text-xs font-bold text-white leading-tight">Class videos<br /><span className="font-medium text-white/85">watch anytime</span></span>
-            </span>
-          </div>
+    <main className="auth">
+      <section className="auth-hero">
+        <Logo />
+        {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
+        <img src="/illustrations/doodles/person-working-on-laptop.svg" alt="" className="auth-art" />
+        <div className="auth-hero-copy">
+          <h2>Study a little every day. <span>Pass your CMA.</span></h2>
+          <HandNote text="One day at a time." />
         </div>
-
-        <div className="w-full max-w-md mx-auto">
-          <Logo />
-          <h1 className="mt-8 text-3xl sm:text-4xl font-heading font-black tracking-tight leading-tight">{title}</h1>
-          <p className="mt-1.5 text-[var(--text-secondary)]">{subtitle}</p>
-          <div className="mt-8 bg-[var(--bg-surface)] p-6 sm:p-7 rounded-[30px] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)]">
-            {children}
-          </div>
+        <ul className="auth-perks" aria-label="What you get">
+          {PERKS.map(({ icon: Icon, label, tint }) => (
+            <li key={label}><span className="tint" data-tint={tint}><Icon size={18} aria-hidden="true" /></span>{label}</li>
+          ))}
+        </ul>
+      </section>
+      <section className="auth-sheet">
+        <div>
+          <h1>{title}</h1>
+          <p className="auth-sub">{subtitle}</p>
+          {children}
         </div>
-      </div>
+      </section>
     </main>
   );
 }
@@ -53,14 +64,25 @@ export function AuthCard({ title, subtitle, children }: { title: string; subtitl
 export const inputClass =
   "mt-1.5 w-full h-12 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 text-base outline-none transition-colors focus:border-[var(--accent)] focus:bg-[var(--bg-surface)] focus:ring-4 focus:ring-[var(--ring-color)] disabled:opacity-60";
 
-export const buttonClass =
-  "w-full h-12 rounded-full bg-[#111110] hover:bg-black text-white dark:bg-white dark:text-[#111110] dark:hover:bg-neutral-100 font-semibold transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)]";
+export const buttonClass = "auth-primary";
 
-export function Field({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+const FIELD_ICON = { email: Mail, password: Lock } as const;
+
+export function Field({ label, type = "text", ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  const [shown, setShown] = useState(false);
+  const Icon = FIELD_ICON[type as keyof typeof FIELD_ICON] ?? UserRound;
   return (
-    <label className="block text-sm font-semibold">
+    <label className="auth-field">
       {label}
-      <input className={inputClass} required {...props} />
+      <span>
+        <Icon size={18} aria-hidden="true" />
+        <input required type={type === "password" && shown ? "text" : type} {...props} />
+        {type === "password" && (
+          <button type="button" onClick={() => setShown(!shown)} aria-label={shown ? "Hide password" : "Show password"} aria-pressed={shown}>
+            {shown ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+          </button>
+        )}
+      </span>
     </label>
   );
 }

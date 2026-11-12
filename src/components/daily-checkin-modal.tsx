@@ -115,7 +115,7 @@ export function DailyCheckinModal({
               <Flame className="w-6 h-6 fill-white" />
             </div>
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#059669] font-bold bg-[#EAF7EE] px-2 py-0.5 rounded-full border border-[#D1F2DD]">
+              <span className="text-[10px] tabular-nums uppercase tracking-wider text-[#059669] font-bold bg-[#EAF7EE] px-2 py-0.5 rounded-full border border-[#D1F2DD]">
                 Daily Check-in
               </span>
               <h2 className="text-xl sm:text-2xl font-apfel font-bold text-[#111110] tracking-tight mt-0.5">
@@ -140,7 +140,7 @@ export function DailyCheckinModal({
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>Weekly Consistency</span>
             </span>
-            <span className="font-mono text-[#059669] font-semibold text-[11px]">
+            <span className="tabular-nums text-[#059669] font-semibold text-[11px]">
               Streak Active 🔥
             </span>
           </div>
@@ -152,7 +152,7 @@ export function DailyCheckinModal({
               return (
                 <div key={idx} className="flex flex-col items-center gap-1">
                   <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-mono font-bold transition-all ${
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs tabular-nums font-bold transition-all ${
                       isToday
                         ? "bg-amber-500 text-white shadow-xs scale-105 ring-2 ring-amber-300"
                         : isPast
@@ -172,7 +172,7 @@ export function DailyCheckinModal({
         {/* Section: Choose Subject */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-mono uppercase tracking-wider text-[#71717A] font-semibold">
+            <label className="text-xs tabular-nums uppercase tracking-wider text-[#71717A] font-semibold">
               1. Choose Today&apos;s Subject
             </label>
             <span className="text-[11px] text-[#88867E]">CMA Inter Group 1</span>
@@ -195,7 +195,7 @@ export function DailyCheckinModal({
                     <span className="text-xl shrink-0">{sub.icon}</span>
                     <div className="truncate">
                       <div className="flex items-center gap-1.5 truncate">
-                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-black/5 text-[#71717A]">
+                        <span className="text-[10px] tabular-nums font-semibold px-1.5 py-0.2 rounded bg-black/5 text-[#71717A]">
                           {sub.paperCode}
                         </span>
                         <span className="text-xs font-apfel font-bold text-[#111110] truncate">
@@ -211,7 +211,7 @@ export function DailyCheckinModal({
                   <div
                     className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs ${
                       isSelected
-                        ? "bg-[#111110] text-white"
+                        ? "bg-[var(--brand)] text-[var(--on-brand)]"
                         : "border border-[#D4D4D8] text-transparent"
                     }`}
                   >
@@ -225,7 +225,7 @@ export function DailyCheckinModal({
 
         {/* Section: Target Focus Duration */}
         <div className="space-y-2">
-          <label className="text-xs font-mono uppercase tracking-wider text-[#71717A] font-semibold block">
+          <label className="text-xs tabular-nums uppercase tracking-wider text-[#71717A] font-semibold block">
             2. Target Study Session
           </label>
 
@@ -238,11 +238,11 @@ export function DailyCheckinModal({
                   onClick={() => setSelectedDuration(dur.minutes)}
                   className={`py-2 px-1 rounded-xl text-center border transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-[#111110] text-white border-[#111110] shadow-xs"
+                      ? "bg-[var(--brand)] text-[var(--on-brand)] border-[#111110] shadow-xs"
                       : "bg-white text-[#4B5563] border-[#EBE8E1] hover:border-[#D0CABE]"
                   }`}
                 >
-                  <div className="text-xs font-mono font-bold">{dur.label}</div>
+                  <div className="text-xs tabular-nums font-bold">{dur.label}</div>
                   <div className="text-[9px] opacity-75 truncate">{dur.tag}</div>
                 </button>
               );
@@ -254,7 +254,7 @@ export function DailyCheckinModal({
         <div className="space-y-2 pt-1">
           <button
             onClick={handleClaimAndStart}
-            className="w-full py-3.5 rounded-2xl bg-[#111110] hover:bg-black text-white font-apfel font-bold text-sm tracking-wide shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer group"
+            className="w-full py-3.5 rounded-2xl bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--on-brand)] font-apfel font-bold text-sm tracking-wide shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer group"
           >
             <span>Start Study Session</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

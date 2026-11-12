@@ -83,14 +83,14 @@ export function StudyTimeCard({ uid }: { uid: string }) {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
             Studying today
           </p>
-          <p className="mt-1 font-heading font-black tracking-tight text-4xl tabular-nums">{formatDuration(todaySeconds)}</p>
+          <p className="mt-1 font-heading font-bold tracking-tight text-4xl tabular-nums">{formatDuration(todaySeconds)}</p>
           <p className="mt-1 text-xs text-[var(--text-muted)]">{formatDuration(total)} this week · counts while the app is open</p>
         </div>
         <ol className="flex items-end gap-1.5 h-20" aria-label="Study time this week">
           {week.map((sec, i) => (
             <li key={keys[i]} className="flex flex-col items-center gap-1.5 h-full justify-end" title={`${formatDuration(sec)}`}>
               <span
-                className={`w-3.5 sm:w-4 rounded-full ${i === todayIndex ? "bg-[var(--accent)]" : sec ? "bg-[var(--text-primary)] opacity-80" : "bg-[var(--bg-surface-subtle)]"}`}
+                className={`w-3.5 sm:w-4 rounded-full ${i === todayIndex ? "bg-[var(--brand)]" : sec ? "bg-[var(--text-primary)] opacity-80" : "bg-[var(--bg-surface-subtle)]"}`}
                 style={{ height: `${Math.max(8, (sec / max) * 100)}%` }}
               />
               <span className={`text-[10px] font-semibold ${i === todayIndex ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"}`}>{"MTWTFSS"[i]}</span>
@@ -113,7 +113,7 @@ function Progress({ percent, done, total }: { percent: number; done: number; tot
         <circle cx="22" cy="22" r={r} fill="none" stroke="var(--accent)" strokeWidth="4" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (c * percent) / 100} className="transition-all duration-700" />
       </svg>
       <span className="leading-tight">
-        <span className="block text-sm font-heading font-black text-white">{percent}%</span>
+        <span className="block text-sm font-heading font-bold text-white">{percent}%</span>
         <span className="block text-[11px] text-white/60">{done} of {total} done</span>
       </span>
     </span>
@@ -155,11 +155,11 @@ export function UpNextHero({ items, entries }: { items: Material[]; entries: Rec
               <p className="flex items-center gap-2 text-xs text-white/60">
                 <MaterialIcon type={next.type} className="w-3.5 h-3.5" /> {next.type === "pdf" ? "PDF" : "Video"} · {next.teacherName}
               </p>
-              <h2 className="mt-1.5 text-2xl sm:text-3xl font-heading font-black tracking-tight leading-tight line-clamp-2">{next.title}</h2>
+              <h2 className="mt-1.5 text-2xl sm:text-3xl font-heading font-bold tracking-tight leading-tight line-clamp-2">{next.title}</h2>
               <div className="mt-5 flex items-center gap-4">
               <Link
                 href={`/learn/${next.id}`}
-                className={`${pillButton} h-11 px-5 text-sm bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white`}
+                className={`${pillButton} h-11 px-5 text-sm bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--on-brand)]`}
               >
                 {next.type === "pdf" ? "Start reading" : "Start watching"} <ArrowRight className="w-4 h-4" aria-hidden />
               </Link>
@@ -168,7 +168,7 @@ export function UpNextHero({ items, entries }: { items: Material[]; entries: Rec
             </>
           ) : (
             <>
-              <h2 className="text-2xl sm:text-3xl font-heading font-black tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-heading font-bold tracking-tight leading-tight">
                 {items.length ? "You've finished every file 🎉" : "No files yet"}
               </h2>
               <p className="mt-1.5 text-sm text-white/60">
@@ -214,7 +214,7 @@ function FocusTimer() {
         <p className="text-xs font-semibold text-[var(--text-secondary)]">
           Focus timer {running && <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse align-middle" aria-label="running" />}
         </p>
-        <p className="mt-1 font-heading font-black tracking-tight text-3xl tabular-nums" role="timer">
+        <p className="mt-1 font-heading font-bold tracking-tight text-3xl tabular-nums" role="timer">
           {done ? "Break time ☕" : <>{mm}<span className="text-[var(--text-muted)]">:{ss}</span></>}
         </p>
       </div>
@@ -256,7 +256,7 @@ function WeekDots({ streak }: { streak: Streak }) {
               aria-label={visited ? "studied" : missed ? "missed" : "coming up"}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
                 visited
-                  ? "bg-[var(--accent)] text-white"
+                  ? "bg-[var(--brand)] text-[var(--on-brand)]"
                   : missed
                     ? "text-[var(--text-muted)] border border-dashed border-[var(--border-color)]"
                     : "bg-[var(--bg-surface-subtle)]"

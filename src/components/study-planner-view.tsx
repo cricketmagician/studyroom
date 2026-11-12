@@ -113,7 +113,7 @@ export function StudyPlannerView({ onBack }: { onBack?: () => void }) {
 
       {/* Exam Countdown Hero */}
       <div className="p-6 rounded-[28px] bg-gradient-to-br from-[#18181B] to-[#27272A] text-white space-y-4 shadow-md relative overflow-hidden">
-        <div className="flex items-center justify-between text-xs font-mono text-[#A1A1AA]">
+        <div className="flex items-center justify-between text-xs tabular-nums text-[#A1A1AA]">
           <span className="flex items-center gap-1.5">
             <Calendar className="w-4 h-4 text-[#34D399]" />
             ICMAI Exam Countdown
@@ -132,7 +132,7 @@ export function StudyPlannerView({ onBack }: { onBack?: () => void }) {
               <div className="text-2xl sm:text-3xl font-apfel font-bold text-white tracking-tight">
                 {c.val}
               </div>
-              <div className="text-[10px] font-mono text-[#A1A1AA] uppercase mt-0.5">
+              <div className="text-[10px] tabular-nums text-[#A1A1AA] uppercase mt-0.5">
                 {c.lbl}
               </div>
             </div>
@@ -150,7 +150,7 @@ export function StudyPlannerView({ onBack }: { onBack?: () => void }) {
               href="https://www.icmai.in/ClntStudents/ExaminationGuidelines"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-zinc-200 hover:text-white flex items-center gap-1.5 font-mono text-[11px] transition-colors"
+              className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-zinc-200 hover:text-white flex items-center gap-1.5 tabular-nums text-[11px] transition-colors"
             >
               <span>Examination Guidelines</span>
               <ExternalLink className="w-3 h-3 text-emerald-400" />
@@ -159,7 +159,7 @@ export function StudyPlannerView({ onBack }: { onBack?: () => void }) {
               href="https://www.icmai.in/upload/Students/Syllabus2022/Curriculum_2022.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-zinc-200 hover:text-white flex items-center gap-1.5 font-mono text-[11px] transition-colors"
+              className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-zinc-200 hover:text-white flex items-center gap-1.5 tabular-nums text-[11px] transition-colors"
             >
               <span>Syllabus 2022</span>
               <ExternalLink className="w-3 h-3 text-emerald-400" />
@@ -213,7 +213,7 @@ export function StudyPlannerView({ onBack }: { onBack?: () => void }) {
 
                 <div className="truncate">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-[#F4F4F5] text-[#71717A]">
+                    <span className="text-[10px] tabular-nums font-semibold px-2 py-0.5 rounded-full bg-[#F4F4F5] text-[#71717A]">
                       {task.time}
                     </span>
                     <span className="text-xs font-semibold text-[#88867E]">
@@ -250,7 +250,7 @@ export function StudyPlannerView({ onBack }: { onBack?: () => void }) {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="font-mono uppercase text-[#71717A] text-[10px] font-bold block mb-1">
+                <label className="tabular-nums uppercase text-[#71717A] text-[10px] font-bold block mb-1">
                   Subject
                 </label>
                 <select
@@ -266,7 +266,7 @@ export function StudyPlannerView({ onBack }: { onBack?: () => void }) {
               </div>
 
               <div>
-                <label className="font-mono uppercase text-[#71717A] text-[10px] font-bold block mb-1">
+                <label className="tabular-nums uppercase text-[#71717A] text-[10px] font-bold block mb-1">
                   Topic / Chapter Target
                 </label>
                 <input
@@ -279,14 +279,14 @@ export function StudyPlannerView({ onBack }: { onBack?: () => void }) {
               </div>
 
               <div>
-                <label className="font-mono uppercase text-[#71717A] text-[10px] font-bold block mb-1">
+                <label className="tabular-nums uppercase text-[#71717A] text-[10px] font-bold block mb-1">
                   Time Slot
                 </label>
                 <input
                   type="text"
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-[#EBE8E1] outline-none font-mono"
+                  className="w-full p-2.5 rounded-xl border border-[#EBE8E1] outline-none tabular-nums"
                 />
               </div>
             </div>

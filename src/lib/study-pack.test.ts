@@ -40,3 +40,18 @@ test("keeps a usable mind map and drops a broken one", () => {
   assert.equal(validatePack({ ...base, mindMap: { center: "Sums", branches: [{ title: "Only one", points: ["x"] }] } }).mindMap, undefined);
   assert.equal(validatePack(base).mindMap, undefined);
 });
+
+test("keeps usable formulas and drops broken ones", () => {
+  const base = { summary: "ok", quiz: [good] };
+  const pack = validatePack({
+    ...base,
+    formulas: [
+      { title: "Current Ratio", formula: "Current Assets / Current Liabilities", explanation: "Liquidity metric", page: 2 },
+      { title: "", formula: "Broken", explanation: "No title" },
+      { title: "No Formula", formula: "", explanation: "No formula" },
+    ],
+  });
+  assert.deepEqual(pack.formulas, [
+    { title: "Current Ratio", formula: "Current Assets / Current Liabilities", explanation: "Liquidity metric", page: 2 },
+  ]);
+});

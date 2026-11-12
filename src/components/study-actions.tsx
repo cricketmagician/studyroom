@@ -40,7 +40,7 @@ export function StudyActions({ materialId }: { materialId: string }) {
           aria-pressed={Boolean(entry?.saved)}
           className={`${pillButton} h-11 px-5 text-sm ${
             entry?.saved
-              ? "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white"
+              ? "bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--on-brand)]"
               : "bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-[var(--shadow-sm)] hover:border-[var(--accent)]"
           }`}
         >

@@ -180,14 +180,14 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
               <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#18181B] tracking-tight">
                 PDF Practice
               </h1>
-              <p className="text-[11px] font-mono font-semibold tracking-wider text-[#6B5A4E]/80 mt-1 uppercase">
+              <p className="text-[11px] tabular-nums font-semibold tracking-wider text-[#6B5A4E]/80 mt-1 uppercase">
                 {sessions.length} SESSIONS
               </p>
             </div>
 
             {/* Progress Bar & Percentage */}
             <div className="space-y-1.5 max-w-[200px]">
-              <div className="text-xs font-mono font-medium text-[#4B5563]">
+              <div className="text-xs tabular-nums font-medium text-[#4B5563]">
                 {progressPct}% Done
               </div>
               <div className="w-full h-1.5 rounded-full bg-black/10 overflow-hidden">
@@ -221,7 +221,7 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
             <div className="text-xs font-serif font-bold text-[#18181B]">
               Download all sessions
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#78716C] mt-0.5">
+            <div className="flex items-center gap-1.5 text-[11px] tabular-nums text-[#78716C] mt-0.5">
               <Cloud className="w-3.5 h-3.5" />
               <span>25MB</span>
             </div>
@@ -267,7 +267,7 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
                   </div>
                 ) : (
                   // Unopened Number Badge: Clean border with digit
-                  <div className="w-7 h-7 rounded-full border border-[#DCD6C9] text-[#71717A] group-hover:border-[#18181B] group-hover:text-[#18181B] flex items-center justify-center font-mono text-xs font-semibold shrink-0 transition-colors">
+                  <div className="w-7 h-7 rounded-full border border-[#DCD6C9] text-[#71717A] group-hover:border-[#18181B] group-hover:text-[#18181B] flex items-center justify-center tabular-nums text-xs font-semibold shrink-0 transition-colors">
                     {index + 1}
                   </div>
                 )}
@@ -283,7 +283,7 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
                     {session.title}
                   </div>
                   {session.size && (
-                    <div className="text-[10px] font-mono text-[#A1A1AA]">
+                    <div className="text-[10px] tabular-nums text-[#A1A1AA]">
                       {session.size}
                     </div>
                   )}
@@ -291,7 +291,7 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
               </div>
 
               {/* Right Side: Duration / Pages */}
-              <div className="text-xs font-mono font-medium text-[#71717A] shrink-0 group-hover:text-[#18181B] transition-colors">
+              <div className="text-xs tabular-nums font-medium text-[#71717A] shrink-0 group-hover:text-[#18181B] transition-colors">
                 {session.duration}
               </div>
             </div>

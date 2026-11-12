@@ -15,6 +15,7 @@ Use only what is in the file. Write in the same language as the file. Keep every
 - examQuestions: 5 questions likely to come in an exam.
 - quiz: 10 multiple-choice questions with exactly 4 options each; "answer" is the index (0-3) of the correct option; "explanation" says why in one or two sentences; "page" is the PDF page number where the answer is found.
 - flashcards: 10-15 cards, a short prompt on the front and the answer on the back.
+- formulas: 5-10 key mathematical, accounting, costing, taxation, or financial management formulas/equations found in this PDF with their "title", "formula" (clear text or clean LaTeX), "explanation" (meaning of symbols and how to use it), and "page" (PDF page where found). If the PDF is purely theoretical law without equations, include key statutory rules/time-limits/penalties as formulas.
 - mindMap: the file's main topic in "center" (2-5 words) and 4-6 branches; each branch has a short title and 2-4 points of a few words each, so a student can recall the whole chapter from it.`;
 
 /** Teacher-only: makes (or remakes) the AI study pack for one of their PDFs. Students see it after the teacher publishes. */

@@ -2,18 +2,18 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { BookOpen, Brain, Check, Layers, ListChecks, Loader2, MessageCircle, RefreshCw, Send, Sparkles, X } from "lucide-react";
+import { BookOpen, Brain, Calculator, Check, Copy, Layers, ListChecks, Loader2, MessageCircle, RefreshCw, Send, Sparkles, X } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
 import { useAuth } from "@/lib/auth";
 import { postAi } from "@/lib/ai-client";
 import { AnswerPart, ChatTurn, MAX_QUESTION, MAX_TURNS } from "@/lib/chat";
 import { Material } from "@/lib/materials";
-import { MindMap, PackDoc, StudyPack } from "@/lib/study-pack";
+import { FormulaItem, MindMap, PackDoc, StudyPack } from "@/lib/study-pack";
 import { ErrorText } from "@/components/auth-card";
 import { cardClass, pillButton } from "@/components/ui";
 
-type Tab = "pack" | "map" | "quiz" | "cards" | "ask";
+type Tab = "pack" | "map" | "quiz" | "cards" | "formulas" | "ask";
 type GoToPage = (page: number) => void;
 
 const sectionTitle = "text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]";
@@ -22,7 +22,7 @@ function PageChip({ page, onGoToPage }: { page: number; onGoToPage: GoToPage }) 
   return (
     <button
       onClick={() => onGoToPage(page)}
-      className={`${pillButton} h-7 px-2.5 text-[11px] bg-[var(--accent-light)] text-[var(--accent-text)] hover:bg-[var(--accent)] hover:text-white`}
+      className={`${pillButton} h-7 px-2.5 text-[11px] bg-[var(--accent-light)] text-[var(--accent-text)] hover:bg-[var(--brand)] hover:text-[var(--on-brand)]`}
       title={`Open page ${page} in the PDF`}
     >
       Page {page}
@@ -56,8 +56,9 @@ export function AiPanel({ material, onGoToPage }: { material: Material; onGoToPa
       ? [
           { value: "pack" as const, label: "Study pack", icon: <BookOpen className="w-4 h-4" /> },
           ...(ready.mindMap ? [{ value: "map" as const, label: "Mind map", icon: <Brain className="w-4 h-4" /> }] : []),
-          { value: "quiz" as const, label: "Quiz", icon: <ListChecks className="w-4 h-4" /> },
+          { value: "quiz" as const, label: "Quiz (MCQs)", icon: <ListChecks className="w-4 h-4" /> },
           { value: "cards" as const, label: "Flashcards", icon: <Layers className="w-4 h-4" /> },
+          ...(ready.formulas && ready.formulas.length > 0 ? [{ value: "formulas" as const, label: "Formulas", icon: <Calculator className="w-4 h-4" /> }] : []),
         ]
       : []),
     ...(canChat ? [{ value: "ask" as const, label: "Ask AI", icon: <MessageCircle className="w-4 h-4" /> }] : []),
@@ -70,7 +71,7 @@ export function AiPanel({ material, onGoToPage }: { material: Material; onGoToPa
     <section className="space-y-4" aria-label="AI study help">
       <div className="flex items-center gap-2 px-1">
         <Sparkles className="w-4 h-4 text-[var(--accent)]" aria-hidden />
-        <h2 className="text-lg font-heading font-black tracking-tight">Study with AI</h2>
+        <h2 className="text-lg font-heading font-bold tracking-tight">Study with AI</h2>
       </div>
 
       {isOwner && <TeacherControls material={material} pack={pack} />}
@@ -95,6 +96,7 @@ export function AiPanel({ material, onGoToPage }: { material: Material; onGoToPa
       {active === "map" && ready?.mindMap && <MindMapView map={ready.mindMap} />}
       {active === "quiz" && ready && <QuizView pack={ready} onGoToPage={onGoToPage} />}
       {active === "cards" && ready && <FlashcardsView pack={ready} />}
+      {active === "formulas" && ready?.formulas && <FormulasView formulas={ready.formulas} onGoToPage={onGoToPage} />}
       {active === "ask" && <AskView material={material} onGoToPage={onGoToPage} />}
 
       <p className="px-1 text-[11px] text-[var(--text-muted)]">AI can make mistakes. If something looks wrong, check the file or ask your teacher.</p>
@@ -140,7 +142,7 @@ function TeacherControls({ material, pack }: { material: Material; pack: PackDoc
           <span className="text-sm">
             {pack?.status === "error" ? pack.error : stuck ? "AI didn't finish last time." : "Let AI make a summary, quiz and flashcards from this PDF. You check it before students see it."}
           </span>
-          <button onClick={() => make(false)} className={`${pillButton} h-10 px-4 text-xs bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white`}>
+          <button onClick={() => make(false)} className={`${pillButton} h-10 px-4 text-xs bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--on-brand)]`}>
             <Sparkles className="w-4 h-4" aria-hidden /> {pack ? "Try again" : "Make study pack"}
           </button>
         </div>
@@ -187,7 +189,7 @@ function PackView({ pack }: { pack: StudyPack }) {
           <ul className="mt-2 space-y-2">
             {pack.keyPoints.map((p, i) => (
               <li key={i} className="flex gap-2.5 text-sm leading-relaxed">
-                <span className="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-[var(--accent)]" aria-hidden /> {p}
+                <span className="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-[var(--brand)]" aria-hidden /> {p}
               </li>
             ))}
           </ul>
@@ -245,7 +247,7 @@ function MindMapView({ map }: { map: MindMap }) {
     <div className={`${cardClass} p-5 sm:p-6`}>
       <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:gap-x-10 items-center">
         <div className="flex justify-center md:order-2">
-          <p className="px-6 py-5 rounded-[28px] bg-[#111110] text-white dark:bg-white dark:text-[#111110] font-heading font-black text-lg text-center leading-tight max-w-[13rem] shadow-[var(--shadow-lg)]">
+          <p className="px-6 py-5 rounded-[28px] bg-[#111110] text-white dark:bg-white dark:text-[#111110] font-heading font-bold text-lg text-center leading-tight max-w-[13rem] shadow-[var(--shadow-lg)]">
             {map.center}
           </p>
         </div>
@@ -265,7 +267,7 @@ function QuizView({ pack, onGoToPage }: { pack: StudyPack; onGoToPage: GoToPage 
     <div className="space-y-3">
       <div className={`${cardClass} p-4 flex items-center justify-between gap-3`}>
         <p className="text-sm">
-          <span className="font-heading font-black text-2xl">{correct}</span>
+          <span className="font-heading font-bold text-2xl">{correct}</span>
           <span className="text-[var(--text-secondary)]"> / {pack.quiz.length} correct · {answered} answered</span>
         </p>
         {answered > 0 && (
@@ -473,11 +475,89 @@ function AskView({ material, onGoToPage }: { material: Material; onGoToPage: GoT
               className="w-full max-h-40 min-h-12 px-4 py-3 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm outline-none resize-y focus:border-[var(--accent)] focus:bg-[var(--bg-surface)] focus:ring-4 focus:ring-[var(--ring-color)]"
             />
           </label>
-          <button type="submit" disabled={!draft.trim() || busy} aria-label="Send question" className={`${pillButton} shrink-0 w-12 h-12 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white`}>
+          <button type="submit" disabled={!draft.trim() || busy} aria-label="Send question" className={`${pillButton} shrink-0 w-12 h-12 bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--on-brand)]`}>
             <Send className="w-4 h-4" />
           </button>
         </form>
       )}
+    </div>
+  );
+}
+
+function FormulasView({ formulas, onGoToPage }: { formulas: FormulaItem[]; onGoToPage: GoToPage }) {
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const copyFormula = (formula: string, idx: number) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(formula);
+      setCopiedIndex(idx);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2 px-1">
+        <p className="text-xs text-[var(--text-muted)]">
+          Essential mathematical, costing, tax, and accounting formulas extracted from this PDF.
+        </p>
+        <span className="text-[11px] tabular-nums font-bold px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-[var(--text-secondary)]">
+          {formulas.length} Formulas
+        </span>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {formulas.map((f, i) => (
+          <div
+            key={i}
+            className="p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3 hover:border-black/20 dark:hover:border-white/20 transition-all flex flex-col justify-between"
+          >
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-[10px] tabular-nums font-bold">
+                    {i + 1}
+                  </span>
+                  <h4 className="font-apfel font-bold text-sm text-[var(--text-primary)]">
+                    {f.title}
+                  </h4>
+                </div>
+                {f.page && <PageChip page={f.page} onGoToPage={onGoToPage} />}
+              </div>
+
+              {/* The Formula Representation */}
+              <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 tabular-nums text-xs sm:text-sm font-bold text-[var(--text-primary)] select-all break-words">
+                {f.formula}
+              </div>
+
+              {/* Explanation & Variables */}
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                {f.explanation}
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-black/5 dark:border-white/5 flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => copyFormula(f.formula, i)}
+                className="text-[11px] tabular-nums font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] inline-flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                {copiedIndex === i ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy formula</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

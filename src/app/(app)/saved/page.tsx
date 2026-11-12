@@ -34,7 +34,7 @@ function Saved() {
           </span>
           <h2 className="mt-4 font-heading font-bold">Nothing saved yet</h2>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">Open a file and tap “Save for later” to keep it here.</p>
-          <Link href="/learn" className={`${pillButton} mt-5 h-11 px-6 text-sm bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white`}>
+          <Link href="/learn" className={`${pillButton} mt-5 h-11 px-6 text-sm bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--on-brand)]`}>
             Browse class files
           </Link>
         </div>

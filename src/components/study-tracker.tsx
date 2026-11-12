@@ -192,7 +192,7 @@ export function StudyTracker({ onBack, showBack = true, className = "" }: StudyT
             </div>
             <div>
               <div className="text-[10px] text-[#71717A] font-medium leading-none">Goal</div>
-              <div className="text-xs font-mono font-bold text-[#18181B] mt-0.5">
+              <div className="text-xs tabular-nums font-bold text-[#18181B] mt-0.5">
                 {data.goalStr}
               </div>
             </div>
@@ -207,7 +207,7 @@ export function StudyTracker({ onBack, showBack = true, className = "" }: StudyT
               style={{ width: `${Math.min(data.pct, 100)}%` }}
             />
           </div>
-          <span className="text-xs font-mono font-bold text-[#0F291E] shrink-0">
+          <span className="text-xs tabular-nums font-bold text-[#0F291E] shrink-0">
             {data.pct}%
           </span>
         </div>
@@ -265,7 +265,7 @@ export function StudyTracker({ onBack, showBack = true, className = "" }: StudyT
               <span className="font-apfel font-bold text-xs sm:text-sm text-[#111110]">
                 {data.totalStr.replace(/\s+/g, "")}
               </span>
-              <span className="text-[10px] text-[#88867E] uppercase font-mono tracking-wider">
+              <span className="text-[10px] text-[#88867E] uppercase tabular-nums tracking-wider">
                 Total
               </span>
             </div>
@@ -282,7 +282,7 @@ export function StudyTracker({ onBack, showBack = true, className = "" }: StudyT
                   />
                   <span className="font-medium text-[#27272A]">{sub.name}</span>
                 </div>
-                <span className="font-mono font-semibold text-[#18181B] ml-2">
+                <span className="tabular-nums font-semibold text-[#18181B] ml-2">
                   {sub.time}
                 </span>
               </div>
@@ -311,7 +311,7 @@ export function StudyTracker({ onBack, showBack = true, className = "" }: StudyT
                 { label: "0h", top: "100%" },
               ].map((grid, i) => (
                 <div key={i} className="flex items-center w-full">
-                  <span className="text-[10px] font-mono text-[#AAA79E] w-6 shrink-0 -ml-1">
+                  <span className="text-[10px] tabular-nums text-[#AAA79E] w-6 shrink-0 -ml-1">
                     {grid.label}
                   </span>
                   <div className="flex-1 border-b border-[#F0ECE1] ml-1" />
@@ -332,7 +332,7 @@ export function StudyTracker({ onBack, showBack = true, className = "" }: StudyT
                   {/* Floating Tooltip Pill for Today (or on hover) */}
                   {item.isToday && (
                     <div className="absolute -top-7 z-20 flex flex-col items-center animate-bounce duration-1000">
-                      <span className="px-2 py-0.5 rounded-full bg-[#134E4A] text-white font-mono font-bold text-[10px] shadow-sm whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-full bg-[#134E4A] text-white tabular-nums font-bold text-[10px] shadow-sm whitespace-nowrap">
                         {item.timeStr}
                       </span>
                       <span className="w-1.5 h-1.5 bg-[#134E4A] rotate-45 -mt-0.5" />

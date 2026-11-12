@@ -1,0 +1,21 @@
+.note-image-viewer { position:fixed; inset:0; margin:0; width:100vw; height:100dvh; max-width:none; max-height:none; border:0; padding:0; background:#151d19; color:#f7f8f3; overflow:hidden; }
+.note-image-viewer[open] { display:flex; flex-direction:column; }
+.note-image-viewer::backdrop { background:#151d19; }
+.note-image-viewer header { display:flex; align-items:center; gap:10px; padding:calc(10px + env(safe-area-inset-top)) 18px 10px; border-bottom:1px solid #ffffff18; }
+.note-image-viewer header>div { flex:1; min-width:0; }
+.note-image-viewer header span { display:block; color:#a1b6a5; font-size:9px; letter-spacing:.12em; }
+.note-image-viewer header strong { display:block; font-size:14px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.note-image-viewer :is(button,a) { min-width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; gap:7px; border-radius:12px; color:inherit; }
+.note-image-viewer :is(button,a):hover { background:#ffffff12; }
+.note-image-viewer button:disabled { opacity:.3; }
+.note-image-stage { flex:1; min-height:0; display:grid; place-items:center; overflow:hidden; touch-action:none; user-select:none; overscroll-behavior:contain; outline-offset:-5px!important; }
+.note-image-stage[data-zoomed="true"] { cursor:grab; }
+.note-image-stage[data-zoomed="true"]:active { cursor:grabbing; }
+.note-image-stage img { grid-area:1/1; max-width:none; max-height:none; flex-shrink:0; pointer-events:none; transform-origin:center; will-change:transform; }
+.note-image-stage img[data-smooth="true"] { transition:transform 160ms ease-out; }
+.note-image-viewer footer { padding:10px 14px calc(12px + env(safe-area-inset-bottom)); text-align:center; border-top:1px solid #ffffff18; }
+.note-image-viewer footer>div { display:flex; align-items:center; justify-content:center; gap:8px; }
+.note-image-viewer output { width:55px; font-size:13px; font-variant-numeric:tabular-nums; }
+.note-image-viewer .note-image-fit { width:70px; background:#ffffff12; margin-left:10px; font-size:13px; }
+.note-image-viewer footer p { color:#a1b6a5; font-size:10px; margin-top:5px; }
+@media(prefers-reduced-motion:reduce) { .note-image-stage img[data-smooth="true"] { transition:none; } }

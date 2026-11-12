@@ -19,9 +19,14 @@ export type Material = {
   storagePath?: string;
   size: number;
   subject?: string;
+  subjectId?: string;
+  level?: string;
+  local?: boolean;
   paperCode?: string;
   duration?: string;
   faculty?: string;
+  category?: string;
+  chapter?: string;
   teacherId: string;
   teacherName: string;
   createdAt?: any;
@@ -74,10 +79,30 @@ export async function uploadMaterial(
   kind: Kind,
   title: string,
   teacher: { uid: string; name: string },
-  onProgress: (percent: number) => void
+  onProgress: (percent: number) => void,
+  metadata: {
+    subjectId?: string;
+    subject?: string;
+    level?: string;
+    paperCode?: string;
+    chapter?: string;
+    faculty?: string;
+    duration?: string;
+    category?: string;
+  } = {}
 ) {
   const token = await auth.currentUser?.getIdToken();
   if (!token) throw new Error("Please log in again.");
+  if (process.env.NEXT_PUBLIC_USE_EMULATOR === 'true') {
+    const form = new FormData();
+    form.set('file', file); form.set('title', title);
+    if (metadata.subjectId) form.set('subjectId', metadata.subjectId);
+    const response = await fetch('/api/files/local', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Upload failed.');
+    onProgress(100);
+    return data.id as string;
+  }
   // Uploads go straight from the browser to Vercel Blob; our /api/files/upload route only checks the teacher and hands out a token.
   const blob = await upload(`materials/${teacher.uid}/${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`, file, {
     access: "public",
@@ -99,14 +124,12 @@ export async function uploadMaterial(
     teacherId: teacher.uid,
     teacherName: teacher.name,
     createdAt: serverTimestamp(),
+    ...metadata,
   });
   return ref.id;
 }
 
 /** Removes the file, its AI pack and its listing (done on the server, which holds the storage key). */
 export async function deleteMaterial(m: Material) {
-  removeLocalMaterial(m.id);
-  try {
-    await postAi("/api/files/delete", { materialId: m.id });
-  } catch {}
+  await postAi("/api/files/delete", { materialId: m.id });
 }

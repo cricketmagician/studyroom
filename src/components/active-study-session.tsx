@@ -71,7 +71,7 @@ export function ActiveStudySession({
       <div className="flex items-center justify-between max-w-2xl mx-auto w-full">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-ping" />
-          <span className="font-mono text-xs uppercase tracking-wider text-[#059669] font-bold">
+          <span className="tabular-nums text-xs uppercase tracking-wider text-[#059669] font-bold">
             Focus Session Active
           </span>
         </div>
@@ -103,7 +103,7 @@ export function ActiveStudySession({
       <div className="flex-1 flex flex-col items-center justify-center py-8 max-w-md mx-auto w-full space-y-7 text-center">
         {/* Subject Header */}
         <div className="space-y-1">
-          <span className="text-[11px] font-mono uppercase tracking-wider text-[#88867E]">
+          <span className="text-[11px] tabular-nums uppercase tracking-wider text-[#88867E]">
             Target Subject
           </span>
           <h2 className="text-2xl sm:text-3xl font-apfel font-bold text-[#111110] tracking-tight">
@@ -146,7 +146,7 @@ export function ActiveStudySession({
             <div className="text-5xl sm:text-6xl font-apfel font-bold tracking-tight text-[#111110] tabular-nums">
               {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
             </div>
-            <div className="text-xs font-mono text-[#059669] font-semibold bg-[#EAF7EE] px-2.5 py-0.5 rounded-full border border-[#D1F2DD]">
+            <div className="text-xs tabular-nums text-[#059669] font-semibold bg-[#EAF7EE] px-2.5 py-0.5 rounded-full border border-[#D1F2DD]">
               {isRunning ? "Studying" : "Paused"}
             </div>
           </div>
@@ -156,7 +156,7 @@ export function ActiveStudySession({
         <div className="flex items-center gap-3">
           <button
             onClick={() => addTime(5)}
-            className="px-3.5 py-2 rounded-2xl bg-white border border-[#EBE8E1] hover:bg-gray-50 text-xs font-mono font-medium text-[#71717A] hover:text-[#111110] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+            className="px-3.5 py-2 rounded-2xl bg-white border border-[#EBE8E1] hover:bg-gray-50 text-xs tabular-nums font-medium text-[#71717A] hover:text-[#111110] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
             title="Add 5 Minutes"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -192,7 +192,7 @@ export function ActiveStudySession({
       {/* Bottom Completion Bar */}
       <div className="max-w-md mx-auto w-full pt-4 border-t border-[#EFECE6] flex items-center justify-between">
         <div className="text-xs text-[#71717A]">
-          Studied so far: <span className="font-mono font-bold text-[#111110]">{studiedMinutes}m</span>
+          Studied so far: <span className="tabular-nums font-bold text-[#111110]">{studiedMinutes}m</span>
         </div>
 
         <button

@@ -2,6 +2,7 @@
 
 export type QuizQuestion = { question: string; options: string[]; answer: number; explanation: string; page: number };
 export type Flashcard = { front: string; back: string };
+export type FormulaItem = { title: string; formula: string; explanation: string; page?: number };
 /** A topic in the centre with branches of short ideas around it. */
 export type MindMap = { center: string; branches: { title: string; points: string[] }[] };
 export type StudyPack = {
@@ -11,6 +12,8 @@ export type StudyPack = {
   examQuestions: string[];
   quiz: QuizQuestion[];
   flashcards: Flashcard[];
+  /** Key formulas, equations or calculation principles from the chapter */
+  formulas?: FormulaItem[];
   /** Missing on packs made before mind maps existed. */
   mindMap?: MindMap;
 };
@@ -49,6 +52,15 @@ export const PACK_SCHEMA = {
       type: "array",
       items: { type: "object", additionalProperties: false, required: ["front", "back"], properties: { front: str, back: str } },
     },
+    formulas: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["title", "formula", "explanation"],
+        properties: { title: str, formula: str, explanation: str, page: { type: "integer" } },
+      },
+    },
     mindMap: {
       type: "object",
       additionalProperties: false,
@@ -83,6 +95,14 @@ export function validatePack(raw: unknown): StudyPack {
         isStr(q.explanation) && Number.isInteger(q.page) && q.page >= 1
     ),
     flashcards: list(r.flashcards).filter((c) => isStr(c?.front) && isStr(c?.back)),
+    formulas: list(r.formulas)
+      .filter((f) => isStr(f?.title) && isStr(f?.formula) && isStr(f?.explanation))
+      .map((f) => ({
+        title: f.title.trim(),
+        formula: f.formula.trim(),
+        explanation: f.explanation.trim(),
+        ...(Number.isInteger(f.page) && f.page > 0 ? { page: f.page } : {}),
+      })),
   };
   const map = r.mindMap as { center?: unknown; branches?: unknown } | undefined;
   const branches = list(map?.branches)

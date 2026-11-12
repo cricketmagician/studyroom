@@ -132,10 +132,10 @@ function UploadForm() {
           <div className="p-4 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-subtle)]">
             <div className="flex justify-between items-baseline text-xs mb-2">
               <span className="text-[var(--text-secondary)]">Uploading… please keep this page open</span>
-              <span className="font-heading font-black text-lg">{progress}<span className="text-[var(--accent)]">%</span></span>
+              <span className="font-heading font-bold text-lg">{progress}<span className="text-[var(--accent)]">%</span></span>
             </div>
             <div className="h-2 rounded-full bg-[var(--border-color)] overflow-hidden" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-              <div className="h-full rounded-full bg-[var(--accent)] transition-all" style={{ width: `${progress}%` }} />
+              <div className="h-full rounded-full bg-[var(--brand)] transition-all" style={{ width: `${progress}%` }} />
             </div>
           </div>
         )}
@@ -147,7 +147,7 @@ function UploadForm() {
           </p>
         )}
 
-        <button type="submit" disabled={!file || !title.trim() || uploading} className={`${pillButton} w-full h-12 text-sm bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shadow-[var(--shadow-md)]`}>
+        <button type="submit" disabled={!file || !title.trim() || uploading} className={`${pillButton} w-full h-12 text-sm bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--on-brand)] shadow-[var(--shadow-md)]`}>
           {uploading ? "Uploading…" : "Upload"}
         </button>
       </form>

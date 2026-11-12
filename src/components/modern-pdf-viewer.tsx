@@ -150,14 +150,14 @@ export function ModernPdfViewer({
 
           <div className="truncate">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
+              <span className="text-[10px] tabular-nums font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
                 {document.paperCode || "Paper 8"}
               </span>
               <h2 className="font-apfel font-bold text-sm sm:text-base truncate leading-snug">
                 {document.title}
               </h2>
             </div>
-            <div className={`text-[11px] font-mono ${themeStyles.subtext} truncate`}>
+            <div className={`text-[11px] tabular-nums ${themeStyles.subtext} truncate`}>
               {document.subject || "CMA Intermediate"} • Page {currentPage} of {totalPages}
             </div>
           </div>
@@ -166,7 +166,7 @@ export function ModernPdfViewer({
         {/* Center: Page Jump and Zoom Controls */}
         <div className="hidden md:flex items-center gap-2">
           {/* Page Navigator */}
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-2xl border ${themeStyles.toolbarBg} text-xs font-mono shadow-2xs`}>
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-2xl border ${themeStyles.toolbarBg} text-xs tabular-nums shadow-2xs`}>
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage <= 1}
@@ -189,7 +189,7 @@ export function ModernPdfViewer({
           </div>
 
           {/* Zoom Level */}
-          <div className={`flex items-center gap-1 px-2 py-1 rounded-2xl border ${themeStyles.toolbarBg} text-xs font-mono shadow-2xs`}>
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-2xl border ${themeStyles.toolbarBg} text-xs tabular-nums shadow-2xs`}>
             <button
               onClick={() => setZoomLevel((z) => Math.max(75, z - 15))}
               className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer"
@@ -304,14 +304,14 @@ export function ModernPdfViewer({
                 {/* Book Page Header */}
                 <div className="flex items-center justify-between pb-4 border-b border-current/10">
                   <div className="space-y-0.5">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-600 font-bold">
+                    <span className="text-[10px] tabular-nums uppercase tracking-widest text-emerald-600 font-bold">
                       ICMAI CMA Intermediate Syllabus 2022
                     </span>
                     <h1 className="font-apfel font-bold text-xl sm:text-2xl tracking-tight">
                       {document.title}
                     </h1>
                   </div>
-                  <div className="text-right text-xs font-mono opacity-60">
+                  <div className="text-right text-xs tabular-nums opacity-60">
                     <div>Page {currentPage}</div>
                     <div>CMA Module 8.2</div>
                   </div>
@@ -333,7 +333,7 @@ export function ModernPdfViewer({
                   <h3 className="font-apfel font-bold text-base">
                     1. Fundamental Formula Deconstruction
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs tabular-nums">
                     <div className="p-3.5 rounded-xl border border-current/15 bg-current/5 space-y-1">
                       <div className="font-bold text-emerald-600">Contribution per Unit</div>
                       <div>= Selling Price (SP) - Variable Cost (VC)</div>
@@ -360,7 +360,7 @@ export function ModernPdfViewer({
                 <div className="space-y-3 pt-2">
                   <h3 className="font-apfel font-bold text-base flex items-center justify-between">
                     <span>2. Illustrative Problem (ICMAI Term Exam Model)</span>
-                    <span className="text-[11px] font-mono text-emerald-600 font-normal">
+                    <span className="text-[11px] tabular-nums text-emerald-600 font-normal">
                       Expected 8 Marks
                     </span>
                   </h3>
@@ -371,8 +371,8 @@ export function ModernPdfViewer({
                     </p>
 
                     <div className="space-y-1.5 pt-1">
-                      <div className="font-bold font-mono text-emerald-700">Step-by-Step Solution:</div>
-                      <ol className="list-decimal pl-5 space-y-1 font-mono text-[11px] opacity-90">
+                      <div className="font-bold tabular-nums text-emerald-700">Step-by-Step Solution:</div>
+                      <ol className="list-decimal pl-5 space-y-1 tabular-nums text-[11px] opacity-90">
                         <li>Contribution per unit = ₹100 - ₹60 = <strong>₹40</strong></li>
                         <li>P/V Ratio = (₹40 / ₹100) × 100 = <strong>40%</strong></li>
                         <li>BEP in Units = ₹4,00,000 / ₹40 = <strong>10,000 Units</strong></li>
@@ -395,7 +395,7 @@ export function ModernPdfViewer({
                 </div>
 
                 {/* Page Footer Navigation */}
-                <div className="pt-6 border-t border-current/10 flex items-center justify-between text-xs font-mono opacity-70">
+                <div className="pt-6 border-t border-current/10 flex items-center justify-between text-xs tabular-nums opacity-70">
                   <button
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
@@ -479,7 +479,7 @@ export function ModernPdfViewer({
                       className="p-3 rounded-xl border border-current/10 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors flex items-center justify-between"
                     >
                       <span className="font-medium pr-2 truncate">{item.title}</span>
-                      <span className="font-mono text-[10px] opacity-60 shrink-0">
+                      <span className="tabular-nums text-[10px] opacity-60 shrink-0">
                         p. {item.page}
                       </span>
                     </div>
@@ -493,7 +493,7 @@ export function ModernPdfViewer({
                     <h4 className="font-apfel font-bold text-xs uppercase tracking-wider opacity-60">
                       Personal Revision Notes
                     </h4>
-                    <span className="text-[10px] font-mono text-emerald-600 font-semibold">
+                    <span className="text-[10px] tabular-nums text-emerald-600 font-semibold">
                       Auto-saved
                     </span>
                   </div>
@@ -510,7 +510,7 @@ export function ModernPdfViewer({
               )}
 
               {activeTab === "formulas" && (
-                <div className="space-y-2.5 font-mono text-[11px]">
+                <div className="space-y-2.5 tabular-nums text-[11px]">
                   <h4 className="font-apfel font-bold text-xs uppercase tracking-wider opacity-60">
                     Quick Exam Formulas
                   </h4>
@@ -537,7 +537,7 @@ export function ModernPdfViewer({
       {/* BOTTOM STATUS BAR: Progress gauge and mobile controls          */}
       {/* =============================================================== */}
       <footer
-        className={`h-11 px-6 border-t ${themeStyles.headerBg} flex items-center justify-between text-xs font-mono ${themeStyles.subtext} shrink-0 z-10`}
+        className={`h-11 px-6 border-t ${themeStyles.headerBg} flex items-center justify-between text-xs tabular-nums ${themeStyles.subtext} shrink-0 z-10`}
       >
         <div className="flex items-center gap-3">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />

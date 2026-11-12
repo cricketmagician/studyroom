@@ -63,7 +63,7 @@ export function NotificationsPopover({
         <div className="flex items-center gap-2">
           <button
             onClick={markAllRead}
-            className="text-[11px] font-mono text-[#059669] hover:underline cursor-pointer"
+            className="text-[11px] tabular-nums text-[#059669] hover:underline cursor-pointer"
           >
             Mark all read
           </button>
@@ -99,7 +99,7 @@ export function NotificationsPopover({
                 <span className="font-apfel font-bold text-xs text-[#111110] truncate">
                   {item.title}
                 </span>
-                <span className="text-[10px] font-mono text-[#AAA79E] shrink-0 ml-1">
+                <span className="text-[10px] tabular-nums text-[#AAA79E] shrink-0 ml-1">
                   {item.time}
                 </span>
               </div>
