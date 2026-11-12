@@ -1,15 +1,17 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Bell, Check, CaretRight as ChevronRight, Copy, Fire as Flame, ChatCircle as MessageCircle, Play, Plus, PaperPlaneRight as Send, ShareNetwork as Share2, Trophy, UserMinus, UserPlus, UsersThree as Users, X } from "@phosphor-icons/react";
+import { Bell, Books, CaretLeft, Check, CaretRight as ChevronRight, Copy, DotsThree, Fire as Flame, ChatCircle as MessageCircle, Plus, PaperPlaneRight as Send, ShareNetwork as Share2, Trophy, UserMinus, UserPlus, UsersThree as Users, X } from "@phosphor-icons/react";
 import { postAi } from "@/lib/ai-client";
+import { useAuth } from "@/lib/auth";
 import { SUBJECTS, duration } from "@/lib/cma";
 import { haptic } from "@/lib/haptics";
 import { getNotificationPermission, requestNotificationPermission, showPushNotification } from "@/lib/notifications";
 import "./friends.css";
 
 type Friend = { id: string; name: string; streak?: number; totalSeconds?: number; studying?: { subjectId: string; subjectName: string; startedAt: number } | null; lastSeen?: number | null };
-type Message = { id: string; senderId: string; senderName: string; text: string; createdAt: number };
+type Message = { id: string; senderId: string; senderName: string; text: string; createdAt: number; challengeId?: string };
+const QUICK_REPLIES = ["Studying now?", "Let's study together", "Which chapter are you on?", "Done for today!"];
 type Challenge = { id: string; title: string; targetHours: number; subject: string; creatorId: string; creatorName: string; participants: string[]; endsAt: number; board: { uid: string; name: string; seconds: number }[]; others: number };
 
 const TINTS = ["blue", "amber", "green", "pink", "violet", "orange"];
@@ -29,6 +31,7 @@ function Avatar({ friend, size = 44 }: { friend: Pick<Friend, "id" | "name" | "s
 }
 
 export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: string; currentUserName?: string; onStartStudy?: (subjectId: string) => void }) {
+  const { profile } = useAuth();
   const [tab, setTab] = useState<"friends" | "challenges">("friends");
   const [friends, setFriends] = useState<Friend[] | null>(null);
   const [hideStatus, setHideStatus] = useState(false);
@@ -53,6 +56,11 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
   const [newTitle, setNewTitle] = useState("");
   const [newHours, setNewHours] = useState(10);
   const [newSubject, setNewSubject] = useState("All Subjects");
+  const [picked, setPicked] = useState<string[]>([]);
+  // Invite friends to an existing challenge
+  const pickSheet = useRef<HTMLDialogElement>(null);
+  const [inviteFor, setInviteFor] = useState<Challenge | null>(null);
+  const [menu, setMenu] = useState(false);
 
   const say = (text: string, bad = false) => { setNotice({ text, bad }); if (!bad) setTimeout(() => setNotice(null), 4000); };
   const run = async (work: () => Promise<void>) => {
@@ -107,12 +115,12 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
     });
   };
 
-  const openChat = (f: Friend) => { setMessages([]); setChatWith(f); chatSheet.current?.showModal(); };
-  const send = (e: React.FormEvent) => {
-    e.preventDefault();
-    const text = draft.trim();
+  const openChat = (f: Friend) => { setMessages([]); setMenu(false); setChatWith(f); chatSheet.current?.showModal(); };
+  const send = (e?: React.FormEvent, quick?: string) => {
+    e?.preventDefault();
+    const text = (quick ?? draft).trim();
     if (!text || !chatWith) return;
-    setDraft("");
+    if (!quick) setDraft("");
     void run(async () => {
       const r = await postAi<{ message: Message }>("/api/study", { action: "chat_send", friendId: chatWith.id, text });
       haptic(); setMessages((m) => [...m, r.message]);
@@ -130,12 +138,30 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
   const createChallenge = (e: React.FormEvent) => {
     e.preventDefault();
     void run(async () => {
-      await postAi("/api/study", { action: "challenge_create", title: newTitle.trim(), targetHours: newHours, subject: newSubject });
-      haptic("success"); challengeSheet.current?.close(); setNewTitle(""); say("Challenge started. Your friends can join it now.");
+      const r = await postAi<{ challenge: { id: string } }>("/api/study", { action: "challenge_create", title: newTitle.trim(), targetHours: newHours, subject: newSubject });
+      if (picked.length) await postAi("/api/study", { action: "challenge_invite", challengeId: r.challenge.id, friendIds: picked });
+      haptic("success"); challengeSheet.current?.close(); setNewTitle("");
+      say(picked.length ? `Challenge started. Invite sent to ${picked.length} ${picked.length === 1 ? "friend" : "friends"} in chat.` : "Challenge started. Your friends can join it now.");
+      setPicked([]);
       await loadChallenges();
     });
   };
-  const joinChallenge = (id: string) => void run(async () => { await postAi("/api/study", { action: "challenge_join", challengeId: id }); haptic("success"); await loadChallenges(); });
+  const joinChallenge = (id: string) => void run(async () => { await postAi("/api/study", { action: "challenge_join", challengeId: id }); haptic("success"); say("You joined the challenge."); await loadChallenges(); });
+  const openPick = (c: Challenge) => { setInviteFor(c); setPicked([]); pickSheet.current?.showModal(); };
+  const sendPicks = () => {
+    if (!inviteFor || !picked.length) return;
+    void run(async () => {
+      await postAi("/api/study", { action: "challenge_invite", challengeId: inviteFor.id, friendIds: picked });
+      haptic("success"); pickSheet.current?.close(); say(`Invite sent to ${picked.length} ${picked.length === 1 ? "friend" : "friends"} in chat.`); setPicked([]);
+    });
+  };
+  const togglePick = (id: string) => { haptic(); setPicked((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]); };
+  // A picker of friends, shared by "new challenge" and "invite to challenge".
+  const friendPicker = (exclude: string[] = []) => {
+    const list = (friends ?? []).filter((f) => !exclude.includes(f.id));
+    return list.length ? <div className="fr-pick">{list.map((f) => <label key={f.id}><input type="checkbox" checked={picked.includes(f.id)} onChange={() => togglePick(f.id)} /><Avatar friend={f} size={40} /><span>{f.name.split(" ")[0]}</span></label>)}</div>
+      : <p className="fr-pick-empty">{friends?.length ? "All your friends are already in." : "Add friends first, then invite them here."}</p>;
+  };
 
   const togglePrivacy = () => {
     const next = !hideStatus;
@@ -239,6 +265,7 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
                 </ol>
                 {c.others > 0 && <small className="fr-others">+{c.others} more {c.others === 1 ? "person" : "people"}</small>}
                 {!joined && daysLeft > 0 && <button type="button" className="cma-primary" disabled={busy} onClick={() => joinChallenge(c.id)}>Join {c.creatorName.split(" ")[0]}&apos;s challenge</button>}
+                {joined && daysLeft > 0 && !!friends?.length && <button type="button" className="cma-secondary fr-invite-btn" onClick={() => openPick(c)}><UserPlus size={17} aria-hidden="true" />Invite friends</button>}
               </article>
             );
           })}
@@ -279,25 +306,59 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
         {chatWith && (
           <div className="fr-chat-wrap">
             <header>
+              <button type="button" className="fr-back" aria-label="Back to friends" onClick={() => chatSheet.current?.close()}><CaretLeft size={22} /></button>
               <Avatar friend={chatWith} size={40} />
-              <div><h2 id="chat-title">{chatWith.name}</h2><small>{chatWith.studying ? `Studying now · ${chatWith.studying.subjectName}` : `${chatWith.streak ?? 0} day streak · ${duration(chatWith.totalSeconds ?? 0)} studied`}</small></div>
-              <button type="button" aria-label="Close" onClick={() => chatSheet.current?.close()}><X size={20} /></button>
+              <div><h2 id="chat-title">{chatWith.name}</h2><small data-live={chatWith.studying ? "" : undefined}>{chatWith.studying ? `Studying now · ${chatWith.studying.subjectName.replace(/^Paper \w+ · /, "")}` : `${chatWith.streak ?? 0} day streak · ${duration(chatWith.totalSeconds ?? 0)} studied`}</small></div>
+              <div className="fr-menu">
+                <button type="button" aria-label="More options" aria-expanded={menu} onClick={() => setMenu(!menu)}><DotsThree size={22} weight="bold" /></button>
+                {menu && <div role="menu"><button type="button" role="menuitem" onClick={unfriend}><UserMinus size={17} aria-hidden="true" />Remove friend</button></div>}
+              </div>
             </header>
             {chatWith.studying && onStartStudy && (
               <button type="button" className="fr-together" onClick={() => { haptic("success"); chatSheet.current?.close(); onStartStudy(chatWith.studying!.subjectId); }}>
-                <Play size={16} aria-hidden="true" />Study {chatWith.studying.subjectName.replace(/^Paper \w+ · /, "")} with {chatWith.name.split(" ")[0]}<ChevronRight size={16} aria-hidden="true" />
+                <span className="cma-live-dot" />Study {chatWith.studying.subjectName.replace(/^Paper \w+ · /, "")} with {chatWith.name.split(" ")[0]}<ChevronRight size={16} aria-hidden="true" />
               </button>
             )}
             <div className="fr-messages" aria-live="polite">
-              {!messages.length && <p className="fr-hint">Say hi, or ask what {chatWith.name.split(" ")[0]} is studying today.</p>}
-              {messages.map((m) => <p key={m.id} className="fr-msg" data-me={m.senderId === currentUserId ? "" : undefined}>{m.text}<small>{new Date(m.createdAt).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}</small></p>)}
+              {!messages.length && (
+                <div className="fr-chat-empty">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
+                  <img src="/illustrations/doodles/characters-playing-chess-game.svg" alt="" className="doodle" />
+                  <b>Say hi to {chatWith.name.split(" ")[0]}</b>
+                  <span>Ask what they are studying, or plan a session together.</span>
+                </div>
+              )}
+              {messages.map((m, i) => {
+                const prev = messages[i - 1], next = messages[i + 1];
+                const day = new Date(m.createdAt).toDateString();
+                const newDay = !prev || new Date(prev.createdAt).toDateString() !== day;
+                const lastOfGroup = !next || !!next.challengeId || next.senderId !== m.senderId || next.createdAt - m.createdAt > 300000;
+                const mine = m.senderId === currentUserId;
+                const ch = m.challengeId ? challenges.find((c) => c.id === m.challengeId) : undefined;
+                const joinedCh = !!ch && !!currentUserId && ch.participants.includes(currentUserId);
+                return (
+                  <React.Fragment key={m.id}>
+                    {newDay && <span className="fr-day">{day === new Date(now).toDateString() ? "Today" : day === new Date(now - 86400000).toDateString() ? "Yesterday" : new Date(m.createdAt).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</span>}
+                    {m.challengeId ? (
+                      <div className="fr-msg-card" data-me={mine ? "" : undefined}>
+                        <span className="tint" data-tint="amber"><Trophy size={20} aria-hidden="true" /></span>
+                        <b>{ch?.title ?? "Study challenge"}</b>
+                        <span>{mine ? "You invited them to your challenge." : m.text}</span>
+                        {!mine && (joinedCh ? <span className="fr-joined"><Check size={15} aria-hidden="true" />You are in</span> : ch ? <button type="button" className="cma-primary" disabled={busy} onClick={() => joinChallenge(ch.id)}>Join challenge</button> : <small>This challenge has ended.</small>)}
+                      </div>
+                    ) : (
+                      <p className="fr-msg" data-me={mine ? "" : undefined} data-last={lastOfGroup ? "" : undefined}>{m.text}{lastOfGroup && <small>{new Date(m.createdAt).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}</small>}</p>
+                    )}
+                  </React.Fragment>
+                );
+              })}
               <div ref={bottom} />
             </div>
+            <div className="fr-quick" aria-label="Quick replies">{QUICK_REPLIES.map((q) => <button type="button" key={q} disabled={busy} onClick={() => send(undefined, q)}>{q}</button>)}</div>
             <form onSubmit={send} className="fr-compose">
-              <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Message" aria-label={`Message ${chatWith.name}`} maxLength={2000} autoComplete="off" />
-              <button type="submit" aria-label="Send" disabled={!draft.trim()}><Send size={18} /></button>
+              <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={`Message ${chatWith.name.split(" ")[0]}`} aria-label={`Message ${chatWith.name}`} maxLength={2000} autoComplete="off" enterKeyHint="send" />
+              <button type="submit" aria-label="Send" disabled={!draft.trim()} data-ready={draft.trim() ? "" : undefined}><Send size={18} weight="fill" /></button>
             </form>
-            <button type="button" className="fr-remove" onClick={unfriend}><UserMinus size={15} aria-hidden="true" />Remove friend</button>
           </div>
         )}
       </dialog>
@@ -308,9 +369,26 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
           <header><h2 id="challenge-title">New challenge</h2><button type="button" aria-label="Close" onClick={() => challengeSheet.current?.close()}><X size={20} /></button></header>
           <label>Name<input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Cost Accounting sprint" maxLength={120} required /></label>
           <fieldset><legend>Target for the next 7 days</legend><div className="profile-chips">{[5, 10, 15, 20, 30].map((h) => <label key={h}><input type="radio" name="hours" checked={newHours === h} onChange={() => setNewHours(h)} />{h} hours</label>)}</div></fieldset>
-          <label>Subject<select value={newSubject} onChange={(e) => setNewSubject(e.target.value)}><option>All Subjects</option>{SUBJECTS.map((s) => <option key={s.id} value={s.name}>Paper {s.id} · {s.name}</option>)}</select></label>
-          <button type="submit" className="cma-primary" disabled={busy}>{busy ? "Starting…" : "Start challenge"}</button>
+          <fieldset className="cma-subject-picker fr-subjects">
+            <legend>Subject</legend>
+            <div>
+              <label><input type="radio" name="ch-subject" checked={newSubject === "All Subjects"} onChange={() => { haptic(); setNewSubject("All Subjects"); }} /><b><Books size={18} aria-hidden="true" /></b><span>All subjects</span></label>
+              {SUBJECTS.filter((x) => x.level === (profile?.level ?? "Intermediate")).map((x) => <label key={x.id}><input type="radio" name="ch-subject" checked={newSubject === x.name} onChange={() => { haptic(); setNewSubject(x.name); }} /><b>{x.id}</b><span>{x.name}</span></label>)}
+            </div>
+          </fieldset>
+          <fieldset><legend>Invite friends {picked.length ? `(${picked.length})` : "(optional)"}</legend>{friendPicker()}</fieldset>
+          <button type="submit" className="cma-primary" disabled={busy}>{busy ? "Starting…" : picked.length ? `Start and invite ${picked.length}` : "Start challenge"}</button>
         </form>
+      </dialog>
+
+      {/* Invite friends to a challenge */}
+      <dialog ref={pickSheet} className="profile-sheet fr-sheet" aria-labelledby="pick-title">
+        <div className="fr-sheet-body">
+          <header><h2 id="pick-title">Invite to {inviteFor?.title ?? "challenge"}</h2><button type="button" aria-label="Close" onClick={() => pickSheet.current?.close()}><X size={20} /></button></header>
+          <p>They get a card in your chat and can join with one tap.</p>
+          {friendPicker(inviteFor?.participants ?? [])}
+          <button type="button" className="cma-primary" disabled={busy || !picked.length} onClick={sendPicks}><UserPlus size={17} aria-hidden="true" />{picked.length ? `Send invite to ${picked.length}` : "Choose friends"}</button>
+        </div>
       </dialog>
     </section>
   );

@@ -9,6 +9,19 @@ export function StudyNavigation({ active, onChange }: { active?: string; onChang
   const { profile } = useAuth();
   const dialog = useRef<HTMLDialogElement>(null);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [tucked, setTucked] = useState(false);
+  // Like iOS Safari: scrolling down tucks the tab bar away so it never sits on top of what you read; scrolling up brings it back.
+  useEffect(() => {
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY, bottom = y + innerHeight >= document.documentElement.scrollHeight - 8;
+      if (Math.abs(y - last) < 8) return;
+      setTucked(y > last && y > 80 && !bottom);
+      last = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const primary = [
     { name: 'Home', view: 'Overview', href: '/', icon: House },
     { name: 'Library', view: 'Library', href: '/?view=Library', icon: BookOpen },
@@ -31,7 +44,7 @@ export function StudyNavigation({ active, onChange }: { active?: string; onChang
     return () => document.removeEventListener('click', tick);
   }, []);
   return <>
-    <nav className="study-bottom-nav" aria-label="Main navigation"><div>{primary.map(({name,view,href,icon: Icon}) => {
+    <nav className="study-bottom-nav" aria-label="Main navigation" data-tucked={tucked || undefined}><div>{primary.map(({name,view,href,icon: Icon}) => {
     const content = <><Icon size={24} weight={active === view ? "fill" : "duotone"} aria-hidden="true"/><span>{name}</span></>;
     return onChange
       ? <button type="button" key={view} aria-current={active === view ? 'page' : undefined} onClick={() => onChange(view)}>{content}</button>

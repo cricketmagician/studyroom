@@ -87,6 +87,9 @@ try {
   assert.ok(!(await api(teacher,{action:'challenge_list'})).challenges.some(c=>c.id===made.challenge.id));
   await api(teacher,{action:'challenge_join',challengeId:made.challenge.id},403);
   await api(friend,{action:'challenge_join',challengeId:made.challenge.id});
+  await api(student,{action:'challenge_invite',challengeId:made.challenge.id,friendIds:[teacher.uid]},403);
+  await api(student,{action:'challenge_invite',challengeId:made.challenge.id,friendIds:[friend.uid]});
+  assert.ok((await api(friend,{action:'chat_messages',friendId:student.uid})).messages.some(m=>m.challengeId===made.challenge.id));
   const seen = (await api(friend,{action:'challenge_list'})).challenges.find(c=>c.id===made.challenge.id);
   assert.equal(seen.board.length,2);
   assert.ok(seen.board.find(b=>b.uid===student.uid).seconds >= 30);

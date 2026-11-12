@@ -273,6 +273,23 @@ export async function POST(request: Request) {
             await challenge.update({ participants: FieldValue.arrayUnion(user.uid) });
             return Response.json({ ok: true });
         }
+        if (body.action === 'challenge_invite') {
+            // Sends a "join my challenge" card into each chosen friend's chat. Only people already in the challenge can invite, and only their friends.
+            const challenge = await adminDb.doc(`challenges/${safeId(body.challengeId)}`).get();
+            if (!challenge.exists) throw new HttpError(404, 'This challenge no longer exists.');
+            if (!(challenge.get('participants') as string[]).includes(user.uid)) throw new HttpError(403, 'Join this challenge before inviting friends.');
+            const ids = Array.isArray(body.friendIds) ? [...new Set(body.friendIds)].slice(0, 30) : [];
+            if (!ids.length) throw new HttpError(400, 'Choose at least one friend.');
+            const name = (await adminDb.doc(`profiles/${user.uid}`).get()).get('name') ?? 'Student';
+            const chats = await Promise.all(ids.map(id => friendshipId(user.uid, id)));
+            const batch = adminDb.batch();
+            for (const chat of chats) batch.set(adminDb.collection(`friendships/${chat}/messages`).doc(), {
+                senderId: user.uid, senderName: name, createdAt: now, challengeId: challenge.id,
+                text: `Join my challenge "${challenge.get('title')}": ${challenge.get('targetHours')} hours in 7 days.`,
+            });
+            await batch.commit();
+            return Response.json({ ok: true, sent: chats.length });
+        }
         if (body.action === 'unfriend') {
             // Removes the friendship and its chat for both people.
             await adminDb.recursiveDelete(adminDb.doc(`friendships/${await friendshipId(user.uid, body.friendId)}`));
