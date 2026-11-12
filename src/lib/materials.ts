@@ -96,7 +96,7 @@ export async function uploadMaterial(
   if (process.env.NEXT_PUBLIC_USE_EMULATOR === 'true') {
     const form = new FormData();
     form.set('file', file); form.set('title', title);
-    if (metadata.subjectId) form.set('subjectId', metadata.subjectId);
+    for (const [key, value] of Object.entries(metadata)) if (value) form.set(key, value);
     const response = await fetch('/api/files/local', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Upload failed.');

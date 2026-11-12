@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/server/firebase-admin';
 import { errorResponse, HttpError, requireUser } from '@/lib/server/ai';
-import { checkFile } from '@/lib/files';
+import { checkFile, cleanDetails } from '@/lib/files';
 import { SUBJECTS } from '@/lib/cma';
 const directory = join(process.cwd(), '.local-uploads');
 export async function POST(request: Request) {
@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         await writeFile(join(directory, ref.id), Buffer.from(await file.arrayBuffer()));
         await ref.set({ title, type: checked.kind, contentType: checked.kind === 'pdf' ? 'application/pdf' : (['video/mp4', 'video/webm', 'video/quicktime'].includes(file.type) ? file.type : 'video/mp4'), url: `/api/files/local?id=${ref.id}`, size: file.size, local: true,
             teacherId: user.uid, teacherName: user.name, createdAt: FieldValue.serverTimestamp(),
+            ...cleanDetails({ chapter: form.get('chapter'), faculty: form.get('faculty'), duration: form.get('duration'), category: form.get('category') }),
             ...(subject ? { subject: subject.name, subjectId: subject.id, level: subject.level, paperCode: `Paper ${subject.id}` } : {}) });
         return Response.json({ id: ref.id });
     }

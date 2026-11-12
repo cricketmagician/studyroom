@@ -7,8 +7,6 @@ import { signOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import {
-  FileUp,
-  Link2,
   Search,
   Trash2,
   Users,
@@ -32,10 +30,12 @@ import { checkFile, formatSize, titleFromFileName } from "@/lib/files";
 import { deleteMaterial, Material, uploadMaterial } from "@/lib/materials";
 import { duration, SUBJECTS, StudyState } from "@/lib/cma";
 import { SYLLABUS_DATA } from "@/lib/syllabus-data";
+import { parseVideoUrl } from "@/lib/embed";
 import { ErrorText, Logo, LogoMark } from "@/components/auth-card";
-import { ArrowSquareOut as PArrowSquare, Books as PBooks, Broadcast as PBroadcast, CaretRight as PCaret, Clock as PClock, FilePdf as PFilePdf, Fire as PFire, House as PHome, Play as PPlay, Plus as PPlus, ShieldCheck as PShield, SignOut as PSignOut, Sparkle as PSparkle, UsersThree as PUsers } from "@phosphor-icons/react";
+import { ArrowSquareOut as PArrowSquare, Books as PBooks, Broadcast as PBroadcast, CaretRight as PCaret, Clock as PClock, FilePdf as PFilePdf, Fire as PFire, House as PHome, Play as PPlay, Plus as PPlus, ShieldCheck as PShield, SignOut as PSignOut, UserCircle as PUserCircle, Moon as PMoon, Check as PCheck, PlayCircle as PPlayCircle, UploadSimple as PUpload, LinkSimple as PLink, Sparkle as PSparkle, UsersThree as PUsers } from "@phosphor-icons/react";
 import "./admin.css";
 import { useScrollChrome } from "@/lib/use-scroll-chrome";
+import { useTheme } from "@/components/providers/theme-provider";
 import { AdminAccess } from "@/components/admin-access";
 import { StudentDossier } from "@/components/student-dossier";
 import "@/components/study-hub.css";
@@ -89,6 +89,11 @@ function AdminWorkspace() {
   // Materials Publisher Form States
   const [uploadKind, setUploadKind] = useState<"video" | "pdf">("video");
   const [source, setSource] = useState<"file" | "link">("file");
+  const [step, setStep] = useState(1);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [dragOver, setDragOver] = useState(false);
+  const [published, setPublished] = useState<{ title: string; kind: "video" | "pdf"; paper: string } | null>(null);
+  const [paperLevel, setPaperLevel] = useState<string>("Intermediate");
   const [selectedPaperId, setSelectedPaperId] = useState<string>("8");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [materialTitle, setMaterialTitle] = useState("");
@@ -249,16 +254,26 @@ function AdminWorkspace() {
   };
 
   const handleFileChange = (file: File | null) => {
+    setPublishError("");
+    if (!file) { setSelectedFile(null); return; }
+    const checked = checkFile(file);
+    if ("error" in checked) { setSelectedFile(null); setPublishError(checked.error); return; }
     setSelectedFile(file);
-    if (file && !materialTitle) {
-      setMaterialTitle(titleFromFileName(file.name));
+    setUploadKind(checked.kind); // the file decides: a PDF is never saved as a video
+    if (!materialTitle) setMaterialTitle(titleFromFileName(file.name));
+    if (checked.kind === "video") {
+      // Read the lecture length from the file itself so the teacher never types it.
+      const url = URL.createObjectURL(file);
+      const v = document.createElement("video");
+      v.preload = "metadata";
+      v.onloadedmetadata = () => { const m = Math.round(v.duration / 60); if (m > 0) setVideoDuration(m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m} min`); URL.revokeObjectURL(url); };
+      v.onerror = () => URL.revokeObjectURL(url);
+      v.src = url;
     }
   };
 
   const publish = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formElement = event.currentTarget;
-    const data = new FormData(formElement);
     setPublishing(true);
     setProgress(0);
     setPublishError("");
@@ -271,10 +286,8 @@ function AdminWorkspace() {
         throw new Error("Add a title and choose a subject.");
       }
 
-      const chapterToSave =
-        selectedChapter === "custom"
-          ? customChapter.trim()
-          : selectedChapter || chapterSuggestions[0] || "";
+      // No silent default: "" means the whole paper.
+      const chapterToSave = selectedChapter === "custom" ? customChapter.trim() : selectedChapter === "whole" ? "" : selectedChapter;
 
       const metadata = {
         subjectId: subject.id,
@@ -295,30 +308,32 @@ function AdminWorkspace() {
 
         createdId = await uploadMaterial(
           selectedFile,
-          uploadKind,
+          checked.kind,
           title,
           { uid: user.uid, name: profile.name },
           setProgress,
           metadata
         );
       } else {
-        const linkUrl = String(data.get("url") || "").trim();
-        if (!linkUrl) throw new Error("Enter a valid HTTPS link.");
+        const url = linkUrl.trim();
+        if (!/^https:\/\//i.test(url)) throw new Error("Paste a link that starts with https://");
 
         const res = await postAi<{ id: string }>("/api/materials", {
           title,
-          url: linkUrl,
+          url,
           type: uploadKind,
           ...metadata,
         });
         createdId = res.id;
       }
 
-      setMessage(`✓ “${title}” published successfully under Paper ${subject.id}: ${subject.name}!`);
+      setPublished({ title, kind: source === "file" && selectedFile ? (checkFile(selectedFile) as { kind: "video" | "pdf" }).kind : uploadKind, paper: `Paper ${subject.id} · ${subject.name}` });
       setMaterialTitle("");
       setSelectedFile(null);
+      setLinkUrl("");
       setCustomChapter("");
-      formElement.reset();
+      setSelectedChapter("");
+      setProgress(0);
 
       if (uploadKind === "pdf" && createdId) {
         if (autoGenerateAi) {
@@ -403,6 +418,18 @@ function AdminWorkspace() {
   ];
   const go = (id: typeof tab) => { setTab(id); window.scrollTo({ top: 0 }); };
   const tucked = useScrollChrome();
+  const { theme, toggleTheme } = useTheme();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  // Close the account menu on an outside tap or Escape.
+  useEffect(() => {
+    if (!profileOpen) return;
+    const away = (e: Event) => { if (!profileRef.current?.contains(e.target as Node)) setProfileOpen(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setProfileOpen(false); };
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("pointerdown", away); document.removeEventListener("keydown", esc); };
+  }, [profileOpen]);
 
   return (
     <div className="cma adm">
@@ -437,12 +464,29 @@ function AdminWorkspace() {
           <div className="adm-top-actions">
             {studying > 0 && <button type="button" className="adm-live" onClick={() => go("students")}><span className="cma-live-dot" />{studying} studying</button>}
             {tab !== "publisher" && <button type="button" className="cma-primary adm-upload" onClick={() => go("publisher")}><PPlus size={17} weight="bold" aria-hidden="true" />Upload</button>}
-            <button type="button" className="adm-me-mobile" aria-label="Log out" onClick={handleSignOut}><span className="adm-avatar tint" data-tint="green">{initials(profile?.name ?? "T")}</span></button>
+            <div className="adm-profile" ref={profileRef}>
+              <button type="button" className="adm-profile-btn" aria-haspopup="menu" aria-expanded={profileOpen} aria-label="Your account" onClick={() => setProfileOpen(!profileOpen)}>
+                <span className="adm-avatar tint" data-tint="green">{initials(profile?.name ?? "T")}</span>
+              </button>
+              {profileOpen && (
+                <div className="adm-profile-menu" role="menu">
+                  <div className="adm-profile-head">
+                    <span className="adm-avatar tint" data-tint="green">{initials(profile?.name ?? "T")}</span>
+                    <span><b>{profile?.name}</b><small>{profile?.email}</small><em>Teacher</em></span>
+                  </div>
+                  <Link href="/profile" role="menuitem" onClick={() => setProfileOpen(false)}><PUserCircle size={19} aria-hidden="true" />My profile</Link>
+                  <Link href="/" role="menuitem" onClick={() => setProfileOpen(false)}><PArrowSquare size={19} aria-hidden="true" />Open student app</Link>
+                  <label role="menuitem"><PMoon size={19} aria-hidden="true" />Dark mode<input type="checkbox" role="switch" className="profile-switch" checked={theme === "dark"} onChange={toggleTheme} /></label>
+                  <button type="button" role="menuitem" className="adm-profile-out" onClick={() => { setProfileOpen(false); void handleSignOut(); }}><PSignOut size={19} aria-hidden="true" />Log out</button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
         <main className="adm-main">
         <ErrorText>{error || materialsError}</ErrorText>
+        {message && <p role="status" className="profile-note adm-toast">{message.replace(/^✓\s*/, "")}<button type="button" aria-label="Dismiss" onClick={() => setMessage("")}>×</button></p>}
 
         {tab !== "overview" && (() => {
           const hero = {
@@ -559,9 +603,6 @@ function AdminWorkspace() {
         {tab === "publisher" && (
           <div className="max-w-4xl space-y-6">
             <div className="apple-glass-card p-6 sm:p-8 space-y-6">
-              <p className="text-sm text-[var(--text-secondary)]">
-                Students will see it in their Library, under the paper you pick.
-              </p>
 
               {/* AI Study Suite Generator (Flashcards, MCQs, Formulas) */}
               {aiPromptPdf && (
@@ -791,361 +832,150 @@ function AdminWorkspace() {
                 </div>
               )}
 
-              <form onSubmit={publish} className="space-y-5">
-                
-                {/* 1. Format Selection: Video vs PDF */}
-                <div>
-                  <label className="block text-xs tabular-nums uppercase font-bold text-[var(--text-secondary)] mb-2">
-                    What are you adding?
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUploadKind("video");
-                        setMaterialCategory("Concept Lecture");
-                      }}
-                      className={`p-3.5 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-                        uploadKind === "video"
-                          ? "bg-[var(--brand)] text-[var(--on-brand)] border-[color:var(--brand)] shadow-md"
-                          : "apple-glass-tile border-black/10 dark:border-white/10"
-                      }`}
-                    >
-                      <Video className="w-5 h-5 shrink-0" />
-                      <div>
-                        <div className="font-apfel font-bold text-sm">Video Lecture</div>
-                        <div className="text-[13px] tabular-nums opacity-75">MP4, WebM, or YouTube Link</div>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUploadKind("pdf");
-                        setMaterialCategory("Comprehensive Chapter Notes");
-                      }}
-                      className={`p-3.5 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-                        uploadKind === "pdf"
-                          ? "bg-[var(--brand)] text-[var(--on-brand)] border-[color:var(--brand)] shadow-md"
-                          : "apple-glass-tile border-black/10 dark:border-white/10"
-                      }`}
-                    >
-                      <FileText className="w-5 h-5 shrink-0" />
-                      <div>
-                        <div className="font-apfel font-bold text-sm">PDF Document</div>
-                        <div className="text-[13px] tabular-nums opacity-75">Chapter Notes, Formulas, RTP</div>
-                      </div>
-                    </button>
+              {published ? (
+                <div className="up-done" role="status">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
+                  <img src="/illustrations/doodles/person-using-smartphone-successfully.svg" alt="" className="doodle" />
+                  <span className="tint" data-tint="green"><PCheck size={26} weight="bold" aria-hidden="true" /></span>
+                  <h2>Published</h2>
+                  <p>&ldquo;{published.title}&rdquo; is now in {published.paper}. Students can open it right away.</p>
+                  <div className="up-done-actions">
+                    <button type="button" className="cma-primary" onClick={() => { setPublished(null); setStep(1); }}><PPlus size={17} weight="bold" aria-hidden="true" />Add another</button>
+                    <button type="button" className="cma-secondary" onClick={() => { setPublished(null); setStep(1); go("shelf"); }}>See all published</button>
                   </div>
                 </div>
+              ) : (
+              <form onSubmit={publish} className="up" noValidate>
+                <ol className="up-steps" aria-label="Steps">
+                  {["Add file", "Where it goes", "Check and publish"].map((t, n) => (
+                    <li key={t} data-state={step > n + 1 ? "done" : step === n + 1 ? "now" : undefined}><span>{step > n + 1 ? <PCheck size={13} weight="bold" aria-hidden="true" /> : n + 1}</span>{t}</li>
+                  ))}
+                </ol>
 
-                {/* 2. Source Method: File Upload vs Link */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 p-1 rounded-2xl bg-black/5 dark:bg-white/10 w-full sm:w-fit">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSource("file");
-                      setPublishError("");
-                    }}
-                    className={`px-3.5 py-2 rounded-xl text-xs tabular-nums font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      source === "file"
-                        ? "bg-[var(--brand)] text-[var(--on-brand)] shadow-xs"
-                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                    }`}
-                  >
-                    <FileUp className="w-3.5 h-3.5" />
-                    <span>Upload a file (up to 300 MB)</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSource("link");
-                      setPublishError("");
-                    }}
-                    className={`px-3.5 py-2 rounded-xl text-xs tabular-nums font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      source === "link"
-                        ? "bg-[var(--brand)] text-[var(--on-brand)] shadow-xs"
-                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                    }`}
-                  >
-                    <Link2 className="w-3.5 h-3.5" />
-                    <span>Paste a link (YouTube, Drive)</span>
-                  </button>
-                </div>
-
-                {/* 3. Subject & Paper Selection */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs tabular-nums uppercase font-bold text-[var(--text-secondary)] mb-1.5">
-                      Paper
-                    </label>
-                    <select
-                      value={selectedPaperId}
-                      onChange={(e) => {
-                        setSelectedPaperId(e.target.value);
-                        setSelectedChapter("");
-                      }}
-                      className="w-full rounded-2xl border border-black/10 dark:border-white/15 bg-white/70 dark:bg-white/5 p-3 text-xs sm:text-sm font-semibold text-[var(--text-primary)]"
-                    >
-                      <optgroup label="CMA Intermediate - Group 1">
-                        <option value="5">Paper 5 · Business Laws and Ethics</option>
-                        <option value="6">Paper 6 · Financial Accounting</option>
-                        <option value="7">Paper 7 · Direct and Indirect Taxation</option>
-                        <option value="8">Paper 8 · Cost Accounting</option>
-                      </optgroup>
-                      <optgroup label="CMA Intermediate - Group 2">
-                        <option value="9">Paper 9 · Operations & Strategic Mgmt</option>
-                        <option value="10">Paper 10 · Corporate Accounting & Auditing</option>
-                        <option value="11">Paper 11 · Financial Management & BDA</option>
-                        <option value="12">Paper 12 · Management Accounting</option>
-                      </optgroup>
-                      <optgroup label="CMA Final - Group 3">
-                        <option value="13">Paper 13 · Corporate & Economic Laws</option>
-                        <option value="14">Paper 14 · Strategic Financial Mgmt (SFM)</option>
-                        <option value="15">Paper 15 · Direct Tax Laws & International Tax</option>
-                        <option value="16">Paper 16 · Strategic Cost Management (SCM)</option>
-                      </optgroup>
-                      <optgroup label="CMA Final - Group 4">
-                        <option value="17">Paper 17 · Cost & Management Audit</option>
-                        <option value="18">Paper 18 · Corporate Financial Reporting (CFR)</option>
-                        <option value="19">Paper 19 · Indirect Tax Laws & Practice</option>
-                        <option value="20A">Paper 20A · Strategic Performance Mgmt</option>
-                        <option value="20B">Paper 20B · Risk Mgmt in Banking & Insurance</option>
-                        <option value="20C">Paper 20C · Entrepreneurship & Startups</option>
-                      </optgroup>
-                      <optgroup label="CMA Foundation">
-                        <option value="1">Paper 1 · Fundamentals of Business Laws</option>
-                        <option value="2">Paper 2 · Fundamentals of Financial Accounting</option>
-                        <option value="3">Paper 3 · Fundamentals of Business Maths & Stats</option>
-                        <option value="4">Paper 4 · Fundamentals of Business Economics</option>
-                      </optgroup>
-                    </select>
-                  </div>
-
-                  {/* 4. Category Tag */}
-                  <div>
-                    <label className="block text-xs tabular-nums uppercase font-bold text-[var(--text-secondary)] mb-1.5">
-                      Type
-                    </label>
-                    <select
-                      value={materialCategory}
-                      onChange={(e) => setMaterialCategory(e.target.value)}
-                      className="w-full rounded-2xl border border-black/10 dark:border-white/15 bg-white/70 dark:bg-white/5 p-3 text-xs sm:text-sm font-semibold text-[var(--text-primary)]"
-                    >
-                      {uploadKind === "video" ? (
-                        <>
-                          <option value="Concept Lecture">Concept Lecture</option>
-                          <option value="Fast-Track Marathon">Fast-Track Marathon</option>
-                          <option value="Problem Solving & Practical">Problem Solving & Practical</option>
-                          <option value="Past Paper / RTP Discussion">Past Paper / RTP Discussion</option>
-                          <option value="Exam Strategy & Tips">Exam Strategy & Tips</option>
-                        </>
-                      ) : (
-                        <>
-                          <option value="Comprehensive Chapter Notes">Comprehensive Chapter Notes</option>
-                          <option value="Formula Book & Formats">Formula Book & Formats</option>
-                          <option value="Past 5 Years Questions & Solutions">Past 5 Years Questions & Solutions</option>
-                          <option value="RTP / MTP Mock Papers">RTP / MTP Mock Papers</option>
-                          <option value="Quick Revision Handouts">Quick Revision Handouts</option>
-                        </>
-                      )}
-                    </select>
-                  </div>
-                </div>
-
-                {/* 5. Chapter / Module Autocomplete */}
-                <div>
-                  <label className="block text-xs tabular-nums uppercase font-bold text-[var(--text-secondary)] mb-1.5">
-                    Chapter
-                  </label>
-                  <select
-                    value={selectedChapter}
-                    onChange={(e) => setSelectedChapter(e.target.value)}
-                    className="w-full rounded-2xl border border-black/10 dark:border-white/15 bg-white/70 dark:bg-white/5 p-3 text-xs sm:text-sm font-medium"
-                  >
-                    <option value="">Choose a chapter</option>
-                    {chapterSuggestions.map((chap, idx) => (
-                      <option key={idx} value={chap}>
-                        {chap}
-                      </option>
-                    ))}
-                    <option value="custom">Type your own chapter…</option>
-                  </select>
-
-                  {selectedChapter === "custom" && (
-                    <div className="apple-glass-input-wrapper px-4 py-2.5 mt-2">
-                      <input
-                        type="text"
-                        placeholder="Chapter name, like Standard Costing"
-                        value={customChapter}
-                        onChange={(e) => setCustomChapter(e.target.value)}
-                        className="text-xs sm:text-sm font-semibold"
-                      />
+                {step === 1 && (
+                  <section className="up-step" aria-labelledby="up-s1">
+                    <h3 id="up-s1">What are you adding?</h3>
+                    <div className="up-kinds">
+                      {([["video", "Video class", "MP4, MOV or a YouTube / Drive link", "blue"], ["pdf", "PDF notes", "Notes, formulas, RTP or MTP", "amber"]] as const).map(([k, label, hint, tint]) => (
+                        <button type="button" key={k} aria-pressed={uploadKind === k} onClick={() => { setUploadKind(k); if (k === "pdf" && source === "link") setSource("file"); setSelectedFile(null); setPublishError(""); setMaterialCategory(k === "video" ? "Concept Lecture" : "Comprehensive Chapter Notes"); }}>
+                          <span className="tint" data-tint={tint}>{k === "video" ? <PPlayCircle size={28} aria-hidden="true" /> : <PFilePdf size={28} aria-hidden="true" />}</span>
+                          <b>{label}</b><small>{hint}</small>
+                        </button>
+                      ))}
                     </div>
-                  )}
-                </div>
 
-                {/* 6. Title Field */}
-                <div>
-                  <label className="block text-xs tabular-nums uppercase font-bold text-[var(--text-secondary)] mb-1.5">
-                    Title
-                  </label>
-                  <div className="apple-glass-input-wrapper px-4 py-3">
-                    <input
-                      name="title"
-                      required
-                      maxLength={200}
-                      value={materialTitle}
-                      onChange={(e) => setMaterialTitle(e.target.value)}
-                      placeholder="Like Marginal Costing: full lecture"
-                      className="text-sm font-semibold"
-                    />
-                  </div>
-                </div>
-
-                {/* 7. Faculty and Duration Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs tabular-nums uppercase font-bold text-[var(--text-secondary)] mb-1.5">
-                      Teacher name
-                    </label>
-                    <div className="apple-glass-input-wrapper px-4 py-2.5">
-                      <input
-                        type="text"
-                        placeholder="e.g. CMA Nihal Kumar"
-                        value={facultyName}
-                        onChange={(e) => setFacultyName(e.target.value)}
-                        className="text-xs sm:text-sm font-semibold"
-                      />
+                    <div className="cma-segments up-source" aria-label="How to add it">
+                      <button type="button" aria-pressed={source === "file"} onClick={() => setSource("file")}><PUpload size={15} aria-hidden="true" />Upload a file</button>
+                      <button type="button" aria-pressed={source === "link"} onClick={() => setSource("link")}><PLink size={15} aria-hidden="true" />Paste a link</button>
                     </div>
-                  </div>
 
-                  {uploadKind === "video" && (
-                    <div>
-                      <label className="block text-xs tabular-nums uppercase font-bold text-[var(--text-secondary)] mb-1.5">
-                        Video length
+                    {source === "file" ? (
+                      <label className="up-drop" data-over={dragOver || undefined} data-has={selectedFile ? "" : undefined}
+                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)}
+                        onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFileChange(e.dataTransfer.files?.[0] ?? null); }}>
+                        <input type="file" accept={uploadKind === "pdf" ? "application/pdf,.pdf" : "video/*,.mp4,.mov,.webm,.m4v,application/pdf,.pdf"} onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)} />
+                        {selectedFile ? (
+                          <>
+                            <span className="tint" data-tint={uploadKind === "video" ? "blue" : "amber"}>{uploadKind === "video" ? <PPlayCircle size={26} aria-hidden="true" /> : <PFilePdf size={26} aria-hidden="true" />}</span>
+                            <b>{selectedFile.name}</b>
+                            <small>{formatSize(selectedFile.size)}{uploadKind === "video" && videoDuration ? ` · ${videoDuration}` : ""} · Tap to choose another</small>
+                          </>
+                        ) : (
+                          <>
+                            <span className="tint" data-tint="green"><PUpload size={26} aria-hidden="true" /></span>
+                            <b>Drop your {uploadKind === "video" ? "video" : "PDF"} here, or tap to choose</b>
+                            <small>{uploadKind === "video" ? "Up to 300 MB. For longer lectures, paste a YouTube link instead." : "Up to 50 MB."}</small>
+                          </>
+                        )}
                       </label>
-                      <div className="apple-glass-input-wrapper px-4 py-2.5">
-                        <input
-                          type="text"
-                          placeholder="Like 45 min or 1h 20m"
-                          value={videoDuration}
-                          onChange={(e) => setVideoDuration(e.target.value)}
-                          className="text-xs sm:text-sm font-semibold"
-                        />
-                      </div>
+                    ) : (() => {
+                      const info = linkUrl.trim() ? parseVideoUrl(linkUrl.trim()) : null;
+                      const yt = info?.type === "youtube" ? info.embedUrl.match(/embed\/([\w-]{11})/)?.[1] : null;
+                      const okHttps = /^https:\/\//i.test(linkUrl.trim());
+                      return (
+                        <div className="up-link">
+                          <label>Link<input type="url" inputMode="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder={uploadKind === "video" ? "https://youtube.com/watch?v=…" : "https://drive.google.com/…"} autoComplete="off" /></label>
+                          {linkUrl.trim() && (
+                            <div className="up-link-check" data-ok={okHttps && (uploadKind === "pdf" || (info && info.type !== "direct")) ? "" : undefined}>
+                              {yt && <>
+                                {/* eslint-disable-next-line @next/next/no-img-element -- YouTube thumbnail preview */}
+                                <img src={`https://i.ytimg.com/vi/${yt}/mqdefault.jpg`} alt="" />
+                              </>}
+                              <span>{!okHttps ? "The link must start with https://" : uploadKind === "pdf" ? "PDF link added. Make sure it is shared with anyone who has the link." : info?.type === "youtube" ? "YouTube video found. Students can play it inside the app." : info?.type === "gdrive" ? "Google Drive video found. Set sharing to \u201cAnyone with the link\u201d." : info?.type === "vimeo" ? "Vimeo video found." : "We could not recognise this video link. Students may have to open it outside the app."}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                    <ErrorText>{publishError}</ErrorText>
+                    <div className="up-nav">
+                      <span />
+                      <button type="button" className="cma-primary" disabled={source === "file" ? !selectedFile : !/^https:\/\//i.test(linkUrl.trim())} onClick={() => { setPublishError(""); setStep(2); }}>Next<PCaret size={16} aria-hidden="true" /></button>
                     </div>
-                  )}
-                </div>
+                  </section>
+                )}
 
-                {/* 8. File Input or Web Link Input */}
-                {source === "file" ? (
-                  <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-2">
-                    <label className="block text-xs tabular-nums uppercase font-bold text-[var(--text-secondary)]">
-                      {uploadKind === "video" ? "Select Video File (.mp4, .webm, .mov, max 300MB)" : "Select PDF Document (max 50MB)"}
+                {step === 2 && (
+                  <section className="up-step" aria-labelledby="up-s2">
+                    <h3 id="up-s2">Where should students find it?</h3>
+                    <div className="cma-segments up-levels" aria-label="Course">
+                      {["Foundation", "Intermediate", "Final"].map((l) => <button type="button" key={l} aria-pressed={paperLevel === l} onClick={() => setPaperLevel(l)}>{l}</button>)}
+                    </div>
+                    <fieldset className="cma-subject-picker up-papers">
+                      <legend>Paper</legend>
+                      <div>{SUBJECTS.filter((x) => x.level === paperLevel).map((x) => <label key={x.id}><input type="radio" name="paper" checked={selectedPaperId === x.id} onChange={() => { setSelectedPaperId(x.id); setSelectedChapter(""); }} /><b>{x.id}</b><span>{x.name}</span></label>)}</div>
+                    </fieldset>
+                    <label className="up-field">Chapter
+                      <select value={selectedChapter} onChange={(e) => setSelectedChapter(e.target.value)}>
+                        <option value="" disabled>Choose a chapter</option>
+                        <option value="whole">Whole paper (no single chapter)</option>
+                        {chapterSuggestions.map((c) => <option key={c} value={c}>{c}</option>)}
+                        <option value="custom">Something else (type it)</option>
+                      </select>
                     </label>
-                    <input
-                      name="file"
-                      required
-                      type="file"
-                      accept={uploadKind === "video" ? ".mp4,.webm,.mov,.m4v,.mkv" : ".pdf"}
-                      onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
-                      className="w-full text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:font-bold file:bg-[var(--brand)] file:text-[var(--on-brand)] cursor-pointer"
-                    />
-                    {selectedFile && (
-                      <div className="text-[13px] tabular-nums text-[var(--text-secondary)] flex items-center justify-between pt-1">
-                        <span>Selected: {selectedFile.name}</span>
-                        <span>{formatSize(selectedFile.size)}</span>
+                    {selectedChapter === "custom" && <label className="up-field">Chapter name<input value={customChapter} onChange={(e) => setCustomChapter(e.target.value)} placeholder="Like Standard Costing" maxLength={200} /></label>}
+                    <fieldset className="up-field"><legend>Kind of {uploadKind === "video" ? "video" : "PDF"}</legend>
+                      <div className="profile-chips">{(uploadKind === "video" ? ["Concept Lecture", "Problem Solving & Practical", "Fast-Track Marathon", "Past Paper / RTP Discussion", "Exam Strategy & Tips"] : ["Comprehensive Chapter Notes", "Formula Book & Formats", "Quick Revision Handouts", "RTP / MTP Mock Papers", "Past 5 Years Questions & Solutions"]).map((c) => <label key={c}><input type="radio" name="kind" checked={materialCategory === c} onChange={() => setMaterialCategory(c)} />{c}</label>)}</div>
+                    </fieldset>
+                    <div className="up-nav">
+                      <button type="button" className="cma-secondary" onClick={() => setStep(1)}>Back</button>
+                      <button type="button" className="cma-primary" disabled={!selectedChapter || (selectedChapter === "custom" && !customChapter.trim())} onClick={() => setStep(3)}>Next<PCaret size={16} aria-hidden="true" /></button>
+                    </div>
+                  </section>
+                )}
+
+                {step === 3 && (() => {
+                  const paper = SUBJECTS.find((x) => x.id === selectedPaperId);
+                  const chapterText = selectedChapter === "custom" ? customChapter.trim() : selectedChapter === "whole" ? "" : selectedChapter;
+                  return (
+                    <section className="up-step" aria-labelledby="up-s3">
+                      <h3 id="up-s3">Check and publish</h3>
+                      <label className="up-field">Title students will see<input value={materialTitle} onChange={(e) => setMaterialTitle(e.target.value)} placeholder="Like Marginal Costing: full lecture" maxLength={200} required /></label>
+                      <div className="up-two">
+                        <label className="up-field">Teacher name<input value={facultyName} onChange={(e) => setFacultyName(e.target.value)} maxLength={80} /></label>
+                        {uploadKind === "video" && <label className="up-field">Length<input value={videoDuration} onChange={(e) => setVideoDuration(e.target.value)} placeholder="45 min" maxLength={20} /></label>}
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div>
-                    <label className="block text-xs tabular-nums uppercase font-bold text-[var(--text-secondary)] mb-1.5">
-                      {uploadKind === "video"
-                        ? "Public Video Link (YouTube, Vimeo, Google Drive)"
-                        : "Public PDF Link (Google Drive, Cloud Storage)"}
-                    </label>
-                    <div className="apple-glass-input-wrapper px-4 py-3">
-                      <input
-                        name="url"
-                        required
-                        type="url"
-                        placeholder="https://www.youtube.com/watch?v=... or https://drive.google.com/..."
-                        className="text-sm font-semibold"
-                      />
-                    </div>
-                    <span className="block text-[13px] tabular-nums text-[var(--text-secondary)] mt-1.5">
-                      YouTube videos will be embedded seamlessly in a high-resolution 16:9 player for students.
-                    </span>
-                  </div>
-                )}
-
-                {/* Auto AI Toggle for PDFs */}
-                {uploadKind === "pdf" && (
-                  <div className="p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/20 flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      id="auto-ai-toggle"
-                      checked={autoGenerateAi}
-                      onChange={(e) => setAutoGenerateAi(e.target.checked)}
-                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-                    />
-                    <label htmlFor="auto-ai-toggle" className="text-xs cursor-pointer select-none space-y-0.5">
-                      <div className="flex items-center gap-1.5 font-bold font-apfel text-[var(--text-primary)]">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                        <span>Make flashcards, 10 MCQs and a formula sheet with AI after upload</span>
+                      {uploadKind === "pdf" && (
+                        <label className="up-ai"><PSparkle size={20} aria-hidden="true" /><span><b>Make AI flashcards and MCQs</b><small>From this PDF, after it uploads. You review them before students see them.</small></span><input type="checkbox" role="switch" className="profile-switch" checked={autoGenerateAi} onChange={(e) => setAutoGenerateAi(e.target.checked)} /></label>
+                      )}
+                      <div className="up-preview" aria-label="How students will see it">
+                        <span className="cma-eyebrow">Students will see</span>
+                        <div>
+                          <span className="tint" data-tint={uploadKind === "video" ? "blue" : "amber"}>{uploadKind === "video" ? <PPlay size={18} weight="fill" aria-hidden="true" /> : <PFilePdf size={19} aria-hidden="true" />}</span>
+                          <span><b>{materialTitle.trim() || "Your title"}</b><small>{[uploadKind === "video" ? "Video" : "PDF", paper ? `Paper ${paper.id}` : "", chapterText, facultyName, uploadKind === "video" ? videoDuration : ""].filter(Boolean).join(" · ")}</small></span>
+                        </div>
                       </div>
-                      <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
-                        PDF upload complete hote hi Google Gemini AI automatically important formulas extract karega, 10 exam MCQs banayega aur revision flashcards tayyar karega.
-                      </p>
-                    </label>
-                  </div>
-                )}
-
-                {/* Upload Button & Animated Progress */}
-                <button
-                  type="submit"
-                  disabled={publishing}
-                  className="apple-glass-btn w-full py-4 text-sm font-apfel font-bold cursor-pointer flex items-center justify-center gap-2 shadow-md"
-                >
-                  {publishing ? (
-                    progress > 0 && progress < 100 ? (
-                      `Uploading to Cloud Storage (${progress}%)…`
-                    ) : (
-                      "Publishing to Student Library…"
-                    )
-                  ) : (
-                    <>
-                      {uploadKind === "video" ? <Video className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
-                      <span>Publish {uploadKind === "video" ? "Video Lecture" : "PDF Notes"}</span>
-                    </>
-                  )}
-                </button>
-
-                {publishing && source === "file" && (
-                  <div className="space-y-1.5 pt-1">
-                    <div className="flex justify-between text-xs tabular-nums">
-                      <span>Uploading file…</span>
-                      <span className="font-bold">{progress}%</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
-                      <div
-                        className="h-full bg-[var(--brand)] transition-all duration-150"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <ErrorText>{publishError}</ErrorText>
-                {message && (
-                  <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs font-semibold">
-                    {message}
-                  </div>
-                )}
+                      {publishing && <div className="up-progress" role="status"><span>{source === "file" ? `Uploading… ${progress}%` : "Publishing…"}</span><progress value={source === "file" ? progress : undefined} max={100} /></div>}
+                      <ErrorText>{publishError}</ErrorText>
+                      <div className="up-nav">
+                        <button type="button" className="cma-secondary" disabled={publishing} onClick={() => setStep(2)}>Back</button>
+                        <button type="submit" className="cma-primary" disabled={publishing || !materialTitle.trim()}>{publishing ? "Publishing…" : "Publish for students"}</button>
+                      </div>
+                    </section>
+                  );
+                })()}
               </form>
+              )}
             </div>
           </div>
         )}

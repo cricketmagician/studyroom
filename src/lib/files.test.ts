@@ -23,3 +23,12 @@ test("title and size helpers", () => {
   assert.equal(formatSize(5 * 1024 * 1024), "5.0 MB");
   assert.equal(formatSize(3 * 1024 * 1024 * 1024), "3.0 GB");
 });
+
+test("upload details are trimmed and capped like the database rules", async () => {
+  const { cleanDetails } = await import("./files.ts");
+  const d = cleanDetails({ chapter: "  Cost sheet  ", faculty: "x".repeat(200), duration: 45, category: undefined });
+  assert.equal(d.chapter, "Cost sheet");
+  assert.equal(d.faculty.length, 80);
+  assert.equal(d.duration, "");
+  assert.equal(d.category, "");
+});

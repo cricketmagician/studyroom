@@ -2,6 +2,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/server/firebase-admin';
 import { errorResponse, HttpError, requireUser } from '@/lib/server/ai';
 import { SUBJECTS } from '@/lib/cma';
+import { cleanDetails } from '@/lib/files';
 export async function POST(request: Request) {
     try {
         const user = await requireUser(request);
@@ -28,10 +29,9 @@ export async function POST(request: Request) {
             subjectId,
             level: subject.level,
             paperCode: `Paper ${subjectId}`,
-            chapter: typeof chapter === 'string' ? chapter.trim() : '',
-            faculty: typeof faculty === 'string' ? faculty.trim() : (user.name || 'CMA Faculty'),
-            duration: typeof duration === 'string' ? duration.trim() : '',
-            category: typeof category === 'string' ? category.trim() : (type === 'video' ? 'Concept Lecture' : 'Chapter Notes'),
+            ...cleanDetails({ chapter, faculty, duration, category }),
+            ...(typeof faculty === 'string' && faculty.trim() ? {} : { faculty: (user.name || 'CMA Faculty').slice(0, 80) }),
+            ...(typeof category === 'string' && category.trim() ? {} : { category: type === 'video' ? 'Concept Lecture' : 'Chapter Notes' }),
             size: 0,
             teacherId: user.uid,
             teacherName: user.name,

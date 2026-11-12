@@ -96,7 +96,12 @@ service cloud.firestore {
     match /materials/{id} {
       allow read: if signedIn();
       allow create: if isTeacher() &&
-        request.resource.data.keys().hasOnly(['title', 'type', 'url', 'storagePath', 'size', 'teacherId', 'teacherName', 'createdAt', 'subjectId', 'subject', 'level', 'paperCode']) &&
+        request.resource.data.keys().hasOnly(['title', 'type', 'url', 'storagePath', 'size', 'teacherId', 'teacherName', 'createdAt', 'subjectId', 'subject', 'level', 'paperCode', 'chapter', 'faculty', 'duration', 'category']) &&
+        // The upload form also saves chapter, teacher name, length and kind; without these the listing was rejected after the file uploaded.
+        (!('chapter' in request.resource.data) || (request.resource.data.chapter is string && request.resource.data.chapter.size() <= 200)) &&
+        (!('faculty' in request.resource.data) || (request.resource.data.faculty is string && request.resource.data.faculty.size() <= 80)) &&
+        (!('duration' in request.resource.data) || (request.resource.data.duration is string && request.resource.data.duration.size() <= 20)) &&
+        (!('category' in request.resource.data) || (request.resource.data.category is string && request.resource.data.category.size() <= 40)) &&
         request.resource.data.teacherId == request.auth.uid &&
         request.resource.data.type in ['pdf', 'video'] &&
         request.resource.data.title is string &&

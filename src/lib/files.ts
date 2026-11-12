@@ -28,3 +28,9 @@ export function formatSize(bytes: number) {
     ? `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
     : `${Math.max(0.1, bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+/** Upload details a teacher types, trimmed and capped the same way everywhere (keep in sync with firestore.rules). */
+export function cleanDetails(d: { chapter?: unknown; faculty?: unknown; duration?: unknown; category?: unknown }) {
+  const cap = (v: unknown, n: number) => (typeof v === "string" ? v.trim().slice(0, n) : "");
+  return { chapter: cap(d.chapter, 200), faculty: cap(d.faculty, 80), duration: cap(d.duration, 20), category: cap(d.category, 40) };
+}
