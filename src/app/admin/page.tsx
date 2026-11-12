@@ -13,39 +13,28 @@ import {
   Trash2,
   Users,
   X,
-  ShieldCheck,
-  BookOpen,
-  Clock,
-  LogOut,
-  Radio,
   Layers,
-  ChevronRight,
   Sparkles,
-  Play,
   FileText,
   Video,
   ExternalLink,
-  GraduationCap,
-  Filter,
   CheckCircle2,
   Calculator,
   ListChecks,
   Loader2,
   RefreshCw,
-  LayoutDashboard,
-  Menu,
   Plus,
-  ArrowUpRight,
-  BarChart3,
 } from "lucide-react";
 import { RequireRole, useAuth } from "@/lib/auth";
 import { useMaterials } from "@/lib/hooks";
 import { postAi } from "@/lib/ai-client";
 import { checkFile, formatSize, titleFromFileName } from "@/lib/files";
 import { deleteMaterial, Material, uploadMaterial } from "@/lib/materials";
-import { duration, indiaWeek, LEVELS, SUBJECTS, StudyState } from "@/lib/cma";
+import { duration, SUBJECTS, StudyState } from "@/lib/cma";
 import { SYLLABUS_DATA } from "@/lib/syllabus-data";
-import { ErrorText, Logo } from "@/components/auth-card";
+import { ErrorText, Logo, LogoMark } from "@/components/auth-card";
+import { ArrowSquareOut as PArrowSquare, Books as PBooks, Broadcast as PBroadcast, CaretRight as PCaret, Clock as PClock, FilePdf as PFilePdf, Fire as PFire, House as PHome, Play as PPlay, Plus as PPlus, ShieldCheck as PShield, SignOut as PSignOut, Sparkle as PSparkle, UsersThree as PUsers } from "@phosphor-icons/react";
+import "./admin.css";
 import { AdminAccess } from "@/components/admin-access";
 import { StudentDossier } from "@/components/student-dossier";
 import "@/components/study-hub.css";
@@ -86,7 +75,6 @@ function AdminWorkspace() {
   const router = useRouter();
   const { items, error: materialsError } = useMaterials();
   const [tab, setTab] = useState<"overview" | "publisher" | "shelf" | "students" | "admins">("overview");
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(Date.now());
@@ -392,579 +380,175 @@ function AdminWorkspace() {
     });
   }, [items, shelfPaperFilter, shelfTypeFilter, shelfSearch]);
 
-  const navItems = [
-    { id: "overview" as const, label: "Overview", icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: "publisher" as const, label: "Upload", icon: <FileUp className="w-4 h-4" /> },
-    { id: "shelf" as const, label: "Published", icon: <BookOpen className="w-4 h-4" />, badge: items?.length ?? 0 },
-    { id: "students" as const, label: "Students", icon: <Users className="w-4 h-4" />, badge: students.length },
-    { id: "admins" as const, label: "Admins", icon: <ShieldCheck className="w-4 h-4" /> },
+
+  const first = (profile?.name ?? "Teacher").split(" ")[0];
+  const hour = new Date(now).getHours();
+  const greet = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const weekAgo = now - 7 * 86400000;
+  const millis = (v: unknown) => (typeof (v as { toMillis?: () => number })?.toMillis === "function" ? (v as { toMillis: () => number }).toMillis() : Number(v) || 0);
+  const newStudents = students.filter((s) => (s.joinedAt ?? 0) > weekAgo).length;
+  const newItems = (items ?? []).filter((m) => millis(m.createdAt) > weekAgo).length;
+  const liveList = students.filter((s) => s.active && now - s.active.last < 90000);
+  const streakers = [...students].filter((s) => (s.streak ?? 0) > 0).sort((a, b) => (b.streak ?? 0) - (a.streak ?? 0)).slice(0, 5);
+  const ago = (t: number) => { const m = Math.max(1, Math.round((now - t) / 60000)); return m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`; };
+  const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+  const TITLES = { overview: "Overview", publisher: "Add a video or PDF", shelf: "Published", students: "Students", admins: "Admins" } as const;
+  const NAV = [
+    { id: "overview" as const, label: "Home", icon: PHome },
+    { id: "students" as const, label: "Students", icon: PUsers, badge: students.length },
+    { id: "publisher" as const, label: "Upload", icon: PPlus },
+    { id: "shelf" as const, label: "Published", icon: PBooks, badge: items?.length ?? 0 },
+    { id: "admins" as const, label: "Admins", icon: PShield },
   ];
+  const go = (id: typeof tab) => { setTab(id); window.scrollTo({ top: 0 }); };
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans flex flex-col md:flex-row">
-      {/* MOBILE TOP BAR */}
-      <header className="md:hidden sticky top-0 z-40 w-full bg-white/90 dark:bg-[#121211]/90 backdrop-blur-xl border-b border-black/5 dark:border-white/10 px-3.5 sm:px-4 h-14 sm:h-16 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <Logo />
-          <span className="px-2 py-0.5 rounded-full text-[13px] tabular-nums font-bold bg-[var(--brand)] text-[var(--on-brand)] shrink-0">
-            ADMIN
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[13px] tabular-nums bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-            </span>
-            <span>{studying} Live</span>
+    <div className="cma adm">
+      {/* Desktop sidebar */}
+      <aside className="adm-side" aria-label="Admin menu">
+        <Logo />
+        <span className="adm-side-tag">Teacher console</span>
+        <nav>
+          {NAV.map(({ id, label, icon: Icon, badge }) => (
+            <button key={id} type="button" aria-current={tab === id ? "page" : undefined} onClick={() => go(id)}>
+              <Icon size={21} weight={tab === id ? "fill" : "duotone"} aria-hidden="true" />{label === "Home" ? "Overview" : label}
+              {!!badge && <span className="adm-badge">{badge}</span>}
+            </button>
+          ))}
+        </nav>
+        <div className="adm-side-foot">
+          <Link href="/" className="adm-side-link"><PArrowSquare size={18} aria-hidden="true" />Open student app</Link>
+          <div className="adm-me">
+            <span className="adm-avatar tint" data-tint="green">{initials(profile?.name ?? "T")}</span>
+            <span><b>{profile?.name}</b><small>{profile?.email}</small></span>
+            <button type="button" aria-label="Log out" onClick={handleSignOut}><PSignOut size={19} /></button>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setMobileNavOpen(!mobileNavOpen)}
-            className="p-2 rounded-xl bg-black/5 dark:bg-white/10 text-[var(--text-primary)] cursor-pointer"
-            aria-label="Toggle mobile menu"
-          >
-            {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-      </header>
-
-      {/* MOBILE DRAWER */}
-      {mobileNavOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex">
-          <div className="w-72 max-w-[85vw] bg-white dark:bg-[#141413] h-full p-4 sm:p-5 flex flex-col justify-between shadow-2xl border-r border-black/10 dark:border-white/10">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <Logo />
-                  <span className="text-xs tabular-nums font-bold">Admin console</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setMobileNavOpen(false)}
-                  className="p-1 rounded-lg text-[var(--text-secondary)]"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Profile Card */}
-              <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[var(--brand)] text-[var(--on-brand)] flex items-center justify-center font-bold text-xs">
-                  {profile?.name ? profile.name.charAt(0).toUpperCase() : "A"}
-                </div>
-                <div className="min-w-0">
-                  <span className="font-apfel font-bold text-xs block truncate text-[var(--text-primary)]">
-                    {profile?.name || "Admin"}
-                  </span>
-                  <span className="text-[13px] tabular-nums text-[var(--text-secondary)] block truncate">
-                    {profile?.email || user?.email}
-                  </span>
-                </div>
-              </div>
-
-              {/* Mobile Nav Links */}
-              <nav className="space-y-1">
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      setTab(item.id);
-                      setMobileNavOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-apfel font-bold cursor-pointer ${
-                      tab === item.id
-                        ? "bg-[var(--brand)] text-[var(--on-brand)]"
-                        : "text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/5"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </div>
-                    {item.badge !== undefined && (
-                      <span className="px-2 py-0.5 rounded-full text-[13px] tabular-nums bg-black/10 dark:bg-white/10">
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </nav>
-            </div>
-
-            <div className="space-y-2 pt-4 border-t border-black/5 dark:border-white/10">
-              <Link
-                href="/syllabus"
-                className="flex items-center justify-between px-3 py-2 text-xs tabular-nums text-[var(--text-secondary)]"
-              >
-                <span>Syllabus</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-600 cursor-pointer"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Log out</span>
-              </button>
-            </div>
-          </div>
-          <div className="flex-1" onClick={() => setMobileNavOpen(false)} />
-        </div>
-      )}
-
-      {/* DESKTOP SIDEBAR */}
-      <aside className="hidden md:flex flex-col justify-between w-64 lg:w-72 h-screen sticky top-0 bg-white/75 dark:bg-[#121211]/80 backdrop-blur-2xl border-r border-black/5 dark:border-white/10 p-5 shrink-0 z-30">
-        <div className="space-y-6">
-          {/* Logo Branding */}
-          <div className="flex items-center gap-2.5 px-1">
-            <Logo />
-            <div className="h-4 w-px bg-black/10 dark:bg-white/15" />
-            <span className="px-2.5 py-0.5 rounded-full text-[13px] tabular-nums font-bold tracking-wider bg-[var(--brand)] text-[var(--on-brand)]">
-              Admin console
-            </span>
-          </div>
-
-          {/* Admin Profile Card */}
-          <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[var(--brand)] text-[var(--on-brand)] flex items-center justify-center font-apfel font-bold text-sm shrink-0">
-              {profile?.name ? profile.name.charAt(0).toUpperCase() : "A"}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span className="font-apfel font-bold text-xs text-[var(--text-primary)] truncate">
-                  {profile?.name || "Administrator"}
-                </span>
-                <span className="px-1.5 py-0.2 rounded text-[13px] tabular-nums font-bold bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300">
-                  Super
-                </span>
-              </div>
-              <span className="text-[13px] tabular-nums text-[var(--text-secondary)] block truncate">
-                {profile?.email || user?.email}
-              </span>
-            </div>
-          </div>
-
-          {/* Navigation Links */}
-          <nav className="space-y-1.5">
-            <span className="text-[13px] tabular-nums font-bold uppercase tracking-wider text-[var(--text-secondary)] px-2 block mb-2">
-              Navigation
-            </span>
-            {navItems.map((item) => {
-              const active = tab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-apfel font-bold transition-all cursor-pointer ${
-                    active
-                      ? "bg-[var(--brand)] text-[var(--on-brand)] shadow-sm"
-                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && (
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[13px] tabular-nums ${
-                        active
-                          ? "bg-white/20 text-[var(--on-brand)] dark:bg-black/15 font-bold"
-                          : "bg-black/5 dark:bg-white/10 text-[var(--text-secondary)]"
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Sidebar Footer */}
-        <div className="space-y-3 pt-4 border-t border-black/5 dark:border-white/10">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs tabular-nums bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span>{studying} studying right now</span>
-          </div>
-
-          <Link
-            href="/syllabus"
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs tabular-nums text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <GraduationCap className="w-3.5 h-3.5" />
-              <span>Syllabus</span>
-            </span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </Link>
-
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Log out</span>
-          </button>
         </div>
       </aside>
 
-      {/* MAIN DASHBOARD CONTENT AREA */}
-      <main className="flex-1 w-full max-w-full min-w-0 p-3.5 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 overflow-x-hidden">
-        {/* Mobile Horizontal Quick Navigation Bar */}
-        <div className="md:hidden w-full overflow-x-auto pb-1 -mx-3.5 px-3.5 sm:mx-0 sm:px-0">
-          <div className="flex items-center gap-1.5 min-w-max">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setTab(item.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-apfel font-bold whitespace-nowrap shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${
-                  tab === item.id
-                    ? "bg-[var(--brand)] text-[var(--on-brand)] shadow-xs"
-                    : "bg-black/5 dark:bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                }`}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-                {item.badge !== undefined && (
-                  <span
-                    className={`px-1.5 py-0.2 rounded-full text-[13px] tabular-nums ${
-                      tab === item.id
-                        ? "bg-white/20 text-[var(--on-brand)] dark:bg-black/15 font-bold"
-                        : "bg-black/10 dark:bg-white/10 text-[var(--text-secondary)]"
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            ))}
+      <div className="adm-body">
+        <header className="cma-top adm-top">
+          <div className="adm-top-title">
+            <span className="adm-mobile-logo"><LogoMark size={32} /></span>
+            <div><span className="cma-eyebrow">Teacher console</span><h1>{TITLES[tab]}</h1></div>
           </div>
-        </div>
+          <div className="adm-top-actions">
+            {studying > 0 && <button type="button" className="adm-live" onClick={() => go("students")}><span className="cma-live-dot" />{studying} studying</button>}
+            {tab !== "publisher" && <button type="button" className="cma-primary adm-upload" onClick={() => go("publisher")}><PPlus size={17} weight="bold" aria-hidden="true" />Upload</button>}
+            <button type="button" className="adm-me-mobile" aria-label="Log out" onClick={handleSignOut}><span className="adm-avatar tint" data-tint="green">{initials(profile?.name ?? "T")}</span></button>
+          </div>
+        </header>
 
-        {/* Global Error Banner if any */}
+        <main className="adm-main">
         <ErrorText>{error || materialsError}</ErrorText>
 
-        {/* TOP ACTION & BREADCRUMB BAR */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 border-b border-black/5 dark:border-white/10">
-          <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-apfel font-bold text-[var(--text-primary)] mt-1 tracking-tight break-words">
-              {tab === "overview" && "Overview"}
-              {tab === "publisher" && "Add a video or PDF"}
-              {tab === "shelf" && "Published"}
-              {tab === "students" && "Students"}
-              {tab === "admins" && "Who can use admin"}
-            </h1>
-          </div>
+        {tab !== "overview" && (() => {
+          const hero = {
+            students: { art: "characters-playing-chess-game", tint: "blue", title: loading ? "Your class" : `${students.length} ${students.length === 1 ? "student" : "students"} in your class`, text: studying ? `${studying} studying right now. Tap anyone to see their days and sessions.` : "See who comes daily, who studies most, and who needs a nudge." },
+            publisher: { art: "person-using-smartphone-successfully", tint: "green", title: "Share a class with your students", text: "Pick the paper and chapter, add a title, and publish. It shows in their Library at once." },
+            shelf: { art: "character-reading-newspaper-with-coffee", tint: "amber", title: `${items?.length ?? 0} videos and PDFs published`, text: "Search, open or remove anything. For PDFs you can make AI flashcards and MCQs." },
+            admins: { art: "confident-person-walking", tint: "violet", title: "Choose who can manage the class", text: "Admins can upload, see every student and add other admins. Give this only to people you trust." },
+          }[tab];
+          return (
+            <section className="adm-hero" data-tint={hero.tint}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
+              <img src={`/illustrations/doodles/${hero.art}.svg`} alt="" className="doodle" />
+              <div><h2>{hero.title}</h2><p>{hero.text}</p></div>
+            </section>
+          );
+        })()}
 
-          {/* Quick KPIs / Action in Top Bar */}
-          <div className="flex items-center justify-between sm:justify-end gap-2 flex-wrap">
-            <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-[13px] sm:text-xs tabular-nums">
-              <span className="text-[var(--text-secondary)]">Students:</span>
-              <span className="font-bold text-[var(--text-primary)]">{students.length}</span>
-              <span className="text-black/20 dark:text-white/20">|</span>
-              <span className="text-[var(--text-secondary)]">Live:</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">{studying}</span>
-            </div>
-
-            {tab !== "publisher" && (
-              <button
-                type="button"
-                onClick={() => setTab("publisher")}
-                className="apple-glass-btn px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-apfel font-bold cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Upload</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* TAB 1: EXECUTIVE OVERVIEW */}
         {tab === "overview" && (
-          <div className="space-y-5 sm:space-y-6">
-            {/* 4 Metric Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-              <div className="apple-glass-card p-3.5 sm:p-5 space-y-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-[13px] sm:text-[13px] tabular-nums uppercase tracking-wider text-[var(--text-secondary)] truncate">
-                    Students
-                  </span>
-                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--text-secondary)] shrink-0" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-apfel font-bold text-[var(--text-primary)]">
-                  {students.length}
-                </div>
-                <span className="text-[13px] sm:text-[13px] tabular-nums text-[var(--text-secondary)] block truncate">
-                  Signed up
-                </span>
+          <div className="adm-overview">
+            <section className="adm-hello">
+              <div>
+                <span className="cma-eyebrow">{new Date(now).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</span>
+                <h2>{greet}, {first}</h2>
+                <p>{studying ? `${studying} ${studying === 1 ? "student is" : "students are"} studying right now.` : "Here is how your class is doing."}</p>
               </div>
+            </section>
 
-              <div className="apple-glass-card p-3.5 sm:p-5 space-y-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-[13px] sm:text-[13px] tabular-nums uppercase tracking-wider text-[var(--text-secondary)] truncate">
-                    Studying Now
-                  </span>
-                  <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-emerald-500" />
-                  </span>
-                </div>
-                <div className="text-2xl sm:text-3xl font-apfel font-bold text-[var(--text-primary)]">
-                  {studying}
-                </div>
-                <span className="text-[13px] sm:text-[13px] tabular-nums text-[var(--text-secondary)] block truncate">
-                  Timer running now
-                </span>
-              </div>
+            <section className="adm-kpis" aria-label="Class at a glance">
+              {[
+                { icon: PUsers, tint: "blue", value: students.length, label: "Students", note: newStudents ? `+${newStudents} this week` : "No new this week", go: "students" as const },
+                { icon: PBroadcast, tint: "green", value: studying, label: "Studying now", note: studying ? "Live in the last minute" : "No one right now", go: "students" as const },
+                { icon: PClock, tint: "violet", value: Math.round(totalStudySeconds / 3600), label: "Hours studied", note: "By all students", go: "students" as const },
+                { icon: PBooks, tint: "amber", value: items?.length ?? 0, label: "Videos and PDFs", note: newItems ? `+${newItems} this week` : "Add your first", go: "shelf" as const },
+              ].map(({ icon: Icon, ...k }) => (
+                <button type="button" key={k.label} onClick={() => go(k.go)}>
+                  <span className="tint" data-tint={k.tint}><Icon size={22} aria-hidden="true" /></span>
+                  <strong>{loading ? "—" : k.value}</strong>
+                  <span>{k.label}</span>
+                  <small>{k.note}</small>
+                </button>
+              ))}
+            </section>
 
-              <div className="apple-glass-card p-3.5 sm:p-5 space-y-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-[13px] sm:text-[13px] tabular-nums uppercase tracking-wider text-[var(--text-secondary)] truncate">
-                    Videos and PDFs
-                  </span>
-                  <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--text-secondary)] shrink-0" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-apfel font-bold text-[var(--text-primary)]">
-                  {items?.length ?? 0}
-                </div>
-                <span className="text-[13px] sm:text-[13px] tabular-nums text-[var(--text-secondary)] block truncate">
-                  Published
-                </span>
-              </div>
+            <button type="button" className="adm-cta" onClick={() => go("publisher")}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
+              <img src="/illustrations/doodles/person-working-on-laptop.svg" alt="" className="doodle" />
+              <span>
+                <span className="cma-eyebrow"><PSparkle size={14} aria-hidden="true" />Teach something new</span>
+                <b>Add a video or PDF</b>
+                <small>Students see it in their Library at once. AI can make flashcards and MCQs from PDFs.</small>
+                <span className="cma-primary"><PPlus size={17} weight="bold" aria-hidden="true" />Upload now</span>
+              </span>
+            </button>
 
-              <div className="apple-glass-card p-3.5 sm:p-5 space-y-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-[13px] sm:text-[13px] tabular-nums uppercase tracking-wider text-[var(--text-secondary)] truncate">
-                    Hours studied
-                  </span>
-                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--text-secondary)] shrink-0" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-apfel font-bold text-[var(--text-primary)]">
-                  {duration(totalStudySeconds)}
-                </div>
-                <span className="text-[13px] sm:text-[13px] tabular-nums text-[var(--text-secondary)] block truncate">
-                  By all students
-                </span>
-              </div>
-            </div>
-
-            {/* Quick Actions Bar */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <button
-                type="button"
-                onClick={() => setTab("publisher")}
-                className="apple-glass-card p-5 text-left hover:border-black/20 dark:hover:border-white/20 transition-all cursor-pointer group space-y-2"
-              >
-                <div className="w-10 h-10 rounded-2xl bg-black/5 dark:bg-white/10 flex items-center justify-center text-[var(--text-primary)] group-hover:bg-[var(--brand)] group-hover:text-[var(--on-brand)] transition-colors">
-                  <FileUp className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-apfel font-bold text-sm text-[var(--text-primary)]">
-                    Add a video or PDF →
-                  </h3>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    Upload it, and AI can make flashcards and MCQs.
-                  </p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setTab("shelf")}
-                className="apple-glass-card p-5 text-left hover:border-black/20 dark:hover:border-white/20 transition-all cursor-pointer group space-y-2"
-              >
-                <div className="w-10 h-10 rounded-2xl bg-black/5 dark:bg-white/10 flex items-center justify-center text-[var(--text-primary)] group-hover:bg-[var(--brand)] group-hover:text-[var(--on-brand)] transition-colors">
-                  <BookOpen className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-apfel font-bold text-sm text-[var(--text-primary)]">
-                    See what is published →
-                  </h3>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    Search, open or delete your {items?.length ?? 0} videos and PDFs.
-                  </p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setTab("students")}
-                className="apple-glass-card p-5 text-left hover:border-black/20 dark:hover:border-white/20 transition-all cursor-pointer group space-y-2"
-              >
-                <div className="w-10 h-10 rounded-2xl bg-black/5 dark:bg-white/10 flex items-center justify-center text-[var(--text-primary)] group-hover:bg-[var(--brand)] group-hover:text-[var(--on-brand)] transition-colors">
-                  <Users className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-apfel font-bold text-sm text-[var(--text-primary)]">
-                    Students →
-                  </h3>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    See each student’s details and study time.
-                  </p>
-                </div>
-              </button>
-            </div>
-
-            {/* 2-Column Split: Recent Materials & Active Students */}
-            <div className="grid lg:grid-cols-12 gap-6 items-start">
-              {/* Left: Latest Published Materials (7 cols) */}
-              <div className="lg:col-span-7 apple-glass-card p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-apfel font-bold text-base text-[var(--text-primary)]">
-                      Recently Published Materials
-                    </h3>
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      Latest items available to students in the library.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setTab("shelf")}
-                    className="text-xs tabular-nums font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] inline-flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>View all ({items?.length ?? 0})</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {!items || !items.length ? (
-                  <div className="py-8 text-center text-xs tabular-nums text-[var(--text-secondary)]">
-                    No materials published yet. Use Upload Content to publish your first video or PDF!
+            <div className="adm-cols">
+              <section className="adm-card" aria-labelledby="adm-recent">
+                <header><h3 id="adm-recent">Recent uploads</h3>{!!items?.length && <button type="button" className="cma-text-button" onClick={() => go("shelf")}>See all<PCaret size={15} aria-hidden="true" /></button>}</header>
+                {!items?.length ? (
+                  <div className="adm-empty">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
+                    <img src="/illustrations/doodles/character-with-phone-and-star.svg" alt="" className="doodle" />
+                    <b>Nothing published yet</b><span>Upload your first video or PDF for students.</span>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {items.slice(0, 4).map((m) => (
-                      <div
-                        key={m.id}
-                        className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 flex items-center justify-between gap-3"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                              m.type === "video"
-                                ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
-                                : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-                            }`}
-                          >
-                            {m.type === "video" ? <Video className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
-                          </div>
-                          <div className="min-w-0 space-y-0.5">
-                            <h4 className="font-apfel font-bold text-xs sm:text-sm text-[var(--text-primary)] truncate">
-                              {m.title}
-                            </h4>
-                            <p className="text-[13px] tabular-nums text-[var(--text-secondary)] truncate">
-                              {m.paperCode || `Paper ${m.subjectId || "?"}`} · {m.category || m.type.toUpperCase()} · {m.faculty || m.teacherName || "Admin"}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          {m.type === "pdf" && (
-                            <button
-                              type="button"
-                              onClick={() => triggerAiGeneration(m.id, m.title, m.subject || "", m.paperCode || `Paper ${m.subjectId || "?"}`)}
-                              className="text-[13px] tabular-nums font-bold text-amber-600 dark:text-amber-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
-                            >
-                              <Sparkles className="w-3 h-3 text-amber-500" />
-                              <span>AI Pack</span>
-                            </button>
-                          )}
-                          <Link
-                            href={`/learn/${m.id}`}
-                            target="_blank"
-                            className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
-                      </div>
+                  <ul className="adm-list">
+                    {items.slice(0, 5).map((m) => (
+                      <li key={m.id}>
+                        <span className="tint" data-tint={m.type === "video" ? "blue" : "amber"}>{m.type === "video" ? <PPlay size={18} weight="fill" aria-hidden="true" /> : <PFilePdf size={19} aria-hidden="true" />}</span>
+                        <span className="adm-list-main"><b>{m.title}</b><small>Paper {m.subjectId ?? "?"}{m.chapter ? ` · ${m.chapter}` : ""}</small></span>
+                        <small className="adm-when">{millis(m.createdAt) ? ago(millis(m.createdAt)) : ""}</small>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 )}
-              </div>
+              </section>
 
-              {/* Right: Enrolled Students Overview (5 cols) */}
-              <div className="lg:col-span-5 apple-glass-card p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-apfel font-bold text-base text-[var(--text-primary)]">
-                      Enrolled Students ({students.length})
-                    </h3>
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      Live focus status & progress.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setTab("students")}
-                    className="text-xs tabular-nums font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] inline-flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Students</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {!students.length ? (
-                  <div className="py-8 text-center text-xs tabular-nums text-[var(--text-secondary)]">
-                    No students enrolled yet.
+              <section className="adm-card" aria-labelledby="adm-live">
+                <header><h3 id="adm-live"><span className="cma-live-dot" />Studying now</h3><button type="button" className="cma-text-button" onClick={() => go("students")}>All students<PCaret size={15} aria-hidden="true" /></button></header>
+                {!liveList.length ? (
+                  <div className="adm-empty">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
+                    <img src="/illustrations/doodles/character-reading-newspaper-with-coffee.svg" alt="" className="doodle" />
+                    <b>No one is studying right now</b><span>When a student starts the timer, they show up here live.</span>
                   </div>
                 ) : (
-                  <div className="space-y-2.5">
-                    {students.slice(0, 5).map((s) => {
-                      const isLive = s.active && now - s.active.last < 90000;
-                      return (
-                        <div
-                          key={s.id}
-                          onClick={() => { setTab("students"); openStudent(s); }}
-                          className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 flex items-center justify-between gap-3 hover:border-black/20 dark:hover:border-white/20 transition-colors cursor-pointer"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="relative">
-                              <div className="w-8 h-8 rounded-full bg-[var(--brand)] text-[var(--on-brand)] flex items-center justify-center font-bold text-xs shrink-0">
-                                {s.name ? s.name.charAt(0).toUpperCase() : "S"}
-                              </div>
-                              {isLive && (
-                                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#111110]" />
-                              )}
-                            </div>
-                            <div className="min-w-0 space-y-0.5">
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-apfel font-bold text-xs text-[var(--text-primary)] truncate">
-                                  {s.name || "Student"}
-                                </span>
-                                {isLive && (
-                                  <span className="text-[13px] tabular-nums font-bold text-emerald-600 dark:text-emerald-400">
-                                    LIVE
-                                  </span>
-                                )}
-                              </div>
-                              <span className="text-[13px] tabular-nums text-[var(--text-secondary)] block truncate">
-                                {s.level || "CMA"} · {duration(s.totalSeconds || 0)} logged
-                              </span>
-                            </div>
-                          </div>
-
-                          <ChevronRight className="w-3.5 h-3.5 text-[var(--text-secondary)] shrink-0" />
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <ul className="adm-list">
+                    {liveList.map((s) => (
+                      <li key={s.id}>
+                        <span className="adm-avatar tint" data-tint="green" data-live="">{initials(s.name)}</span>
+                        <span className="adm-list-main"><b>{s.name}</b><small>Paper {s.active!.subject} · {SUBJECTS.find((x) => x.id === s.active!.subject)?.name}</small></span>
+                        <small className="adm-when">{duration((now - s.active!.startedAt) / 1000)}</small>
+                      </li>
+                    ))}
+                  </ul>
                 )}
-              </div>
+                {!!streakers.length && <>
+                  <h4 className="adm-sub">Longest streaks</h4>
+                  <ul className="adm-list">
+                    {streakers.map((s, i) => (
+                      <li key={s.id}>
+                        <span className="adm-rank">{i + 1}</span>
+                        <span className="adm-list-main"><b>{s.name}</b><small>CMA {s.level ?? "—"}</small></span>
+                        <span className="adm-streak"><PFire size={15} weight="fill" aria-hidden="true" />{s.streak}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>}
+              </section>
             </div>
           </div>
         )}
@@ -1607,7 +1191,7 @@ function AdminWorkspace() {
 
               <select
                 value={shelfTypeFilter}
-                onChange={(e) => setShelfTypeFilter(e.target.value as any)}
+                onChange={(e) => setShelfTypeFilter(e.target.value as "all" | "video" | "pdf")}
                 className="w-full sm:w-36 rounded-2xl border border-black/10 dark:border-white/15 bg-white/70 dark:bg-white/5 p-3 text-xs sm:text-sm font-semibold text-[var(--text-primary)]"
               >
                 <option value="all">All types</option>
@@ -1751,14 +1335,6 @@ function AdminWorkspace() {
           <div className="space-y-6">
             <div className="apple-glass-card p-6 sm:p-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-apfel font-bold text-[var(--text-primary)]">
-                    Enrolled Students
-                  </h2>
-                  <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
-                    Real-time study times, login check-ins, and active subjects.
-                  </p>
-                </div>
 
                 <div className="apple-glass-input-wrapper flex items-center px-4 py-2.5 gap-2 w-full sm:w-80">
                   <Search className="w-4 h-4 text-[var(--text-secondary)] shrink-0" />
@@ -1807,113 +1383,33 @@ function AdminWorkspace() {
                   )}
                 </div>
               ) : (
-                <div className="w-full overflow-x-auto -mx-3.5 px-3.5 sm:mx-0 sm:px-0">
-                  <table className="w-full min-w-[620px] text-left text-sm border-collapse">
-                    <thead>
-                      <tr className="border-b border-black/5 dark:border-white/10 text-[13px] tabular-nums uppercase text-[var(--text-secondary)]">
-                        <th className="py-3 px-4 font-bold">Student</th>
-                        <th className="py-3 px-4 font-bold">CMA Level</th>
-                        <th className="py-3 px-4 font-bold">Role</th>
-                        <th className="py-3 px-4 font-bold">Check-ins</th>
-                        <th className="py-3 px-4 font-bold">Focus Time</th>
-                        <th className="py-3 px-4 font-bold">Studying now</th>
-                        <th className="py-3 px-4 text-right font-bold">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-black/5 dark:divide-white/5 font-sans">
-                      {filteredStudents.map((student) => {
-                        const isLive = student.active && now - student.active.last < 90000;
-                        const subjectName = student.active?.subject
-                          ? SUBJECTS.find((s) => s.id === student.active?.subject)?.name
-                          : null;
-
-                        return (
-                          <tr
-                            key={student.id}
-                            onClick={() => openStudent(student)}
-                            className={`transition-colors cursor-pointer ${
-                              selected?.id === student.id
-                                ? "bg-black/5 dark:bg-white/10"
-                                : "hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
-                            }`}
-                          >
-                            <td className="py-3.5 px-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-bold text-xs shrink-0">
-                                  {student.name ? student.name.charAt(0).toUpperCase() : "U"}
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="font-semibold text-sm text-[var(--text-primary)] truncate">
-                                    {student.name || "Unnamed Student"}
-                                  </div>
-                                  <div className="text-xs tabular-nums text-[var(--text-secondary)] truncate">
-                                    {student.email}
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-
-                            <td className="py-3.5 px-4">
-                              <span className="px-2.5 py-1 rounded-full text-[13px] tabular-nums font-bold bg-black/5 dark:bg-white/10 text-[var(--text-primary)]">
-                                {student.level ? `CMA ${student.level}` : "Not Selected"}
-                              </span>
-                            </td>
-
-                            <td className="py-3.5 px-4">
-                              <span className={`px-2 py-0.5 rounded-full text-[13px] tabular-nums font-bold ${
-                                student.role === "teacher"
-                                  ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300"
-                                  : "bg-black/5 dark:bg-white/10 text-[var(--text-secondary)]"
-                              }`}>
-                                {student.role === "teacher" ? "Teacher" : "Student"}
-                              </span>
-                            </td>
-
-                            <td className="py-3.5 px-4 tabular-nums text-xs">
-                              <div className="font-bold text-[var(--text-primary)]">
-                                {student.checkinCount ?? 0} days
-                              </div>
-                              <div className="text-[13px] text-[var(--text-secondary)]">
-                                {student.lastCheckin ? `Last: ${student.lastCheckin}` : "No check-in"}
-                              </div>
-                            </td>
-
-                            <td className="py-3.5 px-4 tabular-nums text-xs">
-                              <div className="font-bold text-[var(--text-primary)]">
-                                {duration(student.totalSeconds)}
-                              </div>
-                              <div className="text-[13px] text-[var(--text-secondary)]">All-time</div>
-                            </td>
-
-                            <td className="py-3.5 px-4">
-                              {isLive ? (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs tabular-nums font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                                  <Radio className="w-3.5 h-3.5 animate-pulse" />
-                                  Studying {subjectName || "Subject"}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-[var(--text-secondary)] line-clamp-1">
-                                  {student.lastMaterial || "No active session"}
-                                </span>
-                              )}
-                            </td>
-
-                            <td className="py-3.5 px-4 text-right">
-                              <button
-                                type="button"
-                                onClick={() => openStudent(student)}
-                                className="px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10 text-xs font-semibold inline-flex items-center gap-1 cursor-pointer"
-                              >
-                                <span>Details</span>
-                                <ChevronRight className="w-3.5 h-3.5" />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                <ul className="adm-roster">
+                  {filteredStudents.map((student) => {
+                    const isLive = !!student.active && now - student.active.last < 90000;
+                    const subjectName = student.active?.subject ? SUBJECTS.find((x) => x.id === student.active?.subject)?.name : null;
+                    return (
+                      <li key={student.id}>
+                        <button type="button" onClick={() => openStudent(student)} aria-current={selected?.id === student.id ? "true" : undefined}>
+                          <span className="adm-avatar tint" data-tint={isLive ? "green" : "blue"} data-live={isLive ? "" : undefined}>{initials(student.name || "S")}</span>
+                          <span className="adm-roster-who">
+                            <b>{student.name || "Unnamed student"}</b>
+                            <small>{student.email}</small>
+                            <span className="adm-chips">
+                              <span>{student.level ? `CMA ${student.level}` : "Level not set"}</span>
+                              {student.role === "teacher" && <span data-teacher="">Teacher</span>}
+                            </span>
+                          </span>
+                          <span className="adm-roster-stats">
+                          <span className="adm-roster-stat" data-n="1"><b>{student.checkinCount ?? 0}</b><small>days present</small></span>
+                          <span className="adm-roster-stat" data-n="2"><b>{duration(student.totalSeconds)}</b><small>studied</small></span>
+                          </span>
+                          <span className="adm-roster-now" data-live={isLive ? "" : undefined}>{isLive ? <><span className="cma-live-dot" />{subjectName || "Studying"}</> : student.lastMaterial || "Not studying"}</span>
+                          <PCaret size={18} className="adm-roster-go" aria-hidden="true" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
               )}
             </div>
 
@@ -1941,7 +1437,17 @@ function AdminWorkspace() {
             </div>
           </div>
         )}
-      </main>
+        </main>
+      </div>
+
+      {/* Phone: the same glass tab bar students know, with Upload in the middle. */}
+      <nav className="adm-tabbar" aria-label="Admin menu">
+        {NAV.map(({ id, label, icon: Icon }) => (
+          <button key={id} type="button" aria-current={tab === id ? "page" : undefined} data-upload={id === "publisher" ? "" : undefined} onClick={() => go(id)}>
+            <Icon size={id === "publisher" ? 26 : 24} weight={tab === id || id === "publisher" ? "fill" : "duotone"} aria-hidden="true" /><span>{label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }

@@ -202,7 +202,7 @@ function AutoPlan({ onPlan }: { onPlan: (plan: SavedPlan | null) => void }) {
       {plan.tip && (
         <section className="plan-coach" aria-label="Tip from your AI coach">
           {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-          <img src="/illustrations/doodles/character-talking-to-robot-chatbot.svg" alt="" className="doodle" />
+          <img src="/illustrations/doodles/person-skydiving-with-parachute.svg" alt="" className="doodle" />
           <div>
             <span className="cma-eyebrow"><Sparkles size={14} aria-hidden="true" />Your AI coach</span>
             <p>{plan.tip}</p>
