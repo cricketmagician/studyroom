@@ -3,49 +3,52 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #F7F6F2;
+  /* Teal + mint, taken from the Surface illustrations (mint #64FCD9, ink #00160A, sun #FFB61D). */
+  --bg-primary: #F6F8F7;
   --bg-surface: #FFFFFF;
-  --bg-surface-subtle: #FAFAF8;
+  --bg-surface-subtle: #F9FBFA;
   --bg-card: #FFFFFF;
-  --text-primary: #111110;
-  --text-secondary: #6E6D68;
-  --text-muted: #96948D;
-  --accent: #111110;
-  --accent-hover: #262624;
-  --accent-light: rgba(17, 17, 16, 0.06);
-  --accent-text: #111110;
-  --border-color: #E8E6E0;
-  --border-subtle: #F1EFEA;
-  --ring-color: rgba(17, 17, 16, 0.12);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 16px 36px -6px rgba(0, 0, 0, 0.08);
+  --text-primary: #0B1F17;
+  --text-secondary: #5B6B64;
+  --text-muted: #8B9893;
+  --accent: #0B1F17;
+  --accent-hover: #13302A;
+  --accent-light: rgba(11, 31, 23, 0.06);
+  --accent-text: #0B1F17;
+  --border-color: #E2E8E5;
+  --border-subtle: #EEF2F0;
+  --ring-color: rgba(14, 124, 107, 0.18);
+  --shadow-sm: 0 1px 2px 0 rgba(11, 31, 23, 0.04);
+  --shadow-md: 0 4px 16px -2px rgba(11, 31, 23, 0.06);
+  --shadow-lg: 0 16px 36px -6px rgba(11, 31, 23, 0.10);
   /* Golden-ratio system: type steps by √φ (1.272) from 16px; spacing and radii follow Fibonacci. */
   --fs-1: 13px; --fs-2: 16px; --fs-3: 20px; --fs-4: 26px; --fs-5: 33px; --fs-6: 42px; --fs-7: 68px;
   --sp-1: 5px; --sp-2: 8px; --sp-3: 13px; --sp-4: 21px; --sp-5: 34px; --sp-6: 55px; --sp-7: 89px;
   --r-1: 8px; --r-2: 13px; --r-3: 21px;
-  /* One brand colour for every main action, progress bar and active tab. */
-  --brand: #465d40; --brand-hover: #35492f; --brand-soft: #e7edd9; --brand-ink: #35492f; --on-brand: #ffffff;
-  --flame: #c8561f;
+  /* One brand colour for every main action, progress bar and active tab. Orange is only for the streak. */
+  --brand: #0E7C6B; --brand-hover: #0A6557; --brand-soft: #D9F7EF; --brand-ink: #0A5A4E; --on-brand: #ffffff;
+  --mint: #64FCD9; --sun: #FFB61D;
+  --flame: #FF7A1A;
 }
 
 .dark {
-  --brand: #a9c49a; --brand-hover: #bdd4af; --brand-soft: rgba(169, 196, 154, 0.14); --brand-ink: #c5dab8; --on-brand: #13200f;
-  --flame: #f0915f;
-  --bg-primary: #121211;
-  --bg-surface: #1B1B19;
-  --bg-surface-subtle: #222220;
-  --bg-card: #1B1B19;
-  --text-primary: #F7F6F2;
-  --text-secondary: #9B9992;
-  --text-muted: #6C6B65;
+  --brand: #3EE0BC; --brand-hover: #6BEACD; --brand-soft: rgba(62, 224, 188, 0.14); --brand-ink: #8CF0D7; --on-brand: #04221A;
+  --mint: #3EE0BC; --sun: #FFC64D;
+  --flame: #FF9A52;
+  --bg-primary: #0B1512;
+  --bg-surface: #12201B;
+  --bg-surface-subtle: #172821;
+  --bg-card: #12201B;
+  --text-primary: #ECF5F1;
+  --text-secondary: #9AABA4;
+  --text-muted: #66776F;
   --accent: #FFFFFF;
-  --accent-hover: #E8E8E6;
+  --accent-hover: #E3EEEA;
   --accent-light: rgba(255, 255, 255, 0.09);
   --accent-text: #FFFFFF;
-  --border-color: #2B2A27;
-  --border-subtle: #222220;
-  --ring-color: rgba(255, 255, 255, 0.18);
+  --border-color: #20332C;
+  --border-subtle: #172821;
+  --ring-color: rgba(62, 224, 188, 0.24);
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 16px 36px -6px rgba(0, 0, 0, 0.6);
@@ -56,8 +59,8 @@
 }
 
 /* Coloured icon tiles: each kind of thing keeps one colour everywhere (video blue, PDF amber, time green…). */
-:root { --tint-blue:#2f5bd3; --tint-blue-bg:#e7eeff; --tint-amber:#a5650a; --tint-amber-bg:#fff1d1; --tint-green:#35492f; --tint-green-bg:#e3ecd6; --tint-pink:#c2386a; --tint-pink-bg:#ffe5ee; --tint-violet:#6a4fd6; --tint-violet-bg:#efeaff; --tint-orange:#c8561f; --tint-orange-bg:#ffe9dc; }
-.dark { --tint-blue:#8fb0ff; --tint-blue-bg:rgba(110,150,255,.16); --tint-amber:#f3c25e; --tint-amber-bg:rgba(243,194,94,.15); --tint-green:#b6d3a6; --tint-green-bg:rgba(169,196,154,.15); --tint-pink:#ff9cbf; --tint-pink-bg:rgba(255,120,170,.15); --tint-violet:#b9a6ff; --tint-violet-bg:rgba(170,150,255,.16); --tint-orange:#ffa77a; --tint-orange-bg:rgba(255,150,100,.15); }
+:root { --tint-blue:#2f5bd3; --tint-blue-bg:#e7eeff; --tint-amber:#a5650a; --tint-amber-bg:#fff1d1; --tint-green:#0A6557; --tint-green-bg:#D9F7EF; --tint-pink:#c2386a; --tint-pink-bg:#ffe5ee; --tint-violet:#6a4fd6; --tint-violet-bg:#efeaff; --tint-orange:#E0620A; --tint-orange-bg:#FFEBDC; }
+.dark { --tint-blue:#8fb0ff; --tint-blue-bg:rgba(110,150,255,.16); --tint-amber:#FFB61D; --tint-amber-bg:rgba(243,194,94,.15); --tint-green:#8CF0D7; --tint-green-bg:rgba(62,224,188,.14); --tint-pink:#ff9cbf; --tint-pink-bg:rgba(255,120,170,.15); --tint-violet:#b9a6ff; --tint-violet-bg:rgba(170,150,255,.16); --tint-orange:#ffa77a; --tint-orange-bg:rgba(255,150,100,.15); }
 .tint { display:inline-grid; place-items:center; flex-shrink:0; border-radius:13px; }
 .tint[data-tint="blue"] { color:var(--tint-blue); background:var(--tint-blue-bg); }
 .tint[data-tint="amber"] { color:var(--tint-amber); background:var(--tint-amber-bg); }
@@ -188,9 +191,9 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 .text-shimmer-highlight {
   background: linear-gradient(
     90deg,
-    #111110 0%,
+    #0B1F17 0%,
     #777777 50%,
-    #111110 100%
+    #0B1F17 100%
   );
   background-size: 200% auto;
   color: transparent;

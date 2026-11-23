@@ -53,3 +53,11 @@ ui-debug.log
 /functions/lib/
 /functions/.secret.local
 !.env.example
+
+/public/pdf/pdf.worker.min.mjs
+
+# Local-only: APKs live on Vercel Blob, Android build output, and iCloud duplicate folders
+/public/*.apk
+/public/download/*.apk
+/android/app/build/
+/android 2/

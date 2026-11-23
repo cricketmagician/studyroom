@@ -116,8 +116,7 @@ function AutoPlan({ onPlan }: { onPlan: (plan: SavedPlan | null) => void }) {
 
   useEffect(() => { if (plan !== undefined) onPlan(plan); }, [plan, onPlan]);
 
-  const level = detail?.state.level ?? profile?.level ?? "Intermediate";
-  const papers = SUBJECTS.filter((x) => x.level === level);
+  const papers = SUBJECTS;
   const tint = (id: string) => TINTS[Math.max(0, papers.findIndex((x) => x.id === id)) % TINTS.length];
   const openSetup = () => {
     setForm(plan?.setup ?? { goalMinutes: detail?.state.dailyGoalMinutes ?? DEFAULT_GOAL_MINUTES, examTerm: detail?.state.targetExam ?? examTerms()[0], weak: [], restDays: [0], days: 7 });
@@ -144,7 +143,7 @@ function AutoPlan({ onPlan }: { onPlan: (plan: SavedPlan | null) => void }) {
       {making && (
         <div className="plan-making" role="status" aria-live="polite">
           {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-          <img src="/illustrations/doodles/character-talking-to-robot-chatbot.svg" alt="" className="doodle" />
+          <img src="/illustrations/surface/waiting-loading.svg" alt="" className="doodle" />
           <h2>Making your {form.days}-day plan</h2>
           <ol>{MAKING_STEPS.map((t, i) => <li key={t} data-state={i < step ? "done" : i === step ? "now" : undefined}><span>{i < step ? <Check size={14} strokeWidth={3} aria-hidden="true" /> : null}</span>{t}</li>)}</ol>
           <div className="plan-making-bar" aria-hidden="true"><span /></div>
@@ -170,7 +169,7 @@ function AutoPlan({ onPlan }: { onPlan: (plan: SavedPlan | null) => void }) {
     <>
       <section className="plan-intro">
         {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-        <img src="/illustrations/doodles/person-working-on-laptop.svg" alt="" className="doodle" />
+        <img src="/illustrations/surface/business-plan.svg" alt="" className="doodle" />
         <div>
           <span className="cma-eyebrow"><Sparkles size={14} aria-hidden="true" />AI study plan</span>
           <h2>Tell us 4 things. AI plans your next 7, 15 or 30 days.</h2>
@@ -202,7 +201,7 @@ function AutoPlan({ onPlan }: { onPlan: (plan: SavedPlan | null) => void }) {
       {plan.tip && (
         <section className="plan-coach" aria-label="Tip from your AI coach">
           {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-          <img src="/illustrations/doodles/person-skydiving-with-parachute.svg" alt="" className="doodle" />
+          <img src="/illustrations/surface/mind-blowing.svg" alt="" className="doodle" />
           <div>
             <span className="cma-eyebrow"><Sparkles size={14} aria-hidden="true" />Your AI coach</span>
             <p>{plan.tip}</p>
@@ -216,7 +215,7 @@ function AutoPlan({ onPlan }: { onPlan: (plan: SavedPlan | null) => void }) {
         <header>
           {todayPlan && (!todayPlan.blocks.length || todayDone >= todayGoal) && (
             // eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration.
-            <img className="plan-today-art doodle" alt="" src={todayPlan.blocks.length ? "/illustrations/doodles/person-using-smartphone-successfully.svg" : "/illustrations/doodles/character-running-with-kite.svg"} />
+            <img className="plan-today-art doodle" alt="" src={todayPlan.blocks.length ? "/illustrations/surface/done.svg" : "/illustrations/surface/yoga-relax.svg"} />
           )}
           <div><h2 id="plan-today-title">Today</h2><p>{!todayPlan ? "Your plan has ended. Make a new one." : !todayPlan.blocks.length ? "Rest day. Relax, and come back fresh tomorrow." : todayDone >= todayGoal ? "All done for today. Well done!" : `${todayDone} of ${todayGoal} minutes done. Press Start, and it ticks itself off.`}</p></div>
           {!!todayGoal && <progress value={todayDone} max={todayGoal} aria-label="Today's plan done" />}

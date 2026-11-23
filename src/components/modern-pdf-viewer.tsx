@@ -1,4 +1,6 @@
 "use client";
+import { isNative } from '@/lib/native';
+import { MobilePdfReader } from '@/components/mobile-pdf-reader';
 
 import React, { useState, useEffect } from "react";
 import {
@@ -51,6 +53,8 @@ export function ModernPdfViewer({
   onMarkCompleted,
   isCompleted = false,
 }: ModernPdfViewerProps) {
+  const [androidReader,setAndroidReader]=useState(false);
+  useEffect(()=>setAndroidReader(isNative()),[]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(28);
   const [zoomLevel, setZoomLevel] = useState(100);
@@ -100,17 +104,17 @@ export function ModernPdfViewer({
 
   const themeStyles = {
     day: {
-      bg: "bg-[#F8F7F3]",
-      pageBg: "bg-white text-[#111110] border-[#E8E5DD]",
-      headerBg: "bg-white/95 border-[#EBE8E1] text-[#111110]",
-      toolbarBg: "bg-white border-[#EBE8E1] text-[#111110]",
+      bg: "bg-[#F6F8F7]",
+      pageBg: "bg-white text-[#0B1F17] border-[#E8E5DD]",
+      headerBg: "bg-white/95 border-[#E2E8E5] text-[#0B1F17]",
+      toolbarBg: "bg-white border-[#E2E8E5] text-[#0B1F17]",
       subtext: "text-[#71717A]",
     },
     sepia: {
       bg: "bg-[#F5EFE6]",
-      pageBg: "bg-[#FAF4EC] text-[#2C241B] border-[#E8DEC8]",
-      headerBg: "bg-[#F3E9DA]/95 border-[#E6DAC4] text-[#2C241B]",
-      toolbarBg: "bg-[#FAF4EC] border-[#E6DAC4] text-[#2C241B]",
+      pageBg: "bg-[#FAF4EC] text-[#1C2A25] border-[#E8DEC8]",
+      headerBg: "bg-[#F3E9DA]/95 border-[#E6DAC4] text-[#1C2A25]",
+      toolbarBg: "bg-[#FAF4EC] border-[#E6DAC4] text-[#1C2A25]",
       subtext: "text-[#7A6A55]",
     },
     night: {
@@ -224,7 +228,7 @@ export function ModernPdfViewer({
             <button
               onClick={() => setTheme("sepia")}
               className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
-                theme === "sepia" ? "bg-[#D9C4A5] text-[#2C241B] font-bold" : "text-[#71717A]"
+                theme === "sepia" ? "bg-[#D9C4A5] text-[#1C2A25] font-bold" : "text-[#71717A]"
               }`}
               title="Sepia Focus (Eye Comfort)"
             >
@@ -245,7 +249,7 @@ export function ModernPdfViewer({
           <button
             onClick={() => setShowSidebar(!showSidebar)}
             className={`px-3 py-1.5 rounded-2xl border text-xs font-semibold font-apfel flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors ${
-              showSidebar ? "bg-[#111110] text-white" : themeStyles.toolbarBg
+              showSidebar ? "bg-[#0B1F17] text-white" : themeStyles.toolbarBg
             }`}
             title="Study Notes & Table of Contents"
           >
@@ -258,8 +262,8 @@ export function ModernPdfViewer({
             onClick={handleToggleComplete}
             className={`px-3 py-1.5 rounded-2xl text-xs font-semibold font-apfel flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all ${
               completed
-                ? "bg-[#10B981] text-white shadow-xs"
-                : "bg-white border border-[#EBE8E1] text-[#111110] hover:bg-gray-50"
+                ? "bg-[#0E7C6B] text-white shadow-xs"
+                : "bg-white border border-[#E2E8E5] text-[#0B1F17] hover:bg-gray-50"
             }`}
           >
             <Check className="w-3.5 h-3.5 stroke-[3]" />
@@ -290,11 +294,11 @@ export function ModernPdfViewer({
             {hasDirectPdf ? (
               // Embedded In-App PDF View Frame (Modern Native Iframe without browser clutter)
               <div className="w-full h-[82vh] rounded-[24px] overflow-hidden border shadow-lg bg-white relative">
-                <iframe
+                {androidReader ? <MobilePdfReader url={document.url!} title={document.title}/> : <iframe
                   src={`${document.url}#toolbar=0&navpanes=0`}
                   title={document.title}
                   className="w-full h-full border-none"
-                />
+                />}
               </div>
             ) : (
               // High-Fidelity Modern CMA Interactive Digital Reader

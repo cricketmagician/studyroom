@@ -8,7 +8,7 @@ Login and registration include Google sign-in. Enable Google in Firebase Authent
 
 The library follows subject collections → PDF/video resource lists, with saved-resource filtering and completion progress. The home screen prioritizes the study timer and an editable, account-saved daily goal. Footer navigation has four primary destinations and an accessible More dialog for the remaining tools. See `docs/ui-ux-audit.md` for the source audit and redesign decisions.
 
-The home dashboard supports Foundation, Intermediate and Final papers from ICMAI Syllabus 2022 (including Final electives). It uses the supplied Apfel Grotezk and Absans fonts, supplied OutlineTone/Hipster illustrations, and a Tegaki-generated handwriting SVG.
+The home dashboard supports Foundation, Intermediate and Final papers from ICMAI Syllabus 2022 (including Final electives). It uses the supplied Apfel Grotezk and Absans fonts, Surface Pack illustrations by Treetop (Figma Community), and a Tegaki-generated handwriting SVG.
 
 - Students register with their CMA level and are checked in automatically once per India calendar day when they open the app. They can start/pause a subject timer, mark materials done, keep notes/tasks and invite friends through a link valid for seven days.
 - Focus time is saved by date and subject, including sessions crossing India midnight. Progress shows today, the Monday–Sunday week, this month and all time. The recent daily breakdown covers 90 days; older daily records remain stored. Previously saved all-time totals are preserved.

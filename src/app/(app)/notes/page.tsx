@@ -105,7 +105,7 @@ function Notes() {
       ) : empty ? (
         <div className={`${cardClass} p-8 text-center`}>
           {/* eslint-disable-next-line @next/next/no-img-element -- local doodle */}
-          <img className="doodle block w-[144px] h-[144px] mx-auto object-contain" src="/illustrations/doodles/character-reading-newspaper-with-coffee.svg" alt="" loading="lazy" />
+          <img className="doodle block w-[144px] h-[144px] mx-auto object-contain" src="/illustrations/surface/writing.svg" alt="" loading="lazy" />
           <h2 className="mt-4">No notes yet</h2>
           <p className="mt-1 text-base text-[var(--text-secondary)]">Write down what you learn. You can add photos of your notes too.</p>
           <button onClick={newNote} disabled={busy} className={`${pillButton} mt-5 h-11 px-6 text-sm bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--on-brand)]`}>

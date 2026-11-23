@@ -1,3 +1,4 @@
+import { sendMobilePush } from '@/lib/server/mobile-push';
 import { randomInt, randomUUID } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/server/firebase-admin';
@@ -219,6 +220,7 @@ export async function POST(request: Request) {
                 createdAt: now,
             };
             const docRef = await adminDb.collection(`friendships/${chatId}/messages`).add(newMsg);
+            await sendMobilePush(body.friendId, 'New study buddy message', `${newMsg.senderName} sent you a message.`, '/?view=Friends').catch(() => console.warn('Buddy notification could not be delivered.'));
             return Response.json({ ok: true, message: { id: docRef.id, ...newMsg } });
         }
         if (body.action === 'challenge_list') {

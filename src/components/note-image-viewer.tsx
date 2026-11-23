@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Download, Maximize, Minus, Plus, X } from 'lucide-react';
 import { boundView, FIT_VIEW, ImageBounds, ImageView, pinchView, Point, zoomView } from '@/lib/image-view';
 import './note-image-viewer.css';
+import { isNative, shareLocalImage } from '@/lib/native';
 
 export function NoteImageViewer({image,onClose}:{image:{name:string;url:string};onClose:()=>void}) {
   const dialog=useRef<HTMLDialogElement>(null),stage=useRef<HTMLDivElement>(null),photo=useRef<HTMLImageElement>(null);
@@ -11,6 +12,7 @@ export function NoteImageViewer({image,onClose}:{image:{name:string;url:string};
   const pointers=useRef(new Map<number,Point>()),frame=useRef(0),animated=useRef(false);
   const tap=useRef<{at:number;point:Point}|null>(null),start=useRef<Point|null>(null),moved=useRef(false),pointerType=useRef('mouse');
   const [view,setView]=useState(FIT_VIEW),[size,setSize]=useState({width:0,height:0}),[smooth,setSmooth]=useState(false),[error,setError]=useState(false);
+  const [exportError,setExportError]=useState('');
   function apply(next:ImageView,animate=false) {
     current.current=boundView(next,bounds.current);animated.current=animate;
     if(!frame.current)frame.current=requestAnimationFrame(()=>{frame.current=0;setView(current.current);setSmooth(animated.current);});
@@ -63,7 +65,7 @@ export function NoteImageViewer({image,onClose}:{image:{name:string;url:string};
     const offset={ArrowLeft:[50,0],ArrowRight:[-50,0],ArrowUp:[0,50],ArrowDown:[0,-50]}[event.key];
     if(offset)apply({...current.current,x:current.current.x+offset[0],y:current.current.y+offset[1]},true);
   }}>
-    <header><div><span>YOUR NOTE · ORIGINAL IMAGE</span><strong>{image.name}</strong></div><a href={image.url} download={image.name} aria-label="Download original image"><Download size={21}/></a><button autoFocus onClick={()=>dialog.current?.close()} aria-label="Close photo viewer"><X size={23}/></button></header>
+    <header><div><span>YOUR NOTE · ORIGINAL IMAGE</span><strong>{image.name}</strong></div><a onClick={event=>{if(isNative()){event.preventDefault();setExportError('');void shareLocalImage(image.url,image.name).catch(()=>setExportError('Could not export this photo. Please try again.'));}}} href={image.url} download={image.name} aria-label="Download original image"><Download size={21}/></a><button autoFocus onClick={()=>dialog.current?.close()} aria-label="Close photo viewer"><X size={23}/></button></header>
     <div ref={stage} className="note-image-stage" tabIndex={0} aria-label="Zoomable image. Use plus or minus to zoom, arrow keys to pan, and zero to fit." data-zoomed={view.scale>1}
       onDoubleClick={e=>{if(pointerType.current==='mouse')toggle(point(e.clientX,e.clientY));}}
       onPointerDown={e=>{
@@ -83,6 +85,7 @@ export function NoteImageViewer({image,onClose}:{image:{name:string;url:string};
       }} onPointerUp={endPointer} onPointerCancel={endPointer} onLostPointerCapture={endPointer}>
       {error ? <p role="alert">This image could not be opened. Close the viewer and try again.</p> : <img ref={photo} src={image.url} alt={image.name} draggable={false} onLoad={measure} onError={()=>setError(true)} data-smooth={smooth} style={{width:size.width || undefined,height:size.height || undefined,opacity:size.width ? 1 : 0,transform:`translate3d(${view.x}px,${view.y}px,0) scale(${view.scale})`}}/>}
     </div>
+    {exportError && <p role="alert">{exportError}</p>}
     <footer><div role="group" aria-label="Image zoom controls"><button disabled={view.scale<=1 || !size.width} aria-label="Zoom out" onClick={()=>zoom(current.current.scale/1.25)}><Minus size={20}/></button><output aria-label="Zoom relative to fit">{view.scale.toFixed(1)}×</output><button disabled={view.scale>=8 || !size.width} aria-label="Zoom in" onClick={()=>zoom(current.current.scale*1.25)}><Plus size={20}/></button><button className="note-image-fit" aria-label="Fit image to screen" onClick={()=>apply(FIT_VIEW,true)}><Maximize size={17}/>Fit</button></div><p>Pinch or scroll to zoom · Drag to move · Double-tap to zoom · Esc to close</p></footer>
   </dialog>;
 }

@@ -29,21 +29,16 @@ export async function POST(request: Request) {
     if (body?.action !== "make") throw new HttpError(400, "Unknown request.");
 
     const base = adminDb.doc(`studyUsers/${user.uid}`);
-    const [state, profile, daily] = await Promise.all([
-      base.get(),
-      adminDb.doc(`profiles/${user.uid}`).get(),
-      base.collection("daily").orderBy("day", "desc").limit(14).get(),
-    ]);
-    const level = String(state.get("level") ?? profile.get("level") ?? "Intermediate");
+    const daily = await base.collection("daily").orderBy("day", "desc").limit(14).get();
     const today = indiaDay(Date.now());
     const recent: Record<string, number> = {};
     for (const d of daily.docs) if (d.get("day") < today) for (const [id, sec] of Object.entries((d.get("subjects") ?? {}) as Record<string, number>)) recent[id] = (recent[id] ?? 0) + sec;
-    const papers = SUBJECTS.filter((s) => s.level === level && (!/^20[ABC]$/.test(s.id) || recent[s.id]));
+    const papers = SUBJECTS;
     const setup = checkSetup(body.setup, papers.map((p) => p.id));
     if (typeof setup === "string") throw new HttpError(400, setup);
 
     await base.set({ dailyGoalMinutes: setup.goalMinutes, targetExam: setup.examTerm }, { merge: true });
-    const fallback = buildPlan({ level, goalMinutes: setup.goalMinutes, recent, today, days: setup.days, weak: setup.weak, restDays: setup.restDays });
+    const fallback = buildPlan({ goalMinutes: setup.goalMinutes, recent, today, days: setup.days, weak: setup.weak, restDays: setup.restDays });
 
     let plan: Plan = { setup, days: fallback, tip: null, source: "auto", createdAt: Date.now() };
     try {
@@ -58,7 +53,7 @@ export async function POST(request: Request) {
       const ai = gemini();
       const parts = await Promise.all(weeks.map(async (week, k) => {
         const brief = {
-          level, part: `${k + 1} of ${weeks.length}`, exam: `${setup.examTerm} (about ${exam}, ${daysBetween(today, exam)} days away)`, dailyMinutes: setup.goalMinutes, dates: week, weakPapers: setup.weak,
+          level: "CMA Intermediate", part: `${k + 1} of ${weeks.length}`, exam: `${setup.examTerm} (about ${exam}, ${daysBetween(today, exam)} days away)`, dailyMinutes: setup.goalMinutes, dates: week, weakPapers: setup.weak,
           hoursStudiedLast14Days: Object.fromEntries(papers.map((p) => [p.id, Math.round((recent[p.id] ?? 0) / 360) / 10])),
           papers: papers.map((p) => ({ id: p.id, name: p.name, difficulty: SYLLABUS_DATA.find((x) => x.id === p.id)?.scoringDifficulty, chapters: sliceFor(p.id, k) })),
         };

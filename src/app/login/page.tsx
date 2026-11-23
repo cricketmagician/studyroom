@@ -32,18 +32,18 @@ export default function LoginPage() {
 
   return (
     <AuthCard title="Welcome back" subtitle="Log in to keep your streak going.">
+      <GoogleSignIn busy={busy} onBusy={setBusy} onError={setError}/>
       <form method="post" onSubmit={handleSubmit}>
         <Field label="Email" name="email" type="email" autoComplete="email" />
         <Field label="Password" name="password" type="password" autoComplete="current-password" />
-        <Link href="/forgot-password" className="-mt-2 justify-self-end text-sm font-semibold text-[var(--accent-text)] hover:underline">Forgot password?</Link>
+        <Link href="/forgot-password" className="auth-forgot">Forgot password?</Link>
         <ErrorText>{error}</ErrorText>
         <button type="submit" disabled={busy} className={buttonClass}>
           {busy ? "Logging in…" : "Log in"}
         </button>
       </form>
-      <GoogleSignIn busy={busy} onBusy={setBusy} onError={setError}/>
-      <p className="mt-8 text-center text-sm text-[var(--text-secondary)]">
-        New here? <Link href="/register" className="font-semibold text-[var(--accent-text)] hover:underline">Create account</Link>
+      <p className="auth-switch">
+        New here? <Link href="/register">Create a free account</Link>
       </p>
     </AuthCard>
   );

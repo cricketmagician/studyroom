@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#FAF9F4">
+  <title>Abhyas · Daily CMA practice</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at 50% 45%, #FCFBF7 0%, #FAF9F4 60%, #F2EFE6 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      overflow: hidden; -webkit-user-select: none; user-select: none;
+    }
+    .splash-container {
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      margin-top: -30px;
+    }
+    .badge {
+      width: 96px; height: 96px; border-radius: 26px;
+      background: linear-gradient(135deg, #4A6443 0%, #32472E 100%);
+      box-shadow: 0 16px 36px -8px rgba(36, 56, 33, 0.28), 0 4px 10px -2px rgba(0,0,0,0.08);
+      border: 1px solid rgba(96, 125, 90, 0.6);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; margin-bottom: 24px;
+    }
+    .sun {
+      position: absolute; top: 18px; width: 22px; height: 22px; border-radius: 50%;
+      background: #F3C25E;
+    }
+    .book {
+      position: absolute; bottom: 20px; width: 62px; height: 26px;
+    }
+    .wordmark {
+      font-size: 34px; font-weight: 800; color: #18251A; letter-spacing: -1px;
+      margin-bottom: 8px; line-height: 1;
+    }
+    .dot { color: #F3C25E; }
+    .subtitle {
+      font-size: 11px; font-weight: 700; color: #657763; letter-spacing: 3.5px;
+      text-transform: uppercase;
+    }
+    .hallmark {
+      position: absolute; bottom: 36px;
+      font-size: 10px; font-weight: 600; color: #889786; letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-container">
+    <div class="badge">
+      <div class="sun"></div>
+      <svg class="book" viewBox="0 0 62 26" fill="none">
+        <path d="M 3 6 C 16 -3 24 -3 31 5 C 38 -3 46 -3 59 6" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 3 17 C 16 8 24 8 31 16 C 38 8 46 8 59 17" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+      </svg>
+    </div>
+    <div class="wordmark">abhyas<span class="dot">.</span></div>
+    <div class="subtitle">Daily CMA Practice</div>
+  </div>
+  <div class="hallmark">For CMA Aspirants</div>
+</body>
+</html>

@@ -1,9 +1,9 @@
 "use client";
+import { logout } from '@/lib/auth';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import {
@@ -93,7 +93,6 @@ function AdminWorkspace() {
   const [linkUrl, setLinkUrl] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [published, setPublished] = useState<{ title: string; kind: "video" | "pdf"; paper: string } | null>(null);
-  const [paperLevel, setPaperLevel] = useState<string>("Intermediate");
   const [selectedPaperId, setSelectedPaperId] = useState<string>("8");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [materialTitle, setMaterialTitle] = useState("");
@@ -228,7 +227,7 @@ function AdminWorkspace() {
   const handleSignOut = async () => {
     if (!confirm("Log out of the admin console?")) return;
     try {
-      await signOut(auth);
+      await logout();
       router.replace("/login");
     } catch (err) {
       setError((err as Error).message);
@@ -490,15 +489,15 @@ function AdminWorkspace() {
 
         {tab !== "overview" && (() => {
           const hero = {
-            students: { art: "characters-playing-chess-game", tint: "blue", title: loading ? "Your class" : `${students.length} ${students.length === 1 ? "student" : "students"} in your class`, text: studying ? `${studying} studying right now. Tap anyone to see their days and sessions.` : "See who comes daily, who studies most, and who needs a nudge." },
-            publisher: { art: "person-using-smartphone-successfully", tint: "green", title: "Share a class with your students", text: "Pick the paper and chapter, add a title, and publish. It shows in their Library at once." },
-            shelf: { art: "character-reading-newspaper-with-coffee", tint: "amber", title: `${items?.length ?? 0} videos and PDFs published`, text: "Search, open or remove anything. For PDFs you can make AI flashcards and MCQs." },
-            admins: { art: "confident-person-walking", tint: "violet", title: "Choose who can manage the class", text: "Admins can upload, see every student and add other admins. Give this only to people you trust." },
+            students: { art: "friends", tint: "blue", title: loading ? "Your class" : `${students.length} ${students.length === 1 ? "student" : "students"} in your class`, text: studying ? `${studying} studying right now. Tap anyone to see their days and sessions.` : "See who comes daily, who studies most, and who needs a nudge." },
+            publisher: { art: "message-sent", tint: "green", title: "Share a class with your students", text: "Pick the paper and chapter, add a title, and publish. It shows in their Library at once." },
+            shelf: { art: "news", tint: "amber", title: `${items?.length ?? 0} videos and PDFs published`, text: "Search, open or remove anything. For PDFs you can make AI flashcards and MCQs." },
+            admins: { art: "locked-security", tint: "violet", title: "Choose who can manage the class", text: "Admins can upload, see every student and add other admins. Give this only to people you trust." },
           }[tab];
           return (
             <section className="adm-hero" data-tint={hero.tint}>
               {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-              <img src={`/illustrations/doodles/${hero.art}.svg`} alt="" className="doodle" />
+              <img src={`/illustrations/surface/${hero.art}.svg`} alt="" className="doodle" />
               <div><h2>{hero.title}</h2><p>{hero.text}</p></div>
             </section>
           );
@@ -532,7 +531,7 @@ function AdminWorkspace() {
 
             <button type="button" className="adm-cta" onClick={() => go("publisher")}>
               {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-              <img src="/illustrations/doodles/person-working-on-laptop.svg" alt="" className="doodle" />
+              <img src="/illustrations/surface/work-from-home.svg" alt="" className="doodle" />
               <span>
                 <span className="cma-eyebrow"><PSparkle size={14} aria-hidden="true" />Teach something new</span>
                 <b>Add a video or PDF</b>
@@ -547,7 +546,7 @@ function AdminWorkspace() {
                 {!items?.length ? (
                   <div className="adm-empty">
                     {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-                    <img src="/illustrations/doodles/character-with-phone-and-star.svg" alt="" className="doodle" />
+                    <img src="/illustrations/surface/list-is-empty.svg" alt="" className="doodle" />
                     <b>Nothing published yet</b><span>Upload your first video or PDF for students.</span>
                   </div>
                 ) : (
@@ -568,7 +567,7 @@ function AdminWorkspace() {
                 {!liveList.length ? (
                   <div className="adm-empty">
                     {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-                    <img src="/illustrations/doodles/character-reading-newspaper-with-coffee.svg" alt="" className="doodle" />
+                    <img src="/illustrations/surface/nobody-home.svg" alt="" className="doodle" />
                     <b>No one is studying right now</b><span>When a student starts the timer, they show up here live.</span>
                   </div>
                 ) : (
@@ -588,7 +587,7 @@ function AdminWorkspace() {
                     {streakers.map((s, i) => (
                       <li key={s.id}>
                         <span className="adm-rank">{i + 1}</span>
-                        <span className="adm-list-main"><b>{s.name}</b><small>CMA {s.level ?? "—"}</small></span>
+                        <span className="adm-list-main"><b>{s.name}</b><small>CMA Intermediate</small></span>
                         <span className="adm-streak"><PFire size={15} weight="fill" aria-hidden="true" />{s.streak}</span>
                       </li>
                     ))}
@@ -835,7 +834,7 @@ function AdminWorkspace() {
               {published ? (
                 <div className="up-done" role="status">
                   {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-                  <img src="/illustrations/doodles/person-using-smartphone-successfully.svg" alt="" className="doodle" />
+                  <img src="/illustrations/surface/success-victory.svg" alt="" className="doodle" />
                   <span className="tint" data-tint="green"><PCheck size={26} weight="bold" aria-hidden="true" /></span>
                   <h2>Published</h2>
                   <p>&ldquo;{published.title}&rdquo; is now in {published.paper}. Students can open it right away.</p>
@@ -918,12 +917,9 @@ function AdminWorkspace() {
                 {step === 2 && (
                   <section className="up-step" aria-labelledby="up-s2">
                     <h3 id="up-s2">Where should students find it?</h3>
-                    <div className="cma-segments up-levels" aria-label="Course">
-                      {["Foundation", "Intermediate", "Final"].map((l) => <button type="button" key={l} aria-pressed={paperLevel === l} onClick={() => setPaperLevel(l)}>{l}</button>)}
-                    </div>
                     <fieldset className="cma-subject-picker up-papers">
                       <legend>Paper</legend>
-                      <div>{SUBJECTS.filter((x) => x.level === paperLevel).map((x) => <label key={x.id}><input type="radio" name="paper" checked={selectedPaperId === x.id} onChange={() => { setSelectedPaperId(x.id); setSelectedChapter(""); }} /><b>{x.id}</b><span>{x.name}</span></label>)}</div>
+                      <div>{SUBJECTS.map((x) => <label key={x.id}><input type="radio" name="paper" checked={selectedPaperId === x.id} onChange={() => { setSelectedPaperId(x.id); setSelectedChapter(""); }} /><b>{x.id}</b><span>{x.name}</span></label>)}</div>
                     </fieldset>
                     <label className="up-field">Chapter
                       <select value={selectedChapter} onChange={(e) => setSelectedChapter(e.target.value)}>
@@ -1227,7 +1223,7 @@ function AdminWorkspace() {
                             <b>{student.name || "Unnamed student"}</b>
                             <small>{student.email}</small>
                             <span className="adm-chips">
-                              <span>{student.level ? `CMA ${student.level}` : "Level not set"}</span>
+                              <span>CMA Intermediate</span>
                               {student.role === "teacher" && <span data-teacher="">Teacher</span>}
                             </span>
                           </span>

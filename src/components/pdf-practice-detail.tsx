@@ -167,7 +167,7 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
               className={`w-4 h-4 transition-colors ${
                 isFavorite
                   ? "fill-[#EF4444] text-[#EF4444]"
-                  : "text-[#88867E] hover:text-[#18181B]"
+                  : "text-[#7E8C86] hover:text-[#18181B]"
               }`}
             />
           </button>
@@ -199,10 +199,10 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
             </div>
           </div>
 
-          {/* Downloaded Editorial Illustration (Reading Bench from user's pack) */}
+          {/* Surface pack "News" illustration */}
           <div className="w-28 sm:w-36 shrink-0 flex items-center justify-center">
             <img
-              src="/illustrations/reading-bench.svg"
+              src="/illustrations/surface/news.svg"
               alt="PDF Practice"
               className="max-h-28 sm:max-h-32 w-auto object-contain"
             />
@@ -248,7 +248,7 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
       {/* =============================================================== */}
       {/* SESSIONS LIST: Shows all uploaded PDFs with checkmark on open   */}
       {/* =============================================================== */}
-      <div className="rounded-[28px] bg-white border border-[#EBE8E1] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] overflow-hidden divide-y divide-[#F2EFE9]">
+      <div className="rounded-[28px] bg-white border border-[#E2E8E5] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] overflow-hidden divide-y divide-[#F2EFE9]">
         {sessions.map((session, index) => {
           const isOpened = !!openedIds[session.id];
 
@@ -256,7 +256,7 @@ export function PdfPracticeDetail({ onBack }: PdfPracticeDetailProps) {
             <div
               key={session.id}
               onClick={() => markPdfOpened(session)}
-              className="p-4 sm:p-4.5 flex items-center justify-between hover:bg-[#FAF9F5] transition-colors cursor-pointer group"
+              className="p-4 sm:p-4.5 flex items-center justify-between hover:bg-[#F6F8F7] transition-colors cursor-pointer group"
             >
               {/* Left Side: Checkmark or Number Badge + Title */}
               <div className="flex items-center gap-3.5 min-w-0 pr-3">

@@ -10,3 +10,6 @@ functions/.secret.local
 *-debug*.log
 .claude
 .agents
+
+android
+mobile

@@ -1,0 +1,51 @@
+/* Launch splash. Timeline (2.4s): ink tile springs in → mint pages open from the spine → sun rises out of the book with its glow → wordmark rises letter by letter → dot pops → tagline → lift and fade out. */
+.splash {
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(120% 80% at 50% 38%, #14A58D 0%, #0B6B5C 52%, #07473D 100%);
+  animation: splash-out .55s var(--ease-out) 1.9s forwards;
+}
+html[data-splash="seen"] .splash { display: none; }
+
+/* Slow drifting light behind everything. */
+.splash-orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0; animation: splash-orb-in 1.2s ease-out .05s forwards, splash-drift 9s ease-in-out infinite alternate; }
+.splash-orb-a { width: 70vmax; height: 70vmax; left: -30vmax; top: -34vmax; background: radial-gradient(circle, rgba(100,252,217,.42), transparent 65%); }
+.splash-orb-b { width: 60vmax; height: 60vmax; right: -28vmax; bottom: -30vmax; background: radial-gradient(circle, rgba(19,160,138,.5), transparent 65%); animation-delay: .05s, -3s; }
+.splash-orb-c { width: 34vmax; height: 34vmax; left: 50%; top: 40%; margin: -17vmax 0 0 -17vmax; background: radial-gradient(circle, rgba(255,182,29,.18), transparent 70%); animation-delay: .4s, -6s; }
+
+.splash-stage { position: relative; display: flex; flex-direction: column; align-items: center; transform: translateY(-4vh); }
+
+.splash-mark { display: block; overflow: visible; filter: drop-shadow(0 22px 34px rgba(4,32,27,.55)); }
+.splash-tile { transform-origin: 36px 36px; transform: scale(.4) rotate(-10deg); opacity: 0; animation: splash-tile .7s var(--ease-spring) .1s forwards; }
+.splash-page { transform-box: fill-box; opacity: 0; animation: splash-open .65s var(--ease-spring) forwards; }
+.splash-page-l { transform-origin: right center; transform: scaleX(0); animation-delay: .4s; }
+.splash-page-r { transform-origin: left center; transform: scaleX(0); animation-delay: .46s; }
+.splash-sun { transform: translateY(26px); animation: splash-rise .85s var(--ease-out) .7s forwards; }
+.splash-glow { transform-origin: 36px 32px; transform: translateY(26px) scale(.4); opacity: 0; animation: splash-glow 1.4s var(--ease-out) .8s forwards; }
+
+.splash-word { margin: 22px 0 0; display: flex; font: 700 44px/1 var(--font-apfel), system-ui, sans-serif; letter-spacing: -.04em; color: #fff; }
+.splash-word span { display: inline-block; opacity: 0; transform: translateY(14px); filter: blur(6px); animation: splash-letter .55s var(--ease-out) calc(.95s + var(--i) * 45ms) forwards; }
+.splash-word .splash-dot { color: #FFB61D; transform: scale(0); filter: none; animation: splash-pop .5s var(--ease-spring) 1.32s forwards; }
+
+.splash-tag { margin: 14px 0 0; font: 500 12px/1.4 var(--font-absans), system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: rgba(100,252,217,.85); opacity: 0; transform: translateY(6px); animation: splash-fade-up .5s var(--ease-out) 1.4s forwards; }
+
+@keyframes splash-tile { to { transform: scale(1) rotate(0); opacity: 1; } }
+@keyframes splash-rise { to { transform: translateY(0); } }
+@keyframes splash-glow { 40% { opacity: 1; } to { transform: translateY(0) scale(1.15); opacity: .8; } }
+@keyframes splash-open { to { transform: scaleX(1); opacity: 1; } }
+@keyframes splash-letter { to { opacity: 1; transform: none; filter: none; } }
+@keyframes splash-pop { to { transform: scale(1); opacity: 1; } }
+@keyframes splash-fade-up { to { opacity: 1; transform: none; } }
+@keyframes splash-orb-in { to { opacity: 1; } }
+@keyframes splash-drift { to { translate: 6vmax 4vmax; } }
+@keyframes splash-out { to { opacity: 0; transform: scale(1.06); visibility: hidden; } }
+
+/* Reduce motion: no movement, just the finished logo and a quick fade. */
+@media (prefers-reduced-motion: reduce) {
+  .splash, .splash * { animation: none !important; }
+  .splash-tile, .splash-glow, .splash-word span, .splash-tag { opacity: 1; transform: none; filter: none; }
+  .splash-sun, .splash-page, .splash-word .splash-dot { transform: none; opacity: 1; }
+  .splash-orb { opacity: .8; }
+  .splash { animation: splash-out .4s ease .6s forwards !important; }
+}

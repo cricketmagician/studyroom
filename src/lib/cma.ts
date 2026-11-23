@@ -1,4 +1,5 @@
-export const LEVELS = ['Foundation', 'Intermediate', 'Final'] as const;
+// The app serves CMA Intermediate only (ICMAI Syllabus 2022, Papers 5 to 12).
+export const LEVELS = ['Intermediate'] as const;
 export type Level = typeof LEVELS[number];
 export const DEFAULT_GOAL_MINUTES = 150;
 /** The next three ICMAI exam terms (June and December), e.g. ["Dec 2026 Term", "June 2027 Term", "Dec 2027 Term"]. */
@@ -11,12 +12,7 @@ export function examTerms(now = new Date()) {
         return term;
     });
 }
-// ICMAI Syllabus 2022; Paper 20 options are electives.
 export const SUBJECTS = [
-    ['1', 'Foundation', 'Fundamentals of Business Laws and Business Communication'],
-    ['2', 'Foundation', 'Fundamentals of Financial and Cost Accounting'],
-    ['3', 'Foundation', 'Fundamentals of Business Mathematics and Statistics'],
-    ['4', 'Foundation', 'Fundamentals of Business Economics and Management'],
     ['5', 'Intermediate', 'Business Laws and Ethics'],
     ['6', 'Intermediate', 'Financial Accounting'],
     ['7', 'Intermediate', 'Direct and Indirect Taxation'],
@@ -25,16 +21,6 @@ export const SUBJECTS = [
     ['10', 'Intermediate', 'Corporate Accounting and Auditing'],
     ['11', 'Intermediate', 'Financial Management and Business Data Analytics'],
     ['12', 'Intermediate', 'Management Accounting'],
-    ['13', 'Final', 'Corporate and Economic Laws'],
-    ['14', 'Final', 'Strategic Financial Management'],
-    ['15', 'Final', 'Direct Tax Laws and International Taxation'],
-    ['16', 'Final', 'Strategic Cost Management'],
-    ['17', 'Final', 'Cost and Management Audit'],
-    ['18', 'Final', 'Corporate Financial Reporting'],
-    ['19', 'Final', 'Indirect Tax Laws and Practice'],
-    ['20A', 'Final', 'Strategic Performance Management and Business Valuation'],
-    ['20B', 'Final', 'Risk Management in Banking and Insurance'],
-    ['20C', 'Final', 'Entrepreneurship and Startup'],
 ].map(([id, level, name]) => ({ id, level, name }));
 export const indiaDay = (now = Date.now()) => new Date(now + 330 * 60000).toISOString().slice(0, 10);
 export function creditedSeconds(last: number, now: number) {

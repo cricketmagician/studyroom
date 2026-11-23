@@ -1,18 +1,23 @@
 "use client";
 
+import { isNative } from './native';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { registerNativePush } from './native-session';
 import { postAi } from "./ai-client";
 
 export function isNotificationSupported(): boolean {
-  return typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator;
+  return isNative() || typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator;
 }
 
 export function getNotificationPermission(): NotificationPermission | "unsupported" {
+  if (isNative()) return "default";
   if (!isNotificationSupported()) return "unsupported";
   return Notification.permission;
 }
 
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-  if (typeof window === "undefined" || !("serviceWorker" in navigator)) return null;
+  if (isNative() || typeof window === "undefined" || !("serviceWorker" in navigator)) return null;
   try {
     const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
     return reg;
@@ -23,6 +28,14 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
 }
 
 export async function requestNotificationPermission(): Promise<NotificationPermission | "unsupported"> {
+  if (isNative()) {
+    const permission = await PushNotifications.requestPermissions();
+    if (permission.receive === 'granted') {
+      await registerNativePush();
+      await LocalNotifications.createChannel({id:'routines',name:'Routine reminders',importance:4});
+    }
+    return permission.receive === 'granted' ? 'granted' : 'denied';
+  }
   if (!isNotificationSupported()) return "unsupported";
   try {
     const perm = await Notification.requestPermission();
@@ -54,6 +67,11 @@ export async function showPushNotification(
   title: string,
   options?: { body?: string; url?: string; icon?: string }
 ): Promise<boolean> {
+  if (isNative()) {
+    if ((await LocalNotifications.checkPermissions()).display !== 'granted') return false;
+    await LocalNotifications.schedule({notifications:[{id:19001,title,body:options?.body ?? 'Time for your study session.',channelId:'routines',smallIcon:'ic_notification',schedule:{at:new Date(Date.now()+1000)},extra:{url:options?.url ?? '/profile'}}]});
+    return true;
+  }
   if (!isNotificationSupported()) return false;
   if (Notification.permission !== "granted") return false;
 
@@ -81,4 +99,10 @@ export async function showPushNotification(
     console.error("Failed to show push notification:", err);
     return false;
   }
+}
+
+export async function notificationPermission() {
+  if (!isNative()) return getNotificationPermission();
+  const permission = (await PushNotifications.checkPermissions()).receive;
+  return permission === 'granted' ? 'granted' : permission === 'denied' ? 'denied' : 'default';
 }

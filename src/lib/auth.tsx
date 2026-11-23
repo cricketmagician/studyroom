@@ -6,7 +6,10 @@ import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase/config";
 import { postAi } from '@/lib/ai-client';
-import { indiaDay, StudyState } from '@/lib/cma';
+import { indiaDay, Level, StudyState } from '@/lib/cma';
+import { isNative, AbhyasNative } from './native';
+import { syncNativeAuth, registerNativePush, clearNativeSession } from './native-session';
+import { SUBJECTS } from './cma';
 import { haptic } from '@/lib/haptics';
 
 export type Role = "student" | "teacher";
@@ -14,7 +17,7 @@ export type Profile = {
   name: string;
   email: string;
   role: Role;
-  level?: 'Foundation' | 'Intermediate' | 'Final';
+  level?: Level;
   phone?: string;
   city?: string;
   registrationNumber?: string;
@@ -35,6 +38,12 @@ const AuthContext = createContext<AuthState & { focus: StudyState['active'] }>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({ user: null, profile: null, loading: true });
+  const [nativeError,setNativeError]=useState('');
+  useEffect(()=>{
+    const failed=()=>setNativeError('Phone connection needs a retry. Reopen Abhyas online to reconnect notifications and the background timer.');
+    window.addEventListener('native:connection-error',failed); window.addEventListener('native:push-error',failed);
+    return ()=>{window.removeEventListener('native:connection-error',failed);window.removeEventListener('native:push-error',failed);};
+  },[]);
   const [session, setSession] = useState<{ uid: string; active: StudyState['active'] } | null>(null);
   useEffect(() => {
     if (!state.user || !state.profile?.role) return;
@@ -46,8 +55,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const data = await postAi<{ state: StudyState }>('/api/study', { action: 'detail' });
         if (!stopped) setSession({ uid: state.user!.uid, active: data.state.active && Date.now() - data.state.active.last <= 90000 ? data.state.active : null });
-        if (!stopped && data.state.active) await postAi('/api/study', { action: 'tick', sessionId: data.state.active.id });
-      } catch (error) { console.error('Study timer could not sync; retrying.', error); }
+        if (!stopped && isNative()) {
+          await syncNativeAuth();
+          const active = data.state.active && Date.now() - data.state.active.last <= 90000 ? data.state.active : null;
+          const device = await AbhyasNative.timer({id:active?.id ?? '',subject:SUBJECTS.find(s=>s.id===active?.subject)?.name,startedAt:active?.startedAt});
+          if (device?.stopped && active) { await postAi('/api/study',{action:'stop',sessionId:active.id}); if(!stopped)setSession({uid:state.user!.uid,active:null}); }
+        }
+        if (!stopped && data.state.active && !isNative()) await postAi('/api/study', { action: 'tick', sessionId: data.state.active.id });
+      } catch (error) { console.error('Study timer could not sync; retrying.', error); if(isNative())setNativeError('Background timer could not connect. Keep the app open and check your internet.'); }
       finally { pending = false; }
     };
     const interval = setInterval(syncTimer, 30000);
@@ -71,6 +86,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [state.user, state.profile?.role]);
 
   useEffect(() => {
+    if (!state.user || !state.profile || !isNative()) return;
+    void syncNativeAuth().then(registerNativePush).catch(() => window.dispatchEvent(new Event('native:connection-error')));
+  }, [state.user?.uid, state.profile?.role]);
+
+  useEffect(() => {
     let stopProfile = () => {};
     const stopAuth = onAuthStateChanged(auth, (user) => {
       stopProfile();
@@ -92,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  return <AuthContext.Provider value={{...state, focus: session?.uid === state.user?.uid ? session?.active : null}}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{...state, focus: session?.uid === state.user?.uid ? session?.active : null}}>{nativeError && <div role="alert" className="p-3 text-sm bg-amber-50 text-amber-950">{nativeError}<button className="ml-3 underline" onClick={()=>{setNativeError('');window.dispatchEvent(new Event('studyroom:session'));void registerNativePush().catch(()=>setNativeError('Could not connect notifications. Check your connection and retry.'));}}>Retry</button></div>}{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
@@ -138,9 +158,14 @@ export function RequireRole({ role, children }: { role?: Role; children: React.R
       <div className="text-center py-24 px-5 space-y-5">
         <p className="text-[var(--text-secondary)]">We could not open your account. Log out and log in again. If it still does not work, ask the admin.</p>
         {/* Without this the screen is a dead end: a stale or deleted login has no other way out. */}
-        <button type="button" onClick={() => signOut(auth)} className="h-11 px-6 rounded-full bg-[var(--brand)] text-[var(--on-brand)] font-semibold">Log out</button>
+        <button type="button" onClick={() => logout()} className="h-11 px-6 rounded-full bg-[var(--brand)] text-[var(--on-brand)] font-semibold">Log out</button>
       </div>
     );
   }
   return <React.Suspense fallback={<Spinner />}>{children}</React.Suspense>;
+}
+
+export async function logout() {
+  await clearNativeSession();
+  await signOut(auth);
 }

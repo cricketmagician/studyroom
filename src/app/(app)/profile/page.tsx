@@ -1,8 +1,10 @@
 "use client";
+import { isNative, AbhyasNative } from '@/lib/native';
+import { logout } from '@/lib/auth';
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { sendPasswordResetEmail, signOut, updateProfile } from "firebase/auth";
+import { sendPasswordResetEmail, updateProfile } from "firebase/auth";
 import Link from "next/link";
 import { Bell, BookmarkSimple as Bookmark, CalendarCheck, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Clock, Fire as Flame, GraduationCap, Key as KeyRound, SignOut as LogOut, EnvelopeSimple as Mail, Moon, NotePencil as NotebookPen, PencilSimple as PenLine, Target, UsersThree as Users, X } from "@phosphor-icons/react";
 import { haptic } from "@/lib/haptics";
@@ -12,9 +14,9 @@ import { RequireRole, useAuth } from "@/lib/auth";
 import { useMyLibrary } from "@/lib/hooks";
 import { useTheme } from "@/components/providers/theme-provider";
 import { postAi } from "@/lib/ai-client";
-import { DEFAULT_GOAL_MINUTES, examTerms, LEVELS, Level, SUBJECTS, StudyState, duration } from "@/lib/cma";
+import { DEFAULT_GOAL_MINUTES, examTerms, Level, SUBJECTS, StudyState, duration } from "@/lib/cma";
 import {
-  getNotificationPermission,
+  notificationPermission,
   requestNotificationPermission,
   showPushNotification,
 } from "@/lib/notifications";
@@ -35,7 +37,7 @@ function ProfileView() {
 
   // Form states
   const [name, setName] = useState(profile?.name || "");
-  const [level, setLevel] = useState<Level>(profile?.level || "Intermediate");
+  const level: Level = "Intermediate";
   const [targetExam, setTargetExam] = useState(() => examTerms()[0]);
   const [dailyGoalMinutes, setDailyGoalMinutes] = useState(DEFAULT_GOAL_MINUTES);
   const [primarySubject, setPrimarySubject] = useState("");
@@ -57,6 +59,14 @@ function ProfileView() {
   const [error, setError] = useState("");
   const [passwordMsg, setPasswordMsg] = useState("");
   const [pushStatus, setPushStatus] = useState<string>("default");
+  const [androidApp,setAndroidApp]=useState(false);
+  const [exactAlarms,setExactAlarms]=useState(false);
+  useEffect(()=>{
+    setAndroidApp(isNative());
+    const update=()=>{void notificationPermission().then(setPushStatus);if(isNative())void AbhyasNative.exactAlarmStatus().then(s=>setExactAlarms(s.granted));};
+    update();window.addEventListener('focus',update);
+    return ()=>window.removeEventListener('focus',update);
+  },[]);
   const [testingPush, setTestingPush] = useState(false);
   const editSheet = useRef<HTMLDialogElement>(null);
 
@@ -64,9 +74,6 @@ function ProfileView() {
   useEffect(() => {
     if (profile?.name && !name) {
       setName(profile.name);
-    }
-    if (profile?.level) {
-      setLevel(profile.level);
     }
   }, [profile]);
 
@@ -79,7 +86,6 @@ function ProfileView() {
         if (!active) return;
         const s = (res.state || {}) as any;
         setStudyState(s);
-        if (s.level) setLevel(s.level);
         if (s.dailyGoalMinutes) setDailyGoalMinutes(s.dailyGoalMinutes);
         if (s.targetExam) setTargetExam(s.targetExam);
         if (s.primarySubject) setPrimarySubject(s.primarySubject);
@@ -100,7 +106,7 @@ function ProfileView() {
     };
 
     loadState();
-    setPushStatus(getNotificationPermission());
+    void notificationPermission().then(setPushStatus);
 
     return () => {
       active = false;
@@ -173,21 +179,19 @@ function ProfileView() {
 
   // Push Notifications
   const handleEnablePush = async () => {
-    const perm = await requestNotificationPermission();
-    setPushStatus(perm);
-    if (perm === "granted") {
-      await showPushNotification("Notifications Enabled! 🔔", {
-        body: "You will receive study check-in reminders and buddy challenge alerts.",
-      });
-    }
+    setError('');
+    try {
+      const perm = await requestNotificationPermission(); setPushStatus(perm);
+      if (perm === 'granted') await showPushNotification('Notifications enabled', {body:'Your scheduled routines and study alerts can now appear on this phone.'});
+    } catch { setError('Could not connect notifications. Check your connection and retry.'); }
   };
-
   const handleTestPush = async () => {
-    setTestingPush(true);
-    await showPushNotification("Abhyas: time to study", {
-      body: "Keep up the momentum! Your CMA preparation goal is within reach today.",
-    });
-    setTimeout(() => setTestingPush(false), 800);
+    setTestingPush(true); setError('');
+    try {
+      if (isNative()) await postAi('/api/mobile',{action:'test'});
+      else if (!await showPushNotification('Abhyas: time to study', {body:'Your CMA preparation goal is within reach today.'})) throw new Error('Enable notifications first.');
+    } catch(e) { setError((e as Error).message); }
+    finally { setTestingPush(false); }
   };
 
   // Password reset
@@ -204,7 +208,7 @@ function ProfileView() {
 
   // Sign out
   const handleSignOut = async () => {
-    await signOut(auth);
+    await logout();
     router.replace("/login");
   };
 
@@ -241,7 +245,7 @@ function ProfileView() {
       <h2 className="profile-group-title">Study</h2>
       <ul className="profile-list">
         <li><button type="button" onClick={() => editSheet.current?.showModal()}>{row(<Target size={18} />, "green", "Daily goal", duration(dailyGoalMinutes * 60))}<ChevronRight size={18} aria-hidden="true" /></button></li>
-        <li><button type="button" onClick={() => editSheet.current?.showModal()}>{row(<GraduationCap size={18} />, "violet", "Course and exam", `${level}`)}<ChevronRight size={18} aria-hidden="true" /></button></li>
+        <li><button type="button" onClick={() => editSheet.current?.showModal()}>{row(<GraduationCap size={18} />, "violet", "Course and exam", targetExam)}<ChevronRight size={18} aria-hidden="true" /></button></li>
         <li><Link href="/?view=Progress">{row(<CalendarCheck size={18} />, "blue", "Days present", checkinCount)}<ChevronRight size={18} aria-hidden="true" /></Link></li>
         <li><Link href="/saved">{row(<Bookmark size={18} />, "amber", "Saved", entries.filter((e) => e.saved).length)}<ChevronRight size={18} aria-hidden="true" /></Link></li>
         <li><Link href="/notes">{row(<NotebookPen size={18} />, "pink", "Notes on videos and PDFs", entries.filter((e) => e.note?.trim()).length)}<ChevronRight size={18} aria-hidden="true" /></Link></li>
@@ -251,8 +255,9 @@ function ProfileView() {
       <ul className="profile-list">
         <li><label>{row(<Users size={18} />, "green", "Friends can see when I study")}<input type="checkbox" role="switch" className="profile-switch" checked={!hideStudyStatus} onChange={() => { haptic(); void handleTogglePrivacy(); }} /></label></li>
         <li><div>{row(<Bell size={18} />, "orange", "Study alerts")}{pushStatus === "granted"
-          ? <button type="button" className="profile-pill" disabled={testingPush} onClick={handleTestPush}>{testingPush ? "Sent" : "Send test"}</button>
-          : <button type="button" className="profile-pill" disabled={pushStatus === "denied" || pushStatus === "unsupported"} onClick={handleEnablePush}>{pushStatus === "denied" ? "Blocked in browser" : "Turn on"}</button>}</div></li>
+          ? <button type="button" className="profile-pill" disabled={testingPush} onClick={handleTestPush}>{testingPush ? "Sending…" : "Send test"}</button>
+          : <button type="button" className="profile-pill" disabled={!androidApp && (pushStatus === "denied" || pushStatus === "unsupported")} onClick={()=>androidApp && pushStatus === "denied" ? void AbhyasNative.settings({kind:'app'}) : void handleEnablePush()}>{pushStatus === "denied" ? androidApp ? "Open settings" : "Blocked in browser" : "Turn on"}</button>}</div></li>
+        {androidApp && <li><div>{row(<Clock size={18}/>, "orange", "Reminder timing", exactAlarms ? "Exact timing on" : "May be delayed")}<button type="button" className="profile-pill" onClick={()=>void AbhyasNative.settings({kind:'alarms'})}>Settings</button></div></li>}
         <li><label>{row(<Moon size={18} />, "violet", "Dark mode")}<input type="checkbox" role="switch" className="profile-switch" checked={theme === "dark"} onChange={() => { haptic(); toggleTheme(); }} /></label></li>
       </ul>
 
@@ -268,13 +273,12 @@ function ProfileView() {
           <header><h2 id="edit-title">Edit profile</h2><button type="button" aria-label="Close" onClick={() => editSheet.current?.close()}><X size={20} /></button></header>
           <label>Your name<input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required autoComplete="name" /></label>
           <div className="profile-two">
-            <label>CMA level<select value={level} onChange={(e) => setLevel(e.target.value as Level)}>{LEVELS.map((l) => <option key={l}>{l}</option>)}</select></label>
             <label>Exam you are writing<select value={targetExam} onChange={(e) => setTargetExam(e.target.value)}>{[...new Set([targetExam, ...examTerms()])].map((t) => <option key={t}>{t}</option>)}</select></label>
           </div>
           <fieldset><legend>Daily study goal</legend><div className="profile-chips">{goalOptions.map((g) => <label key={g.minutes}><input type="radio" name="goal" checked={dailyGoalMinutes === g.minutes} onChange={() => setDailyGoalMinutes(g.minutes)} />{g.label}</label>)}</div></fieldset>
           <label>Main subject<select value={primarySubject} onChange={(e) => setPrimarySubject(e.target.value)}><option value="">Choose a subject</option>{filteredSubjects.map((s) => <option key={s.id} value={s.name}>Paper {s.id} · {s.name}</option>)}</select></label>
           <div className="profile-two">
-            <label>Group<select value={group} onChange={(e) => setGroup(e.target.value)}>{["Group 1", "Group 2", "Both Groups", "Group 3", "Group 4"].map((g) => <option key={g}>{g}</option>)}</select></label>
+            <label>Group<select value={group} onChange={(e) => setGroup(e.target.value)}>{["Group 1", "Group 2", "Both Groups"].map((g) => <option key={g}>{g}</option>)}</select></label>
             <label>How you study<select value={coachingType} onChange={(e) => setCoachingType(e.target.value)}>{["Self Study", "Online Classes", "Offline Coaching", "Hybrid"].map((c) => <option key={c}>{c}</option>)}</select></label>
           </div>
           <label>Best time to study<select value={studyTimePreference} onChange={(e) => setStudyTimePreference(e.target.value)}>{[...new Set([studyTimePreference, "Early Morning (5 AM - 9 AM)", "Afternoon", "Evening (6 PM - 10 PM)", "Night Owl (10 PM - 2 AM)"])].map((t) => <option key={t}>{t}</option>)}</select></label>

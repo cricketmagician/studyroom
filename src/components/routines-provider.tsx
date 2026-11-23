@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { isNative, AbhyasNative } from '@/lib/native';
 import { Bell, X } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { postAi } from '@/lib/ai-client';
@@ -29,6 +30,13 @@ function RoutineSession({ children }: { children: React.ReactNode }) {
   const [now, setNow] = useState(0);
   const [dismissed, setDismissed] = useState<string[]>([]);
   const request = useRef(0);
+  const scheduled = useRef('');
+  useEffect(() => {
+    if (!data || !isNative()) return;
+    const fingerprint = JSON.stringify(data.items);
+    if (scheduled.current === fingerprint) return;
+    void AbhyasNative.syncRoutines({items:data.items}).then(() => { scheduled.current=fingerprint; }).catch(() => setError('Your routine saved, but phone reminders could not be updated. Reopen the app to retry.'));
+  }, [data]);
   const refresh = useCallback(async () => {
     const version = ++request.current;
     try {

@@ -116,7 +116,7 @@ export function NotesCard({ materialId }: { materialId: string }) {
         <button
           onClick={save}
           disabled={!dirty || status === "saving"}
-          className={`${pillButton} h-10 px-5 text-xs bg-[#111110] text-white dark:bg-white dark:text-[#111110]`}
+          className={`${pillButton} h-10 px-5 text-xs bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17]`}
         >
           {status === "saving" ? "Saving…" : "Save notes"}
         </button>

@@ -4,8 +4,8 @@
   "description": "Your CMA study space for Foundation, Intermediate & Final",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAF9F6",
-  "theme_color": "#465d40",
+  "background_color": "#F6F8F7",
+  "theme_color": "#0E7C6B",
   "orientation": "portrait",
   "icons": [
     {

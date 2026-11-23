@@ -1,18 +1,25 @@
 "use client";
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import Link from "next/link";
 import { PlayCircle as CirclePlay, Eye, EyeSlash as EyeOff, FileText, LockSimple as Lock, EnvelopeSimple as Mail, Timer, UserCircle as UserRound, UsersThree as Users } from "@phosphor-icons/react";
 import { HandNote } from "@/components/hand-note";
 import "./auth.css";
 
-/** Abhyas (Sanskrit: daily practice): an open book with a rising sun. Same artwork as public/brand/abhyas-mark.svg. */
+/** Abhyas (Sanskrit: daily practice): a golden sun rising over an open mint book on an ink tile. Same artwork as public/brand/abhyas-mark.svg. */
 export function LogoMark({ size = 36 }: { size?: number }) {
+  const id = useId(); // gradient ids must be unique when several logos are on one page
   return (
     <svg width={size} height={size} viewBox="0 0 72 72" aria-hidden="true" className="shrink-0">
-      <rect width="72" height="72" rx="20" fill="#465d40" />
-      <circle cx="36" cy="33" r="9" fill="#f3c25e" />
-      <path d="M14 46c8-5 15-5 22 0 7-5 14-5 22 0" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
-      <path d="M14 53c8-5 15-5 22 0 7-5 14-5 22 0" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" opacity=".55" />
+      <defs>
+        <linearGradient id={`${id}t`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#16392F" /><stop offset="1" stopColor="#0B1F17" /></linearGradient>
+        <linearGradient id={`${id}s`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFD766" /><stop offset="1" stopColor="#FFA81D" /></linearGradient>
+        <radialGradient id={`${id}g`}><stop offset="0" stopColor="#FFB61D" stopOpacity=".45" /><stop offset="1" stopColor="#FFB61D" stopOpacity="0" /></radialGradient>
+      </defs>
+      <rect width="72" height="72" rx="20" fill={`url(#${id}t)`} />
+      <circle cx="36" cy="32" r="20" fill={`url(#${id}g)`} />
+      <circle cx="36" cy="32" r="10" fill={`url(#${id}s)`} />
+      <path d="M10 45c9-6 19-6 26 0v13c-7-5-17-5-26 0z" fill="#64FCD9" />
+      <path d="M62 45c-9-6-19-6-26 0v13c7-5 17-5 26 0z" fill="#3EE0BC" />
     </svg>
   );
 }
@@ -36,10 +43,12 @@ const PERKS = [
 export function AuthCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
     <main className="auth">
+      <span className="auth-orb auth-orb-a" aria-hidden="true" />
+      <span className="auth-orb auth-orb-b" aria-hidden="true" />
       <section className="auth-hero">
         <Logo />
         {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-        <img src="/illustrations/doodles/person-working-on-laptop.svg" alt="" className="auth-art" />
+        <img src="/illustrations/surface/welcome.svg" alt="" className="auth-art" />
         <div className="auth-hero-copy">
           <h2>Study a little every day. <span>Pass your CMA.</span></h2>
           <HandNote text="One day at a time." />

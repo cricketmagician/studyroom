@@ -42,7 +42,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
       progress: 25,
       bgPastel: "#F6EFE5",
       borderColor: "#EAE0D2",
-      illustrationPath: "/illustrations/reading-bench.svg",
+      illustrationPath: "/illustrations/surface/news.svg",
       isFavorite: !!favorites["pdf"],
     },
     {
@@ -53,7 +53,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
       progress: 0,
       bgPastel: "#E1EEFC",
       borderColor: "#D0E3F8",
-      illustrationPath: "/illustrations/desk-coffee.svg",
+      illustrationPath: "/illustrations/surface/video-call.svg",
       isFavorite: !!favorites["video"],
     },
   ];
@@ -74,13 +74,13 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
             {onBack && (
               <button
                 onClick={onBack}
-                className="w-9 h-9 rounded-full bg-white border border-[#EBE8E1] hover:bg-gray-50 flex items-center justify-center text-[#111110] transition-colors cursor-pointer shadow-2xs"
+                className="w-9 h-9 rounded-full bg-white border border-[#E2E8E5] hover:bg-gray-50 flex items-center justify-center text-[#0B1F17] transition-colors cursor-pointer shadow-2xs"
                 title="Back"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
-            <h1 className="text-2xl sm:text-3xl font-apfel font-bold text-[#111110] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-apfel font-bold text-[#0B1F17] tracking-tight">
               Practice
             </h1>
           </div>
@@ -108,7 +108,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
               filter === "all"
                 ? "bg-[#334155] text-white shadow-xs"
-                : "bg-white text-[#666560] border border-[#E4E4E7] hover:text-[#111110]"
+                : "bg-white text-[#5B6B64] border border-[#E4E4E7] hover:text-[#0B1F17]"
             }`}
           >
             All
@@ -118,7 +118,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
               filter === "favorites"
                 ? "bg-[#334155] text-white shadow-xs"
-                : "bg-white text-[#666560] border border-[#E4E4E7] hover:text-[#111110]"
+                : "bg-white text-[#5B6B64] border border-[#E4E4E7] hover:text-[#0B1F17]"
             }`}
           >
             <Heart
@@ -135,7 +135,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
       {/* SECTION 1: Disciplines (Horizontal Carousel of Pastel Cards)   */}
       {/* =============================================================== */}
       <div className="space-y-3">
-        <h2 className="text-xs tabular-nums font-medium uppercase tracking-wider text-[#88867E]">
+        <h2 className="text-xs tabular-nums font-medium uppercase tracking-wider text-[#7E8C86]">
           Disciplines
         </h2>
 
@@ -177,7 +177,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
                     className={`w-4 h-4 transition-colors ${
                       favorites[card.id]
                         ? "fill-[#EF4444] text-[#EF4444]"
-                        : "text-[#88867E] hover:text-[#111110]"
+                        : "text-[#7E8C86] hover:text-[#0B1F17]"
                     }`}
                   />
                 </button>
@@ -214,7 +214,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
       {/* =============================================================== */}
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs tabular-nums font-medium uppercase tracking-wider text-[#88867E]">
+          <h2 className="text-xs tabular-nums font-medium uppercase tracking-wider text-[#7E8C86]">
             Official ICMAI Examination Sets
           </h2>
           <span className="text-[10px] tabular-nums font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
@@ -228,7 +228,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
               id: "t1",
               title: "Official Model Question Papers (MQP)",
               desc: "ICMAI official term-end test series with blueprints, step-wise marks distribution, and time-bound mocks.",
-              illustration: "/illustrations/topic-test.svg",
+              illustration: "/illustrations/surface/writing.svg",
               paperTag: "CMA Inter Papers 5 to 12",
               url: "https://icmai.in/ClntStudents/ClntMQPList?menuId=1",
             },
@@ -236,7 +236,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
               id: "t2",
               title: "Previous Examination Papers Archive",
               desc: "Authentic question papers from past examination terms with examiner marking schemes and suggested answers.",
-              illustration: "/illustrations/distraction-phone.svg",
+              illustration: "/illustrations/surface/searching.svg",
               paperTag: "Term-wise Archive",
               url: "https://icmai.in/ClntStudents/ClntQuestionPaperList?menuId=1",
             },
@@ -244,11 +244,11 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
             <div
               key={topic.id}
               onClick={() => setSelectedTopic(topic.title)}
-              className="p-5 rounded-2xl bg-white border border-[#EBE8E1] hover:border-[#D0CABE] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex items-center justify-between gap-4 group"
+              className="p-5 rounded-2xl bg-white border border-[#E2E8E5] hover:border-[#C9D3CF] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex items-center justify-between gap-4 group"
             >
               <div className="space-y-1.5 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] tabular-nums font-semibold px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#EFECE6] text-[#71717A]">
+                  <span className="text-[10px] tabular-nums font-semibold px-2 py-0.5 rounded-full bg-[#F6F8F7] border border-[#EEF2F0] text-[#71717A]">
                     {topic.paperTag}
                   </span>
                 </div>
@@ -261,7 +261,7 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
               </div>
 
               {/* Downloaded Illustration on right */}
-              <div className="w-16 h-16 shrink-0 flex items-center justify-center p-1 rounded-xl bg-[#FAF9F5] border border-[#F0ECE1]">
+              <div className="w-16 h-16 shrink-0 flex items-center justify-center p-1 rounded-xl bg-[#F6F8F7] border border-[#F0ECE1]">
                 <img
                   src={topic.illustration}
                   alt={topic.title}
@@ -276,12 +276,12 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
       {/* Detail Dialog if clicked */}
       {selectedTopic && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-3xl bg-white border border-[#EBE8E1] p-6 space-y-4 shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl bg-white border border-[#E2E8E5] p-6 space-y-4 shadow-2xl">
             <div className="space-y-1">
-              <span className="text-[11px] tabular-nums text-[#059669] bg-[#EAF7EE] px-2.5 py-0.5 rounded-full font-semibold border border-[#D1F2DD]">
+              <span className="text-[11px] tabular-nums text-[#0A6557] bg-[#E6FAF4] px-2.5 py-0.5 rounded-full font-semibold border border-[#BDF2E3]">
                 Official ICMAI Resource
               </span>
-              <h3 className="font-serif text-xl font-bold text-[#111110] pt-1">
+              <h3 className="font-serif text-xl font-bold text-[#0B1F17] pt-1">
                 {selectedTopic}
               </h3>
               <p className="text-xs text-[#71717A] leading-relaxed">
@@ -289,21 +289,21 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
               </p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#EBE8E1] space-y-2 text-xs">
+            <div className="p-3.5 rounded-2xl bg-[#F6F8F7] border border-[#E2E8E5] space-y-2 text-xs">
               <div className="flex items-center gap-2 text-[#27272A] font-medium">
-                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                <CheckCircle2 className="w-4 h-4 text-[#0E7C6B]" />
                 <span>Paper 5: Business Laws &amp; Ethics</span>
               </div>
               <div className="flex items-center gap-2 text-[#27272A] font-medium">
-                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                <CheckCircle2 className="w-4 h-4 text-[#0E7C6B]" />
                 <span>Paper 6: Financial Accounting</span>
               </div>
               <div className="flex items-center gap-2 text-[#27272A] font-medium">
-                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                <CheckCircle2 className="w-4 h-4 text-[#0E7C6B]" />
                 <span>Paper 7: Direct &amp; Indirect Taxation</span>
               </div>
               <div className="flex items-center gap-2 text-[#27272A] font-medium">
-                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                <CheckCircle2 className="w-4 h-4 text-[#0E7C6B]" />
                 <span>Paper 8: Cost Accounting</span>
               </div>
             </div>
@@ -317,13 +317,13 @@ export function PracticeView({ onBack }: { onBack?: () => void }) {
                 }
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-3 rounded-xl bg-[#111110] text-white hover:bg-black font-apfel font-semibold text-xs tracking-wide uppercase text-center cursor-pointer"
+                className="flex-1 py-3 rounded-xl bg-[#0B1F17] text-white hover:bg-black font-apfel font-semibold text-xs tracking-wide uppercase text-center cursor-pointer"
               >
                 Open Official Portal
               </a>
               <button
                 onClick={() => setSelectedTopic(null)}
-                className="px-4 py-3 rounded-xl border border-[#EBE8E1] text-[#666560] hover:text-[#111110] text-xs cursor-pointer"
+                className="px-4 py-3 rounded-xl border border-[#E2E8E5] text-[#5B6B64] hover:text-[#0B1F17] text-xs cursor-pointer"
               >
                 Close
               </button>

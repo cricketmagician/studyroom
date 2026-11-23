@@ -58,7 +58,7 @@ export function DailyCheckIn({ uid }: { uid: string }) {
   if (!visible) return null;
   return (
     <div role="status" className="fixed top-20 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
-      <span className="inline-flex items-center gap-2 px-4 h-11 rounded-full bg-[#111110] text-white text-sm font-semibold shadow-xl dark:bg-white dark:text-[#111110]">
+      <span className="inline-flex items-center gap-2 px-4 h-11 rounded-full bg-[#0B1F17] text-white text-sm font-semibold shadow-xl dark:bg-white dark:text-[#0B1F17]">
         <span aria-hidden>🔥</span> Checked in for today · {streak.count} {streak.count === 1 ? "day" : "days"} in a row
       </span>
     </div>
@@ -233,7 +233,7 @@ function FocusTimer() {
           <button
             onClick={() => setRunning(!running)}
             aria-label={running ? "Pause timer" : "Start 25 minute focus timer"}
-            className={`${pillButton} w-12 h-12 ${running ? "bg-[var(--bg-surface-subtle)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[#111110] text-white dark:bg-white dark:text-[#111110]"}`}
+            className={`${pillButton} w-12 h-12 ${running ? "bg-[var(--bg-surface-subtle)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17]"}`}
           >
             {running ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
           </button>

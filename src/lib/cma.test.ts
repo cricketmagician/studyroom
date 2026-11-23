@@ -11,9 +11,10 @@ test('check-in rolls over at India midnight, including year boundary', () => {
   assert.equal(indiaDay(Date.parse('2026-12-31T18:29:59Z')), '2026-12-31');
   assert.equal(indiaDay(Date.parse('2026-12-31T18:30:00Z')), '2027-01-01');
 });
-test('all levels have unique paper identifiers including Final electives', () => {
-  assert.equal(new Set(SUBJECTS.map(s => s.id)).size, 22);
-  assert.deepEqual(LEVELS.map(l => SUBJECTS.filter(s => s.level === l).length), [4,8,10]);
+test('only the eight CMA Intermediate papers are offered, with unique ids', () => {
+  assert.deepEqual(LEVELS, ['Intermediate']);
+  assert.deepEqual(SUBJECTS.map(s => s.id), ['5','6','7','8','9','10','11','12']);
+  assert.ok(SUBJECTS.every(s => s.level === 'Intermediate'));
 });
 test('credited seconds split at midnight without duplicating time', () => {
   const start = Date.parse('2026-12-31T18:29:40Z');

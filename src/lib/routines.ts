@@ -47,7 +47,7 @@ export function timeLabel(time: string) {
   return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
 }
 
-// shortcut: reminders need an open app; add a server scheduler for closed-app delivery.
+// Web reminders need an open tab; Android also schedules them with AlarmManager.
 export function dueReminder(r: Routine, now: number) {
   for (const day of [indiaDay(now), indiaDay(now + 86400000)]) {
     const start = Date.parse(`${day}T${r.time}:00+05:30`);

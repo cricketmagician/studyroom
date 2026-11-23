@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Download, HardDrive, ImagePlus, Trash2 } from 'lucide-react';
 import { NoteImageViewer } from './note-image-viewer';
 import { addNoteImages, IMAGE_TYPES, imageStorageError, listNoteImages, NoteImage, removeNoteImage } from '@/lib/note-images';
+import { isNative, shareLocalImage } from '@/lib/native';
 import { formatSize } from '@/lib/files';
 import { ErrorText } from './auth-card';
 import { pillButton } from './ui';
@@ -82,7 +83,7 @@ export function NoteImages({ uid, noteId, onBusyChange, disabled=false }: { uid:
     <p role="status" className="!text-xs">{message}</p>
     {images && images.length>0 && <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">{images.map(image => <li key={image.id} className="overflow-hidden rounded-2xl border border-[var(--border-color)]">
       <button type="button" className="block w-full bg-[var(--bg-surface-subtle)]" aria-label={`View ${image.name}`} onClick={() => setSelected(image.id)}><img src={image.url} alt={image.name} className="h-36 sm:h-44 w-full object-contain" loading="lazy"/></button>
-      <div className="p-2"><p className="!text-xs truncate" title={image.name}>{image.name}</p><div className="flex items-center justify-between gap-1"><span className="text-[10px] text-[var(--text-muted)]">{formatSize(image.blob.size)}</span><div className="flex"><a href={image.url} download={image.name} aria-label={`Download ${image.name}`} className={`${pillButton} w-11 h-11`}><Download size={16}/></a><button disabled={busy} type="button" aria-label={`Remove ${image.name}`} className={`${pillButton} w-11 h-11 hover:text-red-600`} onClick={() => void remove(image)}><Trash2 size={16}/></button></div></div></div>
+      <div className="p-2"><p className="!text-xs truncate" title={image.name}>{image.name}</p><div className="flex items-center justify-between gap-1"><span className="text-[10px] text-[var(--text-muted)]">{formatSize(image.blob.size)}</span><div className="flex"><a onClick={event=>{if(isNative()){event.preventDefault();void shareLocalImage(image.url,image.name).catch(()=>setError('Could not export this photo. Please try again.'));}}} href={image.url} download={image.name} aria-label={`Download ${image.name}`} className={`${pillButton} w-11 h-11`}><Download size={16}/></a><button disabled={busy} type="button" aria-label={`Remove ${image.name}`} className={`${pillButton} w-11 h-11 hover:text-red-600`} onClick={() => void remove(image)}><Trash2 size={16}/></button></div></div></div>
     </li>)}</ul>}
     <div className="rounded-xl bg-[var(--accent-light)] p-4 space-y-2"><p className="!text-xs">Text syncs to your account. Images stay in this browser on this device; they are not uploaded or synced. Clearing site data, using private browsing, or changing device/browser can make them unavailable. Download important originals before clearing storage.</p><button type="button" disabled={protectedStorage} className={`${pillButton} min-h-11 px-3 text-xs border border-[var(--border-color)]`} onClick={() => void protect()}>{protectedStorage ? 'Persistent storage enabled' : 'Keep images on this device'}</button></div>
     {preview && <NoteImageViewer key={preview.id} image={preview} onClose={() => setSelected(null)}/>}

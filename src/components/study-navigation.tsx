@@ -34,13 +34,13 @@ export function StudyNavigation({ active, onChange }: { active?: string; onChang
   }, []);
   return <>
     <nav className="study-bottom-nav" aria-label="Main navigation" data-tucked={tucked || undefined}><div>{primary.map(({name,view,href,icon: Icon}) => {
-    const content = <><Icon size={24} weight={active === view ? "fill" : "duotone"} aria-hidden="true"/><span>{name}</span></>;
+    const content = <><Icon size={21} weight={active === view ? "fill" : "duotone"} aria-hidden="true"/><span>{name}</span></>;
     return onChange
       ? <button type="button" key={view} aria-current={active === view ? 'page' : undefined} onClick={() => onChange(view)}>{content}</button>
       : <Link key={view} href={href} aria-current={active === view ? 'page' : undefined}>{content}</Link>;
     })}
       <button type="button" aria-haspopup="dialog" aria-controls="study-more-dialog" aria-expanded={moreOpen} data-active={moreActive || undefined} onClick={() => { dialog.current?.showModal(); setMoreOpen(true); }}>
-        <Ellipsis size={24} weight={moreActive ? "fill" : "duotone"} aria-hidden="true"/><span>More</span>
+        <Ellipsis size={21} weight={moreActive ? "fill" : "duotone"} aria-hidden="true"/><span>More</span>
       </button>
     </div></nav>
     <dialog ref={dialog} id="study-more-dialog" className="cma-more-dialog" aria-labelledby="study-more-title" onClose={() => setMoreOpen(false)}>

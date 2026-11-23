@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { buildPlan, checkSetup, cleanAiPlan, daysBetween, examDate } from "./planner.ts";
 
 test("plan fills the daily goal exactly and puts neglected papers first", () => {
-  const plan = buildPlan({ level: "Intermediate", goalMinutes: 150, recent: { "8": 20 * 3600, "5": 10 * 3600 }, today: "2026-11-12" });
+  const plan = buildPlan({ goalMinutes: 150, recent: { "8": 20 * 3600, "5": 10 * 3600 }, today: "2026-11-12" });
   assert.equal(plan.length, 7);
   for (const day of plan) assert.equal(day.blocks.reduce((s, b) => s + b.minutes, 0), 150);
   assert.ok(!plan[0].blocks.some((b) => b.subjectId === "8"), "the most-studied paper is not picked first");
@@ -11,15 +11,9 @@ test("plan fills the daily goal exactly and puts neglected papers first", () => 
 });
 
 test("over a week every paper gets time, and short goals become one block", () => {
-  const week = buildPlan({ level: "Intermediate", goalMinutes: 240, recent: {}, today: "2026-11-12" });
+  const week = buildPlan({ goalMinutes: 240, recent: {}, today: "2026-11-12" });
   assert.equal(new Set(week.flatMap((d) => d.blocks.map((b) => b.subjectId))).size, 8);
-  assert.equal(buildPlan({ level: "Foundation", goalMinutes: 45, recent: {}, today: "2026-11-12" })[0].blocks.length, 1);
-});
-
-test("Final electives are planned only once studied", () => {
-  const ids = (recent: Record<string, number>) => new Set(buildPlan({ level: "Final", goalMinutes: 240, recent, today: "2026-11-12", days: 14 }).flatMap((d) => d.blocks.map((b) => b.subjectId)));
-  assert.ok(!ids({}).has("20B"));
-  assert.ok(ids({ "20B": 600 }).has("20B"));
+  assert.equal(buildPlan({ goalMinutes: 45, recent: {}, today: "2026-11-12" })[0].blocks.length, 1);
 });
 
 test("exam countdown", () => {
@@ -39,7 +33,7 @@ test("setup is checked at the trust boundary", () => {
 test("AI plan is cleaned: fake papers, overlong days and rest days are fixed, gaps are filled", () => {
   const papers = [{ id: "5", name: "Laws" }, { id: "8", name: "Costing" }];
   const setup = { goalMinutes: 120, examTerm: "Dec 2026 Term", weak: [], restDays: [0], days: 7 };
-  const fallback = buildPlan({ level: "Intermediate", goalMinutes: 120, recent: {}, today: "2026-11-12", days: 7, restDays: [0] });
+  const fallback = buildPlan({ goalMinutes: 120, recent: {}, today: "2026-11-12", days: 7, restDays: [0] });
   const plan = cleanAiPlan({ days: [
     { date: "2026-11-12", blocks: [{ paperId: "8", minutes: 100, chapter: "Cost sheet", task: "Solve 5 sums" }, { paperId: "99", minutes: 60, chapter: "x", task: "x" }, { paperId: "5", minutes: 90, chapter: "Contracts", task: "Read" }] },
     { date: "2026-11-15", blocks: [{ paperId: "5", minutes: 60, chapter: "x", task: "x" }] },

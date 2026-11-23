@@ -3,16 +3,19 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { BookOpenText as BookOpen, Play, Pause, Check, ArrowRight, ArrowUpRight, CaretDown as ChevronDown, Fire as Flame, TrendDown as TrendingDown, TrendUp as TrendingUp, Clock as Clock3, UserCircle as User, GraduationCap, ShieldCheck } from "@phosphor-icons/react";
+import { isNative } from '@/lib/native';
+import { syncNativeAuth } from '@/lib/native-session';
+import { requestNotificationPermission } from '@/lib/notifications';
 import { haptic } from "@/lib/haptics";
 import { useAuth } from "@/lib/auth";
 import { useMaterials, useMyLibrary } from "@/lib/hooks";
 import { postAi } from "@/lib/ai-client";
-import { DEFAULT_GOAL_MINUTES, duration, indiaWeek, LEVELS, Level, SUBJECTS, StudyState, indiaDay } from "@/lib/cma";
+import { DEFAULT_GOAL_MINUTES, duration, indiaWeek, Level, SUBJECTS, StudyState, indiaDay } from "@/lib/cma";
 import { StudyLibrary, SubjectCard, TINTS } from "./subject-library";
 import { FriendsHub } from "./friends-hub";
 import { SyllabusHub } from "./syllabus-hub";
 import { ProfileSetupModal } from "./profile-setup-modal";
-import { ErrorText, Logo } from "@/components/auth-card";
+import { ErrorText } from "@/components/auth-card";
 import "./study-hub.css";
 import { HandNote } from "@/components/hand-note";
 import { StudyNavigation } from "./study-navigation";
@@ -38,7 +41,7 @@ export function StudyHub() {
     const [detail, setDetail] = useState<Detail | null>(null);
     const [tab, setTab] = useState("Overview");
     const [range, setRange] = useState("week");
-    const [level, setLevel] = useState<Level>(profile?.level ?? "Intermediate");
+    const level: Level = "Intermediate";
     const [focusSubject, setFocusSubject] = useState("");
     const [copied, setCopied] = useState(false);
     const [error, setError] = useState("");
@@ -60,9 +63,8 @@ export function StudyHub() {
             data = await postAi<Detail>('/api/study', {action:'detail'});
         }
         setDetail(data);
-        if (data.state.level)
-            setLevel(data.state.level);
-        if (data.state.onboardingCompleted === false || (!data.state.onboardingCompleted && !data.state.totalSeconds && !data.state.lastCheckin)) {
+        // New students: the automatic check-in often lands first, so only study time (not a check-in) means they have already started.
+        if (!data.state.onboardingCompleted && !data.state.totalSeconds) {
             setShowSetupModal(true);
         }
         setClock(data.now);
@@ -110,6 +112,10 @@ export function StudyHub() {
         setBusy(true);
         setError("");
         try {
+            if (isNative() && (body as {action?:string}).action === 'start') {
+                await syncNativeAuth();
+                await requestNotificationPermission();
+            }
             await postAi("/api/study", body);
             await refresh();
             window.dispatchEvent(new Event("studyroom:session"));
@@ -180,15 +186,16 @@ export function StudyHub() {
     return <div className="cma">
       <a href="#study-content" className="cma-skip">Skip to content</a>
       <main className="cma-main" id="study-content">
-        <header className="cma-top">
-          <Logo/>
-          <div className="flex items-center gap-2">
-            <label className="cma-level"><span>Your course</span><select value={level} disabled={busy || !!active} onChange={e => {setLevel(e.target.value as Level);setFocusSubject("");void act({action:"level",level:e.target.value});}}>{LEVELS.map(l => <option key={l}>{l}</option>)}</select></label>
+        {/* No app bar: just today's date with the streak and avatar, scrolling away with the page. */}
+        <div className="cma-topline">
+          <span className="cma-date">{clock > 1e12 && new Date(clock).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}</span>
+          <div className="cma-top-actions">
+            {detail && <button type="button" className="cma-streak-pill" onClick={() => goToView("Progress")} aria-label={`${streak} day streak. See your progress`}><Flame size={17} weight="fill" aria-hidden="true" />{streak}</button>}
             <button type="button" onClick={() => goToView("Syllabus")} className="cma-icon-button" title="ICMAI Syllabus 2022 Blueprint" aria-label="Syllabus"><GraduationCap size={18} /></button>
-            <Link href="/profile" className="cma-icon-button" title="View & edit your CMA profile" aria-label="Your profile"><User size={18} /></Link>
+            <Link href="/profile" className="cma-avatar" title="View & edit your CMA profile" aria-label="Your profile"><span>{(profile?.name ?? "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || <User size={20} />}</span></Link>
           </div>
-        </header>
-        <div className="cma-page-heading"><div><span className="cma-eyebrow">CMA {level}</span><h1>{tab === "Overview" ? `Hi, ${profile?.name.split(" ")[0] ?? "there"}` : tab === "Library" ? "Study material" : tab === "Syllabus" ? "Syllabus" : tab === "Progress" ? "Your progress" : "Friends"}</h1><p>{tab === "Overview" ? "Pick a subject and press Start. Your study time is saved on its own." : tab === "Library" ? "Videos and PDFs for every paper. Open a subject to begin." : tab === "Syllabus" ? "All papers, chapters and how many marks each part carries." : tab === "Progress" ? "See how much you have studied and keep your streak going." : "Add friends, see who is studying, and keep each other going."}</p>{tab === "Overview" && <HandNote text={goalPercent >= 100 ? "Goal done. Well done!" : "One day at a time."}/>}</div>{tab === "Overview" && <img className="cma-heading-art doodle" src={goalPercent >= 100 ? "/illustrations/doodles/person-using-smartphone-successfully.svg" : "/illustrations/doodles/person-working-on-laptop.svg"} alt=""/>}</div>
+        </div>
+        <div className="cma-page-heading" data-hero={tab === "Overview" || undefined}><div><span className="cma-eyebrow">CMA {level}</span><h1>{tab === "Overview" ? `Hi, ${profile?.name.split(" ")[0] ?? "there"}` : tab === "Library" ? "Study material" : tab === "Syllabus" ? "Syllabus" : tab === "Progress" ? "Your progress" : "Friends"}</h1><p>{tab === "Overview" ? "Pick a subject and press Start. Your study time is saved on its own." : tab === "Library" ? "Videos and PDFs for every paper. Open a subject to begin." : tab === "Syllabus" ? "All papers, chapters and how many marks each part carries." : tab === "Progress" ? "See how much you have studied and keep your streak going." : "Add friends, see who is studying, and keep each other going."}</p>{tab === "Overview" && <HandNote text={goalPercent >= 100 ? "Goal done. Well done!" : "One day at a time."}/>}</div>{tab === "Overview" && <img className="cma-heading-art doodle" src={goalPercent >= 100 ? "/illustrations/surface/done.svg" : "/illustrations/surface/work-from-home.svg"} alt=""/>}</div>
         <ErrorText>{error || materialsError}</ErrorText>
         {pendingInvite && <section className="cma-panel cma-invite"><div><h2>A friend invited you</h2><p>If you accept, you both see each other’s name, streak and study time.</p></div><div className="cma-actions"><button disabled={busy} className="cma-primary" onClick={accept}>Accept</button><button className="cma-secondary" onClick={() => {sessionStorage.removeItem("cma-invite");setPendingInvite("");}}>Dismiss</button></div></section>}
         {tab === "Overview" && <section className="cma-stats" aria-label="Study snapshot">{[{icon:Clock3,label:"This week",value:duration(weekSeconds),note:"Monday to Sunday"},{icon:Flame,label:"Streak",value:`${streak} ${streak === 1 ? "day" : "days"}`,note:"Days in a row you opened the app"},{icon:BookOpen,label:"Finished",value:String(Object.values(entries).filter(e=>e.done).length),note:"Videos and PDFs marked done"}].map(({icon:Icon,...s}) => <div key={s.label}><span className="cma-stat-icon"><Icon size={19}/></span><div><span>{s.label}</span><strong>{detail ? s.value : "—"}</strong><small>{s.note}</small></div></div>)}</section>}
@@ -254,7 +261,7 @@ export function StudyHub() {
 
           <section className="cma-panel">
             <div className="cma-section-title"><div><h2>By subject</h2><p>Where your {range==="total" ? "" : range==="today" ? "today’s " : range==="month" ? "month’s " : "week’s "}time went.</p></div></div>
-            {!Object.keys(rangeSubjects).length ? <div className="cma-empty"><img className="doodle" src="/illustrations/doodles/confident-person-walking.svg" alt="" loading="lazy"/><h3>No study time yet</h3><p>Start the timer on Home. Your time will show here.</p><button className="cma-secondary" onClick={()=>goToView("Overview")}>Go to Home</button></div> : <>
+            {!Object.keys(rangeSubjects).length ? <div className="cma-empty"><img className="doodle" src="/illustrations/surface/coming-soon-growth.svg" alt="" loading="lazy"/><h3>No study time yet</h3><p>Start the timer on Home. Your time will show here.</p><button className="cma-secondary" onClick={()=>goToView("Overview")}>Go to Home</button></div> : <>
               <div className="prog-stack" aria-hidden="true">{Object.entries(rangeSubjects).sort((a,b)=>b[1]-a[1]).map(([id,time])=><span key={id} className="tint" data-tint={tintOf(id)} style={{width:`${time/rangeSum*100}%`}}/>)}</div>
               <ul className="prog-subjects">{Object.entries(rangeSubjects).sort((a,b)=>b[1]-a[1]).map(([id,time])=><li key={id}><span className="tint" data-tint={tintOf(id)}>{id}</span><span>{SUBJECTS.find(x=>x.id===id)?.name}</span><b>{duration(time)}</b><small>{Math.round(time/rangeSum*100)}%</small></li>)}</ul>
             </>}
@@ -295,10 +302,8 @@ export function StudyHub() {
         <ProfileSetupModal
           isOpen={showSetupModal}
           initialName={profile?.name || ""}
-          initialLevel={level}
           onComplete={(saved) => {
             setShowSetupModal(false);
-            if (saved.level) setLevel(saved.level);
             refresh().catch(() => {});
           }}
           onClose={() => setShowSetupModal(false)}

@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthCard title="Reset password" subtitle="We will email you a link to set a new password.">
       {sent ? (
-        <p role="status" className="text-center">If an account exists for this email, a reset link is on its way. Check your inbox.</p>
+        <p role="status" className="auth-sent">If an account exists for this email, a reset link is on its way. Check your inbox.</p>
       ) : (
         <form method="post" onSubmit={handleSubmit}>
           <Field label="Email" name="email" type="email" autoComplete="email" />
@@ -39,8 +39,8 @@ export default function ForgotPasswordPage() {
           </button>
         </form>
       )}
-      <p className="mt-6 text-center text-sm">
-        <Link href="/login" className="font-semibold text-[var(--accent-text)] hover:underline">Back to log in</Link>
+      <p className="auth-switch">
+        <Link href="/login">Back to log in</Link>
       </p>
     </AuthCard>
   );

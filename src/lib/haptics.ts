@@ -1,3 +1,5 @@
+import { isNative } from './native';
+import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
 export type Haptic = "tap" | "success" | "warning";
 
 export const PATTERNS: Record<Haptic, number | number[]> = { tap: 8, success: [12, 70, 22], warning: [30, 50, 30] };
@@ -9,6 +11,7 @@ export const PATTERNS: Record<Haptic, number | number[]> = { tap: 8, success: [1
 export function haptic(kind: Haptic = "tap") {
   if (typeof window === "undefined") return;
   try {
+    if (isNative()) { void (kind === "tap" ? Haptics.impact({style:ImpactStyle.Light}) : Haptics.notification({type:kind === "success" ? NotificationType.Success : NotificationType.Warning})).catch(()=>{}); return; }
     if ("vibrate" in navigator) { navigator.vibrate(PATTERNS[kind]); return; }
     const label = document.createElement("label");
     const input = document.createElement("input");

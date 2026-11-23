@@ -220,7 +220,7 @@ function PackView({ pack }: { pack: StudyPack }) {
   );
 }
 
-const BRANCH_COLORS = ["#E57835", "#3B82F6", "#10B981", "#8B5CF6", "#F59E0B", "#EC4899"];
+const BRANCH_COLORS = ["#E57835", "#3B82F6", "#0E7C6B", "#8B5CF6", "#F59E0B", "#EC4899"];
 
 /** Topic in the middle, branches on both sides (stacked under it on phones). */
 function MindMapView({ map }: { map: MindMap }) {
@@ -247,7 +247,7 @@ function MindMapView({ map }: { map: MindMap }) {
     <div className={`${cardClass} p-5 sm:p-6`}>
       <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:gap-x-10 items-center">
         <div className="flex justify-center md:order-2">
-          <p className="px-6 py-5 rounded-[28px] bg-[#111110] text-white dark:bg-white dark:text-[#111110] font-heading font-bold text-lg text-center leading-tight max-w-[13rem] shadow-[var(--shadow-lg)]">
+          <p className="px-6 py-5 rounded-[28px] bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17] font-heading font-bold text-lg text-center leading-tight max-w-[13rem] shadow-[var(--shadow-lg)]">
             {map.center}
           </p>
         </div>
@@ -355,7 +355,7 @@ function FlashcardsView({ pack }: { pack: StudyPack }) {
                 onClick={() => toggle(i)}
                 aria-pressed={open}
                 className={`w-full min-h-[8.5rem] p-5 rounded-[24px] text-left border transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--ring-color)] ${
-                  open ? "bg-[#111110] text-white border-transparent dark:bg-white dark:text-[#111110]" : "bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--accent)]"
+                  open ? "bg-[#0B1F17] text-white border-transparent dark:bg-white dark:text-[#0B1F17]" : "bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--accent)]"
                 }`}
               >
                 <span className={`block text-[10px] font-bold uppercase tracking-wider ${open ? "opacity-60" : "text-[var(--accent)]"}`}>{open ? "Answer" : "Question"}</span>
@@ -426,7 +426,7 @@ function AskView({ material, onGoToPage }: { material: Material; onGoToPage: GoT
           {turns.map((t, i) =>
             t.role === "user" ? (
               <li key={i} className="flex justify-end">
-                <p className="max-w-[85%] px-4 py-2.5 rounded-[20px] rounded-br-md bg-[#111110] text-white dark:bg-white dark:text-[#111110] text-sm whitespace-pre-wrap">{t.content}</p>
+                <p className="max-w-[85%] px-4 py-2.5 rounded-[20px] rounded-br-md bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17] text-sm whitespace-pre-wrap">{t.content}</p>
               </li>
             ) : (
               <li key={i} className="max-w-[92%] px-4 py-3 rounded-[20px] rounded-bl-md bg-[var(--bg-surface-subtle)] text-sm leading-relaxed space-y-2">
@@ -457,7 +457,7 @@ function AskView({ material, onGoToPage }: { material: Material; onGoToPage: GoT
       {full ? (
         <div className="flex items-center justify-between gap-3 text-sm">
           <span className="text-[var(--text-secondary)]">This chat is full.</span>
-          <button onClick={() => { setTurns([]); setAnswers([]); }} className={`${pillButton} h-10 px-4 text-xs bg-[#111110] text-white dark:bg-white dark:text-[#111110]`}>
+          <button onClick={() => { setTurns([]); setAnswers([]); }} className={`${pillButton} h-10 px-4 text-xs bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17]`}>
             Start a new chat
           </button>
         </div>

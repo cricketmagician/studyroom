@@ -1,4 +1,6 @@
 "use client";
+import { isNative } from '@/lib/native';
+import { MobilePdfReader } from '@/components/mobile-pdf-reader';
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -39,6 +41,8 @@ export default function ViewerPage() {
 }
 
 function Viewer() {
+  const [androidReader,setAndroidReader]=useState(false);
+  useEffect(()=>setAndroidReader(isNative()),[]);
   const { id } = useParams<{ id: string }>();
   const [item, setItem] = useState<Material | null | undefined>(undefined);
   const [error, setError] = useState("");
@@ -274,12 +278,12 @@ function Viewer() {
             ) : (
               /* PDF Viewer Frame */
               <div className="w-full">
-                <iframe
+                {androidReader ? <MobilePdfReader url={item.url} title={item.title}/> : <iframe
                   key={page}
                   src={pdfEmbedUrl}
                   title={item.title}
                   className="w-full h-[80vh] border-0 bg-white"
-                />
+                />}
               </div>
             )}
           </div>

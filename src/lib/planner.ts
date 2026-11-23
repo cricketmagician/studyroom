@@ -6,7 +6,6 @@ export type DayPlan = { day: string; blocks: PlanBlock[] };
 
 /** Hard papers need more time; easier-to-score papers a little less. */
 const EFFORT: Record<string, number> = { Hard: 1.3, Medium: 1, "Easier to score": 0.8 };
-const ELECTIVE = /^20[ABC]$/;
 
 /** The exam usually starts around the 10th of June or December. `term` looks like "Dec 2026 Term". */
 export function examDate(term: string) {
@@ -32,9 +31,8 @@ function chapterFor(subjectId: string, day: string) {
  * Builds the next `days` of study blocks from what the student has actually done.
  * `recent` is seconds per subject over the last two weeks. Papers you have neglected, and harder papers, come first.
  */
-export function buildPlan({ level, goalMinutes, recent, today, days = 7, weak = [], restDays = [] }: { level: string; goalMinutes: number; recent: Record<string, number>; today: string; days?: number; weak?: string[]; restDays?: number[] }): DayPlan[] {
-  // shortcut: a Final student takes one elective (20A/B/C); we only plan the ones they have studied. Ask for the elective in the profile if this guess is wrong too often.
-  const papers = SUBJECTS.filter((s) => s.level === level && (!ELECTIVE.test(s.id) || recent[s.id]));
+export function buildPlan({ goalMinutes, recent, today, days = 7, weak = [], restDays = [] }: { goalMinutes: number; recent: Record<string, number>; today: string; days?: number; weak?: string[]; restDays?: number[] }): DayPlan[] {
+  const papers = SUBJECTS;
   if (!papers.length || goalMinutes <= 0) return [];
   const load: Record<string, number> = Object.fromEntries(papers.map((p) => [p.id, (recent[p.id] ?? 0) / 3600]));
   const blocksPerDay = goalMinutes <= 60 ? 1 : goalMinutes <= 150 ? 2 : 3;

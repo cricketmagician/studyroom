@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { RequireRole, useAuth } from "@/lib/auth";
+import { RequireRole } from "@/lib/auth";
 import { SyllabusHub } from "@/components/syllabus-hub";
 
 export default function SyllabusPage() {
@@ -14,7 +14,6 @@ export default function SyllabusPage() {
 }
 
 function SyllabusView() {
-  const { profile } = useAuth();
   const router = useRouter();
 
   const handleStartStudy = (paperId: string) => {
@@ -30,7 +29,6 @@ function SyllabusView() {
     <>
       <div className="cma-page-heading"><div><h1>Syllabus</h1><p>All papers, chapters and how many marks each part carries.</p></div></div>
       <SyllabusHub
-        currentLevel={profile?.level || "Intermediate"}
         onStartStudy={handleStartStudy}
         onOpenLibrary={handleOpenLibrary}
       />

@@ -207,7 +207,7 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
       {tab === "friends" && (friends === null ? <p className="cma-loading">Loading your friends…</p> : !friends.length ? (
         <div className="cma-empty">
           {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-          <img src="/illustrations/doodles/characters-playing-chess-game.svg" alt="" className="doodle" />
+          <img src="/illustrations/surface/friends.svg" alt="" className="doodle" />
           <h3>Study is better with friends</h3>
           <p>See when friends are studying, keep each other&apos;s streaks going, and race in weekly challenges.</p>
           <div className="fr-empty-actions">
@@ -323,7 +323,7 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
               {!messages.length && (
                 <div className="fr-chat-empty">
                   {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-                  <img src="/illustrations/doodles/characters-playing-chess-game.svg" alt="" className="doodle" />
+                  <img src="/illustrations/surface/hello.svg" alt="" className="doodle" />
                   <b>Say hi to {chatWith.name.split(" ")[0]}</b>
                   <span>Ask what they are studying, or plan a session together.</span>
                 </div>
@@ -373,7 +373,7 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
             <legend>Subject</legend>
             <div>
               <label><input type="radio" name="ch-subject" checked={newSubject === "All Subjects"} onChange={() => { haptic(); setNewSubject("All Subjects"); }} /><b><Books size={18} aria-hidden="true" /></b><span>All subjects</span></label>
-              {SUBJECTS.filter((x) => x.level === (profile?.level ?? "Intermediate")).map((x) => <label key={x.id}><input type="radio" name="ch-subject" checked={newSubject === x.name} onChange={() => { haptic(); setNewSubject(x.name); }} /><b>{x.id}</b><span>{x.name}</span></label>)}
+              {SUBJECTS.map((x) => <label key={x.id}><input type="radio" name="ch-subject" checked={newSubject === x.name} onChange={() => { haptic(); setNewSubject(x.name); }} /><b>{x.id}</b><span>{x.name}</span></label>)}
             </div>
           </fieldset>
           <fieldset><legend>Invite friends {picked.length ? `(${picked.length})` : "(optional)"}</legend>{friendPicker()}</fieldset>

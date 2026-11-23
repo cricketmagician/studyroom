@@ -151,7 +151,7 @@ export function StudentDossier({
         <div className="flex items-start sm:items-center gap-4 min-w-0">
           {/* Avatar with dynamic live status badge */}
           <div className="relative shrink-0">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#111110] text-white dark:bg-white dark:text-[#111110] flex items-center justify-center font-apfel font-bold text-xl sm:text-2xl shadow-sm">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17] flex items-center justify-center font-apfel font-bold text-xl sm:text-2xl shadow-sm">
               {student.name ? student.name.charAt(0).toUpperCase() : "S"}
             </div>
             {isLive && (
@@ -170,8 +170,8 @@ export function StudentDossier({
                 {student.name || "Student"}
               </h3>
 
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] tabular-nums font-bold bg-[#111110] text-white dark:bg-white dark:text-[#111110]">
-                {student.level ? `CMA ${student.level}` : "CMA"}
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] tabular-nums font-bold bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17]">
+                CMA Intermediate
               </span>
 
               {student.group && (
@@ -334,7 +334,7 @@ export function StudentDossier({
             onClick={() => setTab("overview")}
             className={`px-3 py-1.5 rounded-xl text-xs font-apfel font-bold transition-all cursor-pointer whitespace-nowrap ${
               tab === "overview"
-                ? "bg-[#111110] text-white dark:bg-white dark:text-[#111110] shadow-xs"
+                ? "bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17] shadow-xs"
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5"
             }`}
           >
@@ -346,7 +346,7 @@ export function StudentDossier({
             onClick={() => setTab("subjects")}
             className={`px-3 py-1.5 rounded-xl text-xs font-apfel font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               tab === "subjects"
-                ? "bg-[#111110] text-white dark:bg-white dark:text-[#111110] shadow-xs"
+                ? "bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17] shadow-xs"
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5"
             }`}
           >
@@ -363,7 +363,7 @@ export function StudentDossier({
           onClick={() => setTab("sessions")}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-apfel font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
             tab === "sessions"
-              ? "bg-[#111110] text-white dark:bg-white dark:text-[#111110] shadow-xs"
+              ? "bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17] shadow-xs"
               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5"
           }`}
         >
@@ -380,7 +380,7 @@ export function StudentDossier({
           onClick={() => setTab("profile")}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-apfel font-bold transition-all cursor-pointer whitespace-nowrap ${
             tab === "profile"
-              ? "bg-[#111110] text-white dark:bg-white dark:text-[#111110] shadow-xs"
+              ? "bg-[#0B1F17] text-white dark:bg-white dark:text-[#0B1F17] shadow-xs"
               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5"
           }`}
         >
@@ -433,7 +433,7 @@ export function StudentDossier({
                               day.pct >= 100
                                 ? "bg-emerald-500"
                                 : day.seconds > 0
-                                ? "bg-[#111110] dark:bg-white"
+                                ? "bg-[#0B1F17] dark:bg-white"
                                 : "bg-transparent"
                             }`}
                           />
@@ -462,7 +462,7 @@ export function StudentDossier({
                       Goal Achieved (100%+)
                     </span>
                     <span className="inline-flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#111110] dark:bg-white inline-block" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#0B1F17] dark:bg-white inline-block" />
                       In Progress
                     </span>
                   </div>
@@ -568,7 +568,7 @@ export function StudentDossier({
                       <div className="w-full h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
                         <div
                           style={{ width: `${item.percent}%` }}
-                          className="h-full rounded-full bg-[#111110] dark:bg-white transition-all"
+                          className="h-full rounded-full bg-[#0B1F17] dark:bg-white transition-all"
                         />
                       </div>
                     </div>
@@ -705,10 +705,10 @@ export function StudentDossier({
 
                   <div>
                     <span className="text-[var(--text-secondary)] block text-[10px] tabular-nums">
-                      CMA Course Level & Group:
+                      CMA course:
                     </span>
                     <span className="font-semibold text-[var(--text-primary)]">
-                      {student.level ? `CMA ${student.level}` : "Foundation"} {student.group ? `· ${student.group}` : ""}
+                      CMA Intermediate {student.group ? `· ${student.group}` : ""}
                     </span>
                   </div>
 

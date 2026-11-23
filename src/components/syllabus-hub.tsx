@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { ChevronDown, FileText, Play, Search } from "lucide-react";
-import { Level, LEVELS } from "@/lib/cma";
+import { Level } from "@/lib/cma";
 import { SYLLABUS_DATA } from "@/lib/syllabus-data";
 
 interface SyllabusHubProps {
@@ -12,7 +12,7 @@ interface SyllabusHubProps {
 }
 
 export function SyllabusHub({ currentLevel = "Intermediate", onStartStudy, onOpenLibrary }: SyllabusHubProps) {
-  const [level, setLevel] = useState<Level>(currentLevel);
+  const level = currentLevel;
   const [activeGroup, setActiveGroup] = useState<string>("All");
   const [search, setSearch] = useState("");
 
@@ -31,20 +31,12 @@ export function SyllabusHub({ currentLevel = "Intermediate", onStartStudy, onOpe
 
   return (
     <section aria-label="Syllabus">
-      <div className="cma-segments" aria-label="Choose course">
-        {LEVELS.map((l) => (
-          <button type="button" key={l} aria-pressed={level === l} onClick={() => { setLevel(l); setActiveGroup("All"); }}>{l}</button>
-        ))}
-      </div>
-
       <div className="library-toolbar">
-        {level !== "Foundation" && (
-          <div className="cma-segments" aria-label="Show group">
-            {(level === "Intermediate" ? ["All", "Group 1", "Group 2"] : ["All", "Group 3", "Group 4"]).map((grp) => (
-              <button type="button" key={grp} aria-pressed={activeGroup === grp} onClick={() => setActiveGroup(grp)}>{grp}</button>
-            ))}
-          </div>
-        )}
+        <div className="cma-segments" aria-label="Show group">
+          {["All", "Group 1", "Group 2"].map((grp) => (
+            <button type="button" key={grp} aria-pressed={activeGroup === grp} onClick={() => setActiveGroup(grp)}>{grp}</button>
+          ))}
+        </div>
         <label className="cma-search">
           <Search size={16} aria-hidden="true" />
           <input type="search" aria-label="Search the syllabus" placeholder="Search a topic, like GST" value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -54,7 +46,7 @@ export function SyllabusHub({ currentLevel = "Intermediate", onStartStudy, onOpe
       {!filteredPapers.length ? (
         <div className="cma-empty">
           {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-          <img src="/illustrations/doodles/character-with-phone-and-star.svg" alt="" className="doodle" />
+          <img src="/illustrations/surface/no-results.svg" alt="" className="doodle" />
           <h3>Nothing found</h3>
           <p>No paper or chapter in CMA {level} matches “{search}”.</p>
           <button type="button" className="cma-secondary" onClick={() => setSearch("")}>Show all papers</button>

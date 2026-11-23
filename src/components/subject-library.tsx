@@ -158,13 +158,11 @@ export function StudyLibrary({
   if (!selectedSubject) return (
     <section aria-label="Your subjects">
       <div className="cma-section-title">
-        {level !== "Foundation" ? (
-          <div className="cma-segments" aria-label="Show group">
-            {(level === "Intermediate" ? ["All", "Group 1", "Group 2"] : ["All", "Group 3", "Group 4"]).map((grp) => (
-              <button type="button" key={grp} aria-pressed={groupFilter === grp} onClick={() => setGroupFilter(grp)}>{grp}</button>
-            ))}
-          </div>
-        ) : <span />}
+        <div className="cma-segments" aria-label="Show group">
+          {["All", "Group 1", "Group 2"].map((grp) => (
+            <button type="button" key={grp} aria-pressed={groupFilter === grp} onClick={() => setGroupFilter(grp)}>{grp}</button>
+          ))}
+        </div>
         <button type="button" onClick={onOpenSyllabus} className="cma-text-button">See syllabus and marks<ArrowRight size={17} aria-hidden="true" /></button>
       </div>
       <div className="subject-grid">
@@ -192,7 +190,7 @@ export function StudyLibrary({
           </div>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-        <img src="/illustrations/doodles/person-commuting-on-train.svg" alt="" className="doodle" />
+        <img src="/illustrations/surface/exploring.svg" alt="" className="doodle" />
       </div>
 
       {!!paperResources.length && <div className="library-toolbar">
@@ -214,7 +212,7 @@ export function StudyLibrary({
       ) : !visibleResources.length ? (
         <div className="cma-empty">
           {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
-          <img src="/illustrations/doodles/character-with-phone-and-star.svg" alt="" className="doodle" />
+          <img src="/illustrations/surface/no-results.svg" alt="" className="doodle" />
           <h3>{paperResources.length ? (show === "saved" ? "Nothing saved yet" : "Nothing found") : "Nothing added yet"}</h3>
           <p>{paperResources.length ? (show === "saved" ? "Tap the bookmark on a video or PDF to keep it here." : "Try a different word, or show all.") : "Your teacher will add videos and PDFs for this subject soon."}</p>
           {(search || show !== "all") && !!paperResources.length && (

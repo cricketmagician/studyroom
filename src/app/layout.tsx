@@ -8,6 +8,7 @@ import { AuthProvider } from "@/lib/auth";
 import { FocusStatus } from '@/components/focus-status';
 import { PwaRegister } from '@/components/pwa-register';
 import { RoutinesProvider } from '@/components/routines-provider';
+import { SplashScreen } from '@/components/splash-screen';
 
 const absans = localFont({
   src: "./fonts/Absans-Regular.woff2",
@@ -44,7 +45,7 @@ const apfelGrotezk = localFont({
 
 export const metadata: Metadata = {
   title: "Abhyas · Daily CMA practice",
-  description: "CMA Foundation, Intermediate and Final: notes, focus sessions and daily progress.",
+  description: "CMA Intermediate: notes, focus sessions and daily progress.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -65,6 +66,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased font-sans selection:bg-orange-500/20">
+        <SplashScreen />
         <IconProvider>
         <ThemeProvider>
           <AuthProvider>

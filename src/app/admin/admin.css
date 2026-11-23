@@ -203,7 +203,6 @@
 .up-link-check { display:flex; align-items:center; gap:var(--sp-3); padding:var(--sp-2) var(--sp-3); border-radius:var(--r-2); background:var(--tint-amber-bg); color:var(--tint-amber); font-size:var(--fs-1); font-weight:600; }
 .up-link-check[data-ok] { background:var(--tint-green-bg); color:var(--tint-green); }
 .up-link-check img { width:96px; aspect-ratio:16/9; object-fit:cover; border-radius:8px; flex-shrink:0; }
-.up-levels { width:100%; } .up-levels button { flex:1; }
 .up-papers legend { color:var(--cma-muted); }
 .up-papers label { color:var(--cma-ink); }
 .up-two { display:grid; grid-template-columns:1.618fr 1fr; gap:var(--sp-3); }
