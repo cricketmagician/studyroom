@@ -44,7 +44,7 @@ export function StudyNavigation({ active, onChange }: { active?: string; onChang
       </button>
     </div></nav>
     <dialog ref={dialog} id="study-more-dialog" className="cma-more-dialog" aria-labelledby="study-more-title" onClose={() => setMoreOpen(false)}>
-      <header><div><span className="cma-eyebrow">YOUR STUDY TOOLS</span><h2 id="study-more-title">More from studyroom</h2></div><button type="button" autoFocus aria-label="Close study tools" onClick={() => dialog.current?.close()}><X size={20} aria-hidden="true"/></button></header>
+      <header><div><h2 id="study-more-title">More</h2></div><button type="button" autoFocus aria-label="Close study tools" onClick={() => dialog.current?.close()}><X size={20} aria-hidden="true"/></button></header>
       <div className="cma-more-grid">{secondary.map(({name,view,href,icon: Icon,tint}) => <Link key={view} href={href} aria-current={active === view ? 'page' : undefined} onClick={() => dialog.current?.close()}><span className="tint" data-tint={tint}><Icon size={24} weight="duotone" aria-hidden="true"/></span><span>{name}</span></Link>)}</div>
     </dialog>
   </>;

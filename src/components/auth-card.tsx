@@ -40,7 +40,7 @@ const PERKS = [
   { icon: Users, label: "Study with friends", tint: "pink" },
 ];
 
-export function AuthCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+export function AuthCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <main className="auth">
       <span className="auth-orb auth-orb-a" aria-hidden="true" />
@@ -62,7 +62,6 @@ export function AuthCard({ title, subtitle, children }: { title: string; subtitl
       <section className="auth-sheet">
         <div>
           <h1>{title}</h1>
-          <p className="auth-sub">{subtitle}</p>
           {children}
         </div>
       </section>

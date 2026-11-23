@@ -117,7 +117,7 @@ export function ProfileSetupModal({ isOpen, initialName = "", onComplete, onClos
 
       <main className="ob-body" key={step} data-back={back || undefined}>
         {step === 1 && (
-          <Q headingRef={heading} icon="👋" title="What should we call you?" help="Your teacher and study friends will see this name.">
+          <Q headingRef={heading} icon="👋" title="What should we call you?">
             <form onSubmit={(e) => { e.preventDefault(); next(); }}>
               <input className="ob-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" maxLength={80} autoComplete="name" aria-label="Your full name" autoFocus />
             </form>
@@ -125,7 +125,7 @@ export function ProfileSetupModal({ isOpen, initialName = "", onComplete, onClos
         )}
 
         {step === 2 && (
-          <Q headingRef={heading} icon="🗓️" title="Which exam are you writing?" help="We count down to it and plan your days around it.">
+          <Q headingRef={heading} icon="🗓️" title="Which exam are you writing?">
             <div className="ob-options" role="radiogroup" aria-label="Exam term">
               {examTerms().map((t, i) => { const d = daysTo(t); return <Option key={t} selected={targetExam === t} onSelect={() => setTargetExam(t)} emoji={["⏳", "📅", "🧭"][i]} title={t.replace(" Term", "")} note={d !== null ? `${d} days to go` : undefined} />; })}
             </div>
@@ -133,7 +133,7 @@ export function ProfileSetupModal({ isOpen, initialName = "", onComplete, onClos
         )}
 
         {step === 3 && (
-          <Q headingRef={heading} icon="📚" title="Which group are you preparing?" help="CMA Intermediate has 8 papers in two groups.">
+          <Q headingRef={heading} icon="📚" title="Which group are you preparing?">
             <div className="ob-options" role="radiogroup" aria-label="Group">
               {GROUPS.map((g) => <Option key={g.value} selected={group === g.value} onSelect={() => { setGroup(g.value); setPrimarySubject(""); }} emoji={g.emoji} title={g.title} note={g.note} />)}
             </div>
@@ -141,7 +141,7 @@ export function ProfileSetupModal({ isOpen, initialName = "", onComplete, onClos
         )}
 
         {step === 4 && (
-          <Q headingRef={heading} icon="🎓" title="Which attempt is this?" help="No judgement. It only changes how we plan.">
+          <Q headingRef={heading} icon="🎓" title="Which attempt is this?">
             <div className="ob-options" role="radiogroup" aria-label="Attempt">
               {ATTEMPTS.map((a) => <Option key={a.value} selected={attempt === a.value} onSelect={() => setAttempt(a.value)} emoji={a.emoji} title={a.title} note={a.note} />)}
             </div>
@@ -149,7 +149,7 @@ export function ProfileSetupModal({ isOpen, initialName = "", onComplete, onClos
         )}
 
         {step === 5 && (
-          <Q headingRef={heading} icon="🎯" title="Which paper needs the most work?" help="We will put it first in your plan. You can change it any time.">
+          <Q headingRef={heading} icon="🎯" title="Which paper needs the most work?">
             <div className="ob-options ob-papers" role="radiogroup" aria-label="Focus paper">
               {papers.map((s, i) => <Option key={s.id} selected={primarySubject === s.name} onSelect={() => setPrimarySubject(s.name)} badge={s.id} tint={TINTS[i % TINTS.length]} title={s.name} note={getSubjectSyllabus(s.id)?.scoringDifficulty} />)}
             </div>
@@ -157,7 +157,7 @@ export function ProfileSetupModal({ isOpen, initialName = "", onComplete, onClos
         )}
 
         {step === 6 && (
-          <Q headingRef={heading} icon="⏱️" title="How much can you study each day?" help="Pick what you can keep up. Small and daily beats big and rare.">
+          <Q headingRef={heading} icon="⏱️" title="How much can you study each day?">
             <div className="ob-options" role="radiogroup" aria-label="Daily goal">
               {GOALS.map((g) => { const d = daysTo(targetExam); return <Option key={g.minutes} selected={dailyGoalMinutes === g.minutes} onSelect={() => setDailyGoalMinutes(g.minutes)} emoji={g.emoji} title={g.title} note={d ? `${g.note} · about ${Math.round((g.minutes * d) / 60)} hours before your exam` : g.note} badge={g.badge ? "Best" : undefined} />; })}
             </div>

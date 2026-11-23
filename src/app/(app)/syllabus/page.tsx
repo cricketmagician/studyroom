@@ -27,7 +27,7 @@ function SyllabusView() {
 
   return (
     <>
-      <div className="cma-page-heading"><div><h1>Syllabus</h1><p>All papers, chapters and how many marks each part carries.</p></div></div>
+      <div className="cma-page-heading"><div><h1>Syllabus</h1></div></div>
       <SyllabusHub
         onStartStudy={handleStartStudy}
         onOpenLibrary={handleOpenLibrary}

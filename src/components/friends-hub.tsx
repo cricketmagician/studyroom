@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Bell, Books, CaretLeft, Check, CaretRight as ChevronRight, Copy, DotsThree, Fire as Flame, ChatCircle as MessageCircle, Plus, PaperPlaneRight as Send, ShareNetwork as Share2, Trophy, UserMinus, UserPlus, UsersThree as Users, X } from "@phosphor-icons/react";
 import { postAi } from "@/lib/ai-client";
-import { useAuth } from "@/lib/auth";
 import { SUBJECTS, duration } from "@/lib/cma";
 import { haptic } from "@/lib/haptics";
 import { getNotificationPermission, requestNotificationPermission, showPushNotification } from "@/lib/notifications";
@@ -31,7 +30,6 @@ function Avatar({ friend, size = 44 }: { friend: Pick<Friend, "id" | "name" | "s
 }
 
 export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: string; currentUserName?: string; onStartStudy?: (subjectId: string) => void }) {
-  const { profile } = useAuth();
   const [tab, setTab] = useState<"friends" | "challenges">("friends");
   const [friends, setFriends] = useState<Friend[] | null>(null);
   const [hideStatus, setHideStatus] = useState(false);
@@ -209,7 +207,6 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
           {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
           <img src="/illustrations/surface/friends.svg" alt="" className="doodle" />
           <h3>Study is better with friends</h3>
-          <p>See when friends are studying, keep each other&apos;s streaks going, and race in weekly challenges.</p>
           <div className="fr-empty-actions">
             <button type="button" className="cma-primary" onClick={openInvite}><UserPlus size={17} aria-hidden="true" />Invite a friend</button>
             <button type="button" className="cma-secondary" onClick={openInvite}>I have a code</button>
@@ -239,7 +236,6 @@ export function FriendsHub({ currentUserId, onStartStudy }: { currentUserId?: st
         <div className="cma-empty">
           <span className="tint fr-empty-icon" data-tint="amber"><Trophy size={26} aria-hidden="true" /></span>
           <h3>Start a study race</h3>
-          <p>Pick a target, like 10 hours this week. Friends join, and everyone sees who is ahead.</p>
           <button type="button" className="cma-primary" onClick={() => challengeSheet.current?.showModal()}><Plus size={17} aria-hidden="true" />New challenge</button>
         </div>
       ) : (

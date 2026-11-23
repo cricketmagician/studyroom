@@ -30,9 +30,9 @@ export function RoutinesSection({ compact = false }: { compact?: boolean }) {
   }
   return <section className={`routine-section ${compact ? 'routine-preview cma-panel' : ''}`} aria-labelledby={compact ? 'home-routines-title' : 'routines-title'}>
     <header className="cma-section-title">
-      <div><span className="cma-eyebrow">SMALL HABITS, STEADY PROGRESS</span>
+      <div>
         {compact ? <h2 id="home-routines-title">Your daily rhythm.</h2> : <h1 id="routines-title">Routines</h1>}
-        <p>{items.length ? `${completed} of ${scheduled.length} done today · All times in IST` : 'Make room for study, movement and a little time for yourself.'}</p>
+        {items.length > 0 && <p>{completed} of {scheduled.length} done today</p>}
       </div>
       {compact ? <Link href="/routines" className="cma-text-button">View all<ArrowRight size={17}/></Link> : <button className="cma-primary" onClick={() => setEditing({...TEMPLATES[0],title:'',startDate:today})}><Plus size={18}/>New routine</button>}
     </header>
@@ -52,7 +52,7 @@ export function RoutinesSection({ compact = false }: { compact?: boolean }) {
         </li>;
       })}</ul>}
       {items.length > 0 && !shown.length && <div className="routine-rest"><Repeat2 size={27}/><h3>A little breathing room.</h3><p>No routines scheduled for today. Your other routines are saved.</p>{compact ? <Link className="cma-text-button" href="/routines">Manage routines<ArrowRight size={16}/></Link> : <button className="cma-text-button" onClick={() => setView('All routines')}>See all routines</button>}</div>}
-      {!items.length && !compact && <div className="routine-empty"><img src="/illustrations/surface/tasks.svg" alt=""/><div><span className="cma-eyebrow">ONE SMALL BEGINNING</span><h2>No routines yet.</h2><p>Pick a starting point below or make your own. A good routine makes tomorrow a little easier.</p></div></div>}
+      {!items.length && !compact && <div className="routine-empty"><img src="/illustrations/surface/tasks.svg" alt=""/><div><h2>No routines yet</h2></div></div>}
       {(!items.length || !compact) && <div className="routine-templates"><h3>{compact ? 'Build a daily rhythm' : 'Start with a template'}</h3>{compact && <p>Set it once. Come back to it each day.</p>}<div className="routine-template-grid">{TEMPLATES.slice(0,compact ? 3 : undefined).map(t => <button className="routine-template" key={t.title} onClick={() => openTemplate(t)}><CategoryIcon category={t.category}/><span><strong>{t.title}</strong><small>{scheduleLabel({...t,startDate:today})} · {timeLabel(t.time)}</small></span><Plus size={18} aria-hidden="true"/></button>)}</div>{compact && <Link href="/routines" className="cma-text-button">More templates<ArrowRight size={17}/></Link>}</div>}
       {!compact && <p className="routine-footnote"><Bell size={15} aria-hidden="true"/>Reminders appear while Abhyas is open. Completing a routine does not add study hours—use the focus timer to record those.</p>}
     </>}
@@ -73,7 +73,7 @@ function RoutineEditor({ initial, onClose }: { initial: RoutineInput & {id?:stri
     catch (e) { setError((e as Error).message); }
   }
   return <dialog ref={dialog} className="routine-dialog" aria-labelledby="routine-editor-title" onClose={onClose} onCancel={e => { if (busy) e.preventDefault(); }}>
-    <header><div><span className="cma-eyebrow">A LITTLE EVERY DAY</span><h2 id="routine-editor-title">{initial.id ? 'Edit routine' : 'New routine'}</h2></div><button className="cma-icon-button" aria-label="Close routine editor" disabled={busy} onClick={() => dialog.current?.close()}><X size={21}/></button></header>
+    <header><div><h2 id="routine-editor-title">{initial.id ? 'Edit routine' : 'New routine'}</h2></div><button className="cma-icon-button" aria-label="Close routine editor" disabled={busy} onClick={() => dialog.current?.close()}><X size={21}/></button></header>
     <form onSubmit={save}>
       <label>What do you want to do?<input autoFocus required maxLength={100} value={form.title} onChange={e => change('title',e.target.value)} placeholder="e.g. Revise cost accounting"/></label>
       <fieldset><legend>Category</legend><div className="routine-choices categories">{CATEGORIES.map(category => { const Icon=ICONS[category]; return <button key={category} type="button" aria-pressed={form.category===category} onClick={() => change('category',category)}><Icon size={18}/>{category}</button>; })}</div></fieldset>

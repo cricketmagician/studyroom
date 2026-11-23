@@ -458,7 +458,7 @@ function AdminWorkspace() {
         <header className="cma-top adm-top">
           <div className="adm-top-title">
             <span className="adm-mobile-logo"><LogoMark size={32} /></span>
-            <div><span className="cma-eyebrow">Teacher console</span><h1>{TITLES[tab]}</h1></div>
+            <div><h1>{TITLES[tab]}</h1></div>
           </div>
           <div className="adm-top-actions">
             {studying > 0 && <button type="button" className="adm-live" onClick={() => go("students")}><span className="cma-live-dot" />{studying} studying</button>}
@@ -498,7 +498,7 @@ function AdminWorkspace() {
             <section className="adm-hero" data-tint={hero.tint}>
               {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
               <img src={`/illustrations/surface/${hero.art}.svg`} alt="" className="doodle" />
-              <div><h2>{hero.title}</h2><p>{hero.text}</p></div>
+              <div><h2>{hero.title}</h2></div>
             </section>
           );
         })()}
@@ -509,7 +509,7 @@ function AdminWorkspace() {
               <div>
                 <span className="cma-eyebrow">{new Date(now).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</span>
                 <h2>{greet}, {first}</h2>
-                <p>{studying ? `${studying} ${studying === 1 ? "student is" : "students are"} studying right now.` : "Here is how your class is doing."}</p>
+                {studying > 0 && <p>{studying} {studying === 1 ? "student is" : "students are"} studying right now.</p>}
               </div>
             </section>
 
@@ -533,9 +533,7 @@ function AdminWorkspace() {
               {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
               <img src="/illustrations/surface/work-from-home.svg" alt="" className="doodle" />
               <span>
-                <span className="cma-eyebrow"><PSparkle size={14} aria-hidden="true" />Teach something new</span>
                 <b>Add a video or PDF</b>
-                <small>Students see it in their Library at once. AI can make flashcards and MCQs from PDFs.</small>
                 <span className="cma-primary"><PPlus size={17} weight="bold" aria-hidden="true" />Upload now</span>
               </span>
             </button>

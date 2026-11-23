@@ -11,16 +11,8 @@ export const pillButton =
 
 export const cardClass = "rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-[var(--shadow-sm)]";
 
-export function PageTitle({ name, title, sub }: { name?: string; title: string; sub?: string }) {
-  return (
-    <div className="cma-page-heading !mb-0">
-      <div>
-        {name && <span className="cma-eyebrow">Hello, {name.split(" ")[0]}</span>}
-        <h1>{title}</h1>
-        {sub && <p>{sub}</p>}
-      </div>
-    </div>
-  );
+export function PageTitle({ title }: { title: string }) {
+  return <div className="cma-page-heading !mb-0"><h1>{title}</h1></div>;
 }
 
 /** One file in a list: icon tile, title, details, and an arrow (or a custom action). */

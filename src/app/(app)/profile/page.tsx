@@ -227,7 +227,7 @@ function ProfileView() {
       <header className="profile-hero">
         <span className="profile-avatar" aria-hidden="true">{initials}</span>
         <h1>{profile.name}</h1>
-        <p>CMA {level} · {targetExam}</p>
+        <p>{targetExam}</p>
         <button type="button" className="cma-secondary" onClick={() => editSheet.current?.showModal()}><PenLine size={16} aria-hidden="true" />Edit profile</button>
       </header>
 

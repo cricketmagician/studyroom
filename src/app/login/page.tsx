@@ -31,7 +31,7 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthCard title="Welcome back" subtitle="Log in to keep your streak going.">
+    <AuthCard title="Welcome back">
       <GoogleSignIn busy={busy} onBusy={setBusy} onError={setError}/>
       <form method="post" onSubmit={handleSubmit}>
         <Field label="Email" name="email" type="email" autoComplete="email" />

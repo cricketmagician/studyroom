@@ -171,9 +171,7 @@ function AutoPlan({ onPlan }: { onPlan: (plan: SavedPlan | null) => void }) {
         {/* eslint-disable-next-line @next/next/no-img-element -- Supplied local vector illustration. */}
         <img src="/illustrations/surface/business-plan.svg" alt="" className="doodle" />
         <div>
-          <span className="cma-eyebrow"><Sparkles size={14} aria-hidden="true" />AI study plan</span>
-          <h2>Tell us 4 things. AI plans your next 7, 15 or 30 days.</h2>
-          <p>Your daily time, exam, hard papers and rest days. Every day you get papers, chapters and one clear task. Press Start and it ticks off by itself.</p>
+          <h2>Plan your next 7, 15 or 30 days</h2>
           <button type="button" className="cma-primary" onClick={openSetup}><Sparkles size={18} aria-hidden="true" />Set up my plan</button>
         </div>
       </section>
@@ -308,7 +306,7 @@ function Tasks() {
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
-        <PageTitle title="Study plan" sub="AI plans your days from your goal, exam date, hard papers and what you studied lately." />
+        <PageTitle title="Study plan" />
       </div>
 
       <AutoPlan onPlan={setPlan} />
@@ -333,7 +331,7 @@ function Tasks() {
         <div className="todo-hint">
           {due || parsed.due
             ? <span className="todo-due"><CalendarDays size={14} aria-hidden="true" />Due {prettyDue(due || parsed.due!, today)}{!due && " · from what you typed"}{due && <button type="button" aria-label="Remove due date" onClick={() => setDue("")}><X size={13} /></button>}</span>
-            : <span>Tip: write &quot;kal&quot;, &quot;Sunday&quot; or &quot;in 3 days&quot; and the date is set for you.</span>}
+            : <span />}
           <label className="todo-pick"><CalendarDays size={16} aria-hidden="true" /><span className="sr-only">Pick a due date</span><input type="date" value={due} min={today} onChange={(e) => setDue(e.target.value)} /></label>
         </div>
       </form>
@@ -355,7 +353,6 @@ function Tasks() {
             <ListTodo className="w-6 h-6" aria-hidden />
           </span>
           <h2 className="mt-4 font-heading font-bold">Nothing extra to do</h2>
-          <p className="mt-1 text-sm text-[var(--text-secondary)]">Your study plan above is ready. Add anything else here, like a mock test or a form to fill.</p>
         </div>
       )}
 

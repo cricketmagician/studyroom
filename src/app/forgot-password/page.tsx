@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AuthCard title="Reset password" subtitle="We will email you a link to set a new password.">
+    <AuthCard title="Reset password">
       {sent ? (
         <p role="status" className="auth-sent">If an account exists for this email, a reset link is on its way. Check your inbox.</p>
       ) : (

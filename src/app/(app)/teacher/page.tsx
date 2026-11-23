@@ -15,11 +15,10 @@ import { PackDoc } from "@/lib/study-pack";
 import { cardClass, FileRow, PageTitle, pillButton } from "@/components/ui";
 
 export default function TeacherPage() {
-  const { profile } = useAuth();
   return (
     <RequireRole role="teacher">
       <div className="space-y-6">
-        <PageTitle name={profile?.name} title="Share with Students" />
+        <PageTitle title="Share with Students" />
         <UploadForm />
         <MyUploads />
       </div>

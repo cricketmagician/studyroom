@@ -34,7 +34,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <AuthCard title="Create your account" subtitle="Free for CMA Intermediate students. Takes one minute.">
+    <AuthCard title="Create your account">
       <GoogleSignIn busy={busy} onBusy={setBusy} onError={setError}/>
       <form method="post" onSubmit={handleSubmit}>
         <Field label="Your name" name="name" autoComplete="name" maxLength={80} />

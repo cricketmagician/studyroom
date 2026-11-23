@@ -91,7 +91,7 @@ function Notes() {
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
-        <PageTitle title="Notes" sub="Write what you learn. Text is saved to your account. Photos stay on this device." />
+        <PageTitle title="Notes" />
         <button onClick={newNote} disabled={busy} className={`${pillButton} shrink-0 h-11 px-5 text-sm bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--on-brand)] shadow-[var(--shadow-md)]`}>
           <Plus className="w-4 h-4" aria-hidden /> New note
         </button>
