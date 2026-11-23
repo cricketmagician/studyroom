@@ -354,6 +354,20 @@ function AdminWorkspace() {
     }
   };
 
+  const removeStudent = async (student: Student) => {
+    if (!confirm(`Delete ${student.name || student.email || "this student"}? Their account, streak and study history are removed for good. This cannot be undone.`)) return;
+    setError("");
+    try {
+      await postAi("/api/admins", { action: "delete_student", uid: student.id });
+      detailRequest.current++;
+      setSelected(null);
+      setStudents((all) => all.filter((s) => s.id !== student.id));
+      setMessage(`✓ ${student.name || student.email || "Student"} deleted.`);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
   const remove = async (material: Material) => {
     if (!confirm(`Delete "${material.title}"? Students will lose access.`)) return;
     setDeleting(material.id);
@@ -1250,6 +1264,7 @@ function AdminWorkspace() {
                   detailRequest.current++;
                   setSelected(null);
                 }}
+                onDelete={() => removeStudent(selected)}
               />
             )}
           </div>

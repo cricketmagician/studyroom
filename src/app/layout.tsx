@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AuthProvider } from "@/lib/auth";
 import { FocusStatus } from '@/components/focus-status';
 import { PwaRegister } from '@/components/pwa-register';
+import { InstallPrompt } from '@/components/install-prompt';
 import { RoutinesProvider } from '@/components/routines-provider';
 import { SplashScreen } from '@/components/splash-screen';
 
@@ -72,6 +73,7 @@ export default function RootLayout({
           <AuthProvider>
             <RoutinesProvider>
             <PwaRegister />
+            <InstallPrompt />
             <Suspense fallback={null}>
               {children}
             </Suspense>

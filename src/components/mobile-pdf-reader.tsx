@@ -11,8 +11,8 @@ export function MobilePdfReader({url,title}:{url:string;title:string}) {
   const [page,setPage]=useState(1),[zoom,setZoom]=useState(1),[busy,setBusy]=useState(true),[error,setError]=useState('');
   useEffect(()=>{
     let cancelled=false;
-    let task:ReturnType<typeof import('pdfjs-dist').getDocument>|undefined;
-    void import('pdfjs-dist').then(async engine=>{
+    let task:ReturnType<typeof import('pdfjs-dist/legacy/build/pdf.mjs').getDocument>|undefined;
+    void import('pdfjs-dist/legacy/build/pdf.mjs').then(async engine=>{
       engine.GlobalWorkerOptions.workerSrc='/pdf/pdf.worker.min.mjs';
       if(cancelled)return;
       setPdf(null);setPage(1);setError('');setBusy(true);

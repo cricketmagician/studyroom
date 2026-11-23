@@ -24,6 +24,24 @@ export async function POST(request: Request) {
       });
       return Response.json({ ok: true, revoked: true, email: target.get('email') });
     }
+    if (body?.action === 'delete_student') {
+      if (typeof body.uid !== 'string' || !/^[\w-]{1,128}$/.test(body.uid)) throw new HttpError(400, 'User ID required.');
+      if (body.uid === actor.uid) throw new HttpError(400, 'You cannot delete your own account here.');
+      const profile = await adminDb.doc(`profiles/${body.uid}`).get();
+      if (profile.get('role') === 'teacher') throw new HttpError(400, 'Remove admin access before deleting this person.');
+      // Sign-in goes first so a half-finished delete never leaves a working account; a missing user is fine on retry.
+      await adminAuth.deleteUser(body.uid).catch((error) => { if ((error as {code?:string}).code !== 'auth/user-not-found') throw error; });
+      const [friends, devices] = await Promise.all([
+        adminDb.collection('friendships').where('members', 'array-contains', body.uid).get(),
+        adminDb.collection('mobileDevices').where('uid', '==', body.uid).get(),
+      ]);
+      await Promise.all([
+        ...['profiles', 'studyUsers', 'users'].map((c) => adminDb.recursiveDelete(adminDb.doc(`${c}/${body.uid}`))),
+        ...friends.docs.map((d) => adminDb.recursiveDelete(d.ref)),
+        ...devices.docs.map((d) => d.ref.delete()),
+      ]);
+      return Response.json({ ok: true, deleted: true });
+    }
     if (body?.action !== 'grant') throw new HttpError(400, 'Unknown admin action.');
     if (typeof body.email !== 'string' || body.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim())) throw new HttpError(400, 'Enter a valid registered email address.');
     let target;

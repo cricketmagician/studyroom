@@ -42,7 +42,8 @@ export default function ViewerPage() {
 
 function Viewer() {
   const [androidReader,setAndroidReader]=useState(false);
-  useEffect(()=>setAndroidReader(isNative()),[]);
+  // Phones (app WebView and mobile Chrome) cannot show a PDF inside a page, so we draw it ourselves.
+  useEffect(()=>setAndroidReader(isNative() || navigator.pdfViewerEnabled === false),[]);
   const { id } = useParams<{ id: string }>();
   const [item, setItem] = useState<Material | null | undefined>(undefined);
   const [error, setError] = useState("");

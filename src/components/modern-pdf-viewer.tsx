@@ -54,7 +54,8 @@ export function ModernPdfViewer({
   isCompleted = false,
 }: ModernPdfViewerProps) {
   const [androidReader,setAndroidReader]=useState(false);
-  useEffect(()=>setAndroidReader(isNative()),[]);
+  // Phones (app WebView and mobile Chrome) cannot show a PDF inside a page, so we draw it ourselves.
+  useEffect(()=>setAndroidReader(isNative() || navigator.pdfViewerEnabled === false),[]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(28);
   const [zoomLevel, setZoomLevel] = useState(100);

@@ -10,6 +10,7 @@ import {
   BookOpen,
   Phone,
   Mail,
+  Trash2,
   Calendar,
   MapPin,
   Award,
@@ -58,6 +59,7 @@ interface StudentDossierProps {
   detailError: string;
   now: number;
   onClose: () => void;
+  onDelete?: () => void;
 }
 
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -68,6 +70,7 @@ export function StudentDossier({
   detailError,
   now,
   onClose,
+  onDelete,
 }: StudentDossierProps) {
   const [tab, setTab] = useState<"overview" | "subjects" | "sessions" | "profile">("overview");
   const [copiedReg, setCopiedReg] = useState(false);
@@ -252,6 +255,18 @@ export function StudentDossier({
             <Mail className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Email</span>
           </a>
+
+          {onDelete && student.role !== "teacher" && (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="px-3 py-2 rounded-xl border border-red-200 dark:border-red-900/60 hover:bg-red-50 dark:hover:bg-red-950/40 text-xs font-semibold inline-flex items-center gap-1.5 text-red-600 transition-colors cursor-pointer"
+              title="Delete student"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Delete</span>
+            </button>
+          )}
 
           <button
             type="button"
