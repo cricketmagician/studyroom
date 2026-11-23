@@ -78,7 +78,7 @@
 .cma .cma-hero h1 { margin:0; color:#fff; font:700 clamp(34px,5vw,48px)/1.05 var(--font-apfel),sans-serif; letter-spacing:-.045em; }
 .cma-hero .hand-note { color:#FFD766; }
 .cma .cma-hero-line { margin:10px 0 0; max-width:360px; font-size:15.5px; line-height:1.45; color:rgba(255,255,255,.88); }
-.cma-hero-art { width:340px; height:340px; flex-shrink:0; object-fit:contain; margin:-30px -20px -6px 0; filter:drop-shadow(0 26px 30px rgba(4,32,27,.4)); animation:plan-float 4s ease-in-out infinite; }
+.cma-hero-art { scale:-1 1; width:340px; height:340px; flex-shrink:0; object-fit:contain; margin:-30px -20px -6px 0; filter:drop-shadow(0 26px 30px rgba(4,32,27,.4)); animation:plan-float 4s ease-in-out infinite; }
 .cma-heading-art { width:233px; height:233px; object-fit:contain; flex-shrink:0; margin:calc(var(--sp-4) * -1) 0; animation:plan-float 4s ease-in-out infinite; }
 .cma-eyebrow { display:inline-flex; align-items:center; gap:var(--sp-2); font-size:var(--fs-1); font-weight:700; letter-spacing:.08em; color:var(--cma-muted); text-transform:uppercase; }
 .cma :is(h2,h3).cma-eyebrow { font:700 var(--fs-1)/1.5 var(--font-absans),sans-serif; letter-spacing:.08em; margin:0; }
