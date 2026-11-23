@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { sendPasswordResetEmail, updateProfile } from "firebase/auth";
 import Link from "next/link";
-import { Bell, BookmarkSimple as Bookmark, CalendarCheck, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Clock, Fire as Flame, GraduationCap, Key as KeyRound, SignOut as LogOut, EnvelopeSimple as Mail, Moon, NotePencil as NotebookPen, PencilSimple as PenLine, Target, UsersThree as Users, X } from "@phosphor-icons/react";
+import { Bell, BookmarkSimple as Bookmark, CalendarCheck, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Clock, Fire as Flame, GraduationCap, Key as KeyRound, SignOut as LogOut, EnvelopeSimple as Mail, Moon, NotePencil as NotebookPen, PencilSimple as PenLine, ShieldCheck, ArrowUpRight, Target, UsersThree as Users, X } from "@phosphor-icons/react";
 import { haptic } from "@/lib/haptics";
 import { auth } from "@/lib/firebase/config";
 import { friendlyError } from "@/lib/firebase/errors";
@@ -259,6 +259,12 @@ function ProfileView() {
           : <button type="button" className="profile-pill" disabled={!androidApp && (pushStatus === "denied" || pushStatus === "unsupported")} onClick={()=>androidApp && pushStatus === "denied" ? void AbhyasNative.settings({kind:'app'}) : void handleEnablePush()}>{pushStatus === "denied" ? androidApp ? "Open settings" : "Blocked in browser" : "Turn on"}</button>}</div></li>
         {androidApp && <li><div>{row(<Clock size={18}/>, "orange", "Reminder timing", exactAlarms ? "Exact timing on" : "May be delayed")}<button type="button" className="profile-pill" onClick={()=>void AbhyasNative.settings({kind:'alarms'})}>Settings</button></div></li>}
         <li><label>{row(<Moon size={18} />, "violet", "Dark mode")}<input type="checkbox" role="switch" className="profile-switch" checked={theme === "dark"} onChange={() => { haptic(); toggleTheme(); }} /></label></li>
+      </ul>
+
+      <h2 className="profile-group-title">About</h2>
+      <ul className="profile-list">
+        <li><details className="profile-details"><summary>{row(<ShieldCheck size={18} />, "green", "Who can see my data?")}<ChevronRight size={18} aria-hidden="true" /></summary><p>Your teacher can see your profile, days present, study time and the files you opened. Friends see your name, streak, total study time and when you are studying. You can turn that off above.</p></details></li>
+        <li><a href="https://icmai.in/ClntStudents/Student_Syllabus_2022" target="_blank" rel="noreferrer">{row(<GraduationCap size={18} />, "violet", "ICMAI syllabus 2022")}<ArrowUpRight size={18} aria-hidden="true" /><span className="sr-only">(opens in a new tab)</span></a></li>
       </ul>
 
       <h2 className="profile-group-title">Account</h2>

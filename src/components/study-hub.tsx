@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- Local SVG artwork and Tegaki animation do not need image optimization. */
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { BookOpenText as BookOpen, Play, Pause, Check, ArrowRight, ArrowUpRight, CaretDown as ChevronDown, Fire as Flame, TrendDown as TrendingDown, TrendUp as TrendingUp, Clock as Clock3, UserCircle as User, GraduationCap, ShieldCheck } from "@phosphor-icons/react";
+import { BookOpenText as BookOpen, Play, Pause, Check, ArrowRight, Fire as Flame, TrendDown as TrendingDown, TrendUp as TrendingUp, Clock as Clock3, UserCircle as User, GraduationCap } from "@phosphor-icons/react";
 import { isNative } from '@/lib/native';
 import { syncNativeAuth } from '@/lib/native-session';
 import { requestNotificationPermission } from '@/lib/notifications';
@@ -307,12 +307,12 @@ export function StudyHub() {
             }}
           />
         )}
+        {/* Brand sign-off: the logo, the promise, nothing to read past. */}
         <footer className="cma-footer">
-          <div className="cma-footer-links">
-            <details><summary><span className="tint" data-tint="green"><ShieldCheck size={17} aria-hidden="true"/></span>Who can see my data?<ChevronDown size={18} aria-hidden="true"/></summary><p>Your teacher can see your profile, days present, study time and the files you opened. Friends see your name, streak, total study time and when you are studying. You can hide your study status in Friends.</p></details>
-            <a href="https://icmai.in/ClntStudents/Student_Syllabus_2022" target="_blank" rel="noreferrer"><span className="tint" data-tint="violet"><GraduationCap size={17} aria-hidden="true"/></span>ICMAI syllabus 2022<ArrowUpRight size={18} aria-hidden="true"/><span className="sr-only">(opens in a new tab)</span></a>
-          </div>
-          <p className="cma-footer-sign"><strong>abhyas.</strong> Daily practice for CMA students in India.</p>
+          <img src="/brand/abhyas-mark.svg" alt="" width={52} height={52} className="cma-footer-mark"/>
+          <p className="cma-footer-word">abhyas<span>.</span></p>
+          <HandNote text="Study a little every day." className="cma-footer-note"/>
+          <small>Made in India for CMA Intermediate students</small>
         </footer>
         <ProfileSetupModal
           isOpen={showSetupModal}

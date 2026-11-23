@@ -203,18 +203,15 @@
 .cma-invite h2 { font-size:22px; }
 .cma-actions { display:flex; gap:10px; flex-shrink:0; }
 /* Footer: an iOS-style grouped list, then a quiet sign-off. Extra space below keeps it clear of the tab bar. */
-.cma-footer { margin-top:var(--sp-6); display:grid; gap:var(--sp-4); }
-.cma-footer-links { border:1px solid var(--cma-line); border-radius:var(--r-3); background:var(--cma-surface); overflow:hidden; }
-.cma-footer-links>*+* { border-top:1px solid var(--cma-line); }
-.cma-footer-links :is(summary,a) { display:flex; align-items:center; gap:var(--sp-3); min-height:55px; padding:var(--sp-2) var(--sp-4); font-weight:600; color:var(--cma-ink); list-style:none; }
-.cma-footer-links summary::-webkit-details-marker { display:none; }
-.cma-footer-links :is(summary,a)>svg { margin-left:auto; color:var(--cma-muted); transition:transform 160ms; }
-.cma-footer-links details[open] summary>svg { transform:rotate(180deg); }
-.cma-footer-links :is(summary,a):hover { background:var(--bg-surface-subtle); }
-.cma-footer-links details>p { padding:0 var(--sp-4) var(--sp-4) calc(var(--sp-4) + 47px); font-size:var(--fs-1); }
-.cma-footer .tint { width:34px; height:34px; border-radius:10px; }
-.cma-footer-sign { text-align:center; font-size:var(--fs-1); }
-.cma-footer-sign strong { color:var(--brand-ink); }
+.cma-footer { position:relative; isolation:isolate; margin-top:var(--sp-6); padding:var(--sp-6) var(--sp-4) var(--sp-5); display:grid; justify-items:center; gap:6px; text-align:center; overflow:hidden; }
+/* Fading teal light, a quiet echo of the hero at the top. */
+.cma-footer::before { content:""; position:absolute; inset:0; z-index:-1; background:radial-gradient(45% 50% at 50% 55%,rgba(14,124,107,.14),transparent 100%); pointer-events:none; }
+.cma-footer::after { content:""; position:absolute; top:0; left:50%; width:min(320px,70%); height:1px; translate:-50% 0; background:linear-gradient(90deg,transparent,var(--cma-line),transparent); }
+.cma-footer-mark { border-radius:16px; box-shadow:0 14px 28px -14px rgba(11,31,23,.6); }
+.cma-footer-word { margin:6px 0 0; font:700 30px/1 var(--font-apfel),sans-serif; letter-spacing:-.04em; color:var(--cma-ink); }
+.cma-footer-word span { color:var(--sun); }
+.cma .cma-footer-note { color:var(--brand); font-size:22px; }
+.cma-footer small { margin-top:4px; font-size:12px; letter-spacing:.02em; color:var(--cma-muted); }
 .cma-skip { position:fixed; left:20px; top:-80px; z-index:100; padding:12px; background:var(--cma-surface); }
 .cma-skip:focus { top:12px; }
 /* Library: subject cards → one subject → a list of videos and PDFs. */
@@ -310,6 +307,12 @@
 .profile-email { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:190px; }
 .profile-list li>:is(a,button)>svg:last-child { color:var(--cma-muted); flex-shrink:0; }
 .profile-danger .profile-row-label { color:var(--tint-pink); }
+.profile-details summary { display:flex; align-items:center; gap:var(--sp-3); min-height:55px; padding:var(--sp-2) var(--sp-4); cursor:pointer; list-style:none; }
+.profile-details summary::-webkit-details-marker { display:none; }
+.profile-details summary:hover { background:var(--bg-surface-subtle); }
+.profile-details summary>svg:last-child { color:var(--cma-muted); flex-shrink:0; transition:transform .16s; }
+.profile-details[open] summary>svg:last-child { transform:rotate(90deg); }
+.profile-details>p { margin:0; padding:0 var(--sp-4) var(--sp-4) calc(var(--sp-4) + 47px); font-size:var(--fs-1); color:var(--cma-muted); }
 .profile-pill { display:inline-flex!important; width:auto!important; min-height:34px!important; padding:0 var(--sp-3)!important; border-radius:999px; background:var(--brand-soft); color:var(--brand-ink)!important; font-size:var(--fs-1)!important; font-weight:600!important; }
 .cma .profile-switch { appearance:none; flex-shrink:0; width:51px; height:31px; min-height:0; padding:0; border:0; border-radius:999px; background:var(--cma-line); position:relative; cursor:pointer; transition:background .2s; }
 .cma .profile-switch::after { content:""; position:absolute; top:2px; left:2px; width:27px; height:27px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.2); transition:transform .2s cubic-bezier(.2,.8,.2,1); }
