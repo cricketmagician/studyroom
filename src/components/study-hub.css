@@ -36,12 +36,12 @@
 .cma-top+* { margin-top:var(--sp-3); }
 /* Headerless top row: date on the left, glass round buttons, a streak pill and a gradient-ring avatar on the right. */
 .cma-topline { display:flex; justify-content:space-between; align-items:center; gap:var(--sp-3); padding-top:env(safe-area-inset-top); }
-.cma-date { font:600 var(--fs-1)/1.3 var(--font-absans),sans-serif; letter-spacing:.06em; text-transform:uppercase; color:var(--brand-ink); }
+.cma-date { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; font:600 var(--fs-1)/1.3 var(--font-absans),sans-serif; letter-spacing:.06em; text-transform:uppercase; color:var(--brand-ink); }
 .cma-topline+* { margin-top:var(--sp-4); }
 .cma-top-actions { display:flex; align-items:center; gap:var(--sp-2); }
 .cma-topline .cma-icon-button { border-radius:50%; color:var(--text-primary); background:rgba(255,255,255,.58); border-color:rgba(255,255,255,.8); box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 18px -12px rgba(11,31,23,.45); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
 .dark .cma-topline .cma-icon-button { background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.1); box-shadow:inset 0 1px 0 rgba(255,255,255,.08); }
-.cma-streak-pill { height:40px; display:inline-flex; align-items:center; gap:6px; padding:0 14px 0 11px; border-radius:999px; font:700 15px/1 var(--font-apfel),sans-serif; color:#C2410C; background:linear-gradient(135deg,#FFF4E8,#FFE2C6); border:1px solid #FFD3AE; box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 18px -12px rgba(255,122,26,.7); transition:transform .15s; }
+.cma-streak-pill { white-space:nowrap; flex-shrink:0; height:40px; display:inline-flex; align-items:center; gap:6px; padding:0 14px 0 11px; border-radius:999px; font:700 15px/1 var(--font-apfel),sans-serif; color:#C2410C; background:linear-gradient(135deg,#FFF4E8,#FFE2C6); border:1px solid #FFD3AE; box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 18px -12px rgba(255,122,26,.7); transition:transform .15s; }
 .cma-streak-pill svg { color:var(--flame); }
 .cma-streak-pill:active { transform:scale(.96); }
 .dark .cma-streak-pill { color:#FFB27A; background:rgba(255,122,26,.14); border-color:rgba(255,122,26,.32); box-shadow:none; }
@@ -66,20 +66,19 @@
 .cma-attendance [data-today] i { box-shadow:0 0 0 2px var(--cma-surface),0 0 0 4px var(--brand); }
 @media (max-width:420px) { .cma-attendance { width:100%; } .cma-attendance ol { margin:var(--sp-1) 0 0; width:100%; justify-content:space-between; } }
 /* Home greeting is a bold teal card (Forest / Speechify style); the illustration keeps its own mint, so no dark-mode invert. */
-.cma .cma-page-heading[data-hero] { position:relative; isolation:isolate; overflow:hidden; min-height:200px; padding:var(--sp-5); border-radius:32px; color:#fff;
-  background:radial-gradient(120% 140% at 100% 100%,rgba(255,182,29,.32),transparent 55%),radial-gradient(90% 120% at 0% 0%,rgba(100,252,217,.34),transparent 60%),linear-gradient(140deg,#13937F 0%,#0A5A4E 55%,#073F36 100%);
-  box-shadow:0 28px 48px -26px rgba(7,63,54,.85),inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(255,255,255,.08); }
-/* Soft rings behind the art, like light on water. */
-.cma .cma-page-heading[data-hero]::before { content:""; position:absolute; z-index:-1; width:420px; height:420px; right:-120px; top:50%; translate:0 -50%; border-radius:50%; background:repeating-radial-gradient(circle,rgba(255,255,255,.07) 0 1px,transparent 1px 34px),radial-gradient(circle,rgba(100,252,217,.3),transparent 62%); pointer-events:none; }
-/* A slow sheen across the glass. */
-.cma .cma-page-heading[data-hero]::after { content:""; position:absolute; z-index:-1; inset:0; background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.1) 45%,transparent 60%); background-size:250% 100%; animation:hero-sheen 7s ease-in-out infinite; pointer-events:none; }
-.cma .cma-page-heading[data-hero] h1 { font-size:clamp(30px,4vw,42px); letter-spacing:-.04em; text-shadow:0 2px 12px rgba(4,32,27,.3); }
-.cma .cma-page-heading[data-hero] h1 { color:#fff; }
-.cma .cma-page-heading[data-hero] .cma-heading-art { width:300px; height:300px; margin:-48px -28px -56px 0; filter:drop-shadow(0 24px 30px rgba(4,32,27,.45)); }
-@keyframes hero-sheen { 0%,100% { background-position:120% 0; } 50% { background-position:-20% 0; } }
-.cma .cma-page-heading[data-hero] p { color:rgba(255,255,255,.82); }
-.cma .cma-page-heading[data-hero] :is(.cma-eyebrow,.hand-note) { color:#64FCD9; }
-.dark .cma .cma-page-heading[data-hero] .doodle { filter:none; }
+/* Home: a full-width green band that runs under the date row, with a big illustration. */
+.cma-hero { position:relative; isolation:isolate; overflow:hidden; margin:calc(var(--sp-5) * -1) calc(50% - 50vw) var(--sp-5); padding:var(--sp-5) max(var(--sp-5), calc(50vw - 987px / 2 + var(--sp-5))) 0; color:#fff;
+  background:radial-gradient(70% 90% at 85% 40%,rgba(100,252,217,.35),transparent 60%),radial-gradient(60% 70% at 100% 100%,rgba(255,182,29,.28),transparent 60%),linear-gradient(160deg,#13937F 0%,#0B6B5C 55%,#07473D 100%); border-radius:0 0 36px 36px; }
+.cma-hero::before { content:""; position:absolute; z-index:-1; width:520px; height:520px; right:-140px; top:40px; border-radius:50%; background:repeating-radial-gradient(circle,rgba(255,255,255,.08) 0 1px,transparent 1px 38px); pointer-events:none; }
+.cma-hero .cma-date { color:#64FCD9; }
+.cma-hero .cma-topline .cma-icon-button { color:#fff; background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.22); box-shadow:none; }
+.cma-hero .cma-avatar>span { border-color:#0B6B5C; }
+.cma-hero-body { display:flex; align-items:flex-end; justify-content:space-between; gap:var(--sp-3); margin-top:var(--sp-4); }
+.cma-hero-body>div { flex:1; min-width:0; padding-bottom:var(--sp-5); }
+.cma .cma-hero h1 { margin:0; color:#fff; font:700 clamp(34px,5vw,48px)/1.05 var(--font-apfel),sans-serif; letter-spacing:-.045em; }
+.cma-hero .hand-note { color:#FFD766; }
+.cma .cma-hero-line { margin:10px 0 0; max-width:360px; font-size:15.5px; line-height:1.45; color:rgba(255,255,255,.88); }
+.cma-hero-art { width:340px; height:340px; flex-shrink:0; object-fit:contain; margin:-30px -20px -6px 0; filter:drop-shadow(0 26px 30px rgba(4,32,27,.4)); animation:plan-float 4s ease-in-out infinite; }
 .cma-heading-art { width:233px; height:233px; object-fit:contain; flex-shrink:0; margin:calc(var(--sp-4) * -1) 0; animation:plan-float 4s ease-in-out infinite; }
 .cma-eyebrow { display:inline-flex; align-items:center; gap:var(--sp-2); font-size:var(--fs-1); font-weight:700; letter-spacing:.08em; color:var(--cma-muted); text-transform:uppercase; }
 .cma :is(h2,h3).cma-eyebrow { font:700 var(--fs-1)/1.5 var(--font-absans),sans-serif; letter-spacing:.08em; margin:0; }
@@ -459,11 +458,17 @@
 @media(max-width:720px) {
   .cma { padding-bottom:calc(96px + env(safe-area-inset-bottom)); }
   .cma-main { padding:var(--sp-4) var(--sp-4) var(--sp-3); }
+  .cma-hero { margin:calc(var(--sp-4) * -1) calc(var(--sp-4) * -1) var(--sp-4); padding:var(--sp-4) var(--sp-4) 0; border-radius:0 0 32px 32px; }
+  .cma-hero-body { margin-top:var(--sp-2); }
+  .cma-hero-body>div { padding-bottom:var(--sp-4); }
+  .cma .cma-hero h1 { font-size:clamp(24px,7.6vw,36px); overflow-wrap:break-word; }
+  .cma .cma-hero-line { font-size:14px; }
+  .cma-hero-body { position:relative; min-height:clamp(180px,54vw,240px); }
+  .cma-hero-body>div { position:relative; z-index:1; max-width:54%; }
+  .cma-hero-art { position:absolute; right:-14vw; bottom:-10px; width:clamp(190px,60vw,270px); height:clamp(190px,60vw,270px); margin:0; }
   .cma-top { --pad:var(--sp-4); }
 
   .cma-page-heading { margin:var(--sp-4) 0; gap:var(--sp-3); }
-  .cma .cma-page-heading[data-hero] { min-height:172px; padding:var(--sp-4); border-radius:28px; }
-  .cma .cma-page-heading[data-hero] .cma-heading-art { width:200px; height:200px; margin:-34px -38px -40px -24px; }
   .cma h1 { font-size:var(--fs-5); }
   .cma-heading-art { width:144px; height:144px; margin:0 calc(var(--sp-2) * -1) 0 0; }
   .cma-focus-card { display:flex; flex-direction:column; align-items:stretch; gap:0; padding:var(--sp-4); }
@@ -604,8 +609,7 @@
 .plan-coach p { margin:var(--sp-1) 0 var(--sp-2)!important; color:var(--text-primary)!important; font:600 var(--fs-3)/1.35 var(--font-apfel),sans-serif; letter-spacing:-.02em; }
 .plan-coach small { margin:0; color:var(--tint-violet); font-weight:600; }
 @media (max-width:720px) { .plan-coach { flex-direction:column; text-align:center; padding:var(--sp-4) var(--sp-4) var(--sp-5); gap:var(--sp-2); } .plan-coach img { width:144px; height:144px; margin:0; } .plan-coach .cma-eyebrow { justify-content:center; } .plan-coach p { font-size:var(--fs-3); } }
-.cma .cma-page-heading[data-hero]>div { position:relative; z-index:1; }
-@media (prefers-reduced-motion:reduce) { .cma .cma-page-heading[data-hero]::after,.cma-heading-art,.plan-coach,.plan-coach img { animation:none; } }
+@media (prefers-reduced-motion:reduce) { .cma-hero-art,.cma-heading-art,.plan-coach,.plan-coach img { animation:none; } }
 .profile-sheet form[hidden] { display:none; }
 /* Coming up: never wider than the screen; chapters wrap to two lines, minutes sit on the right. */
 .plan-days li { min-width:0; }
@@ -631,3 +635,6 @@ html:not([data-scrolled]) .cma-top { background:transparent; border-bottom-color
 html[data-scrolled] .cma-top { background:color-mix(in srgb,var(--bg-primary) 55%,transparent); -webkit-backdrop-filter:blur(24px) saturate(1.9); backdrop-filter:blur(24px) saturate(1.9); border-bottom-color:color-mix(in srgb,var(--cma-line) 80%,transparent); box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 10px 28px -20px rgba(0,0,0,.45); }
 .dark html[data-scrolled] .cma-top,html.dark[data-scrolled] .cma-top { box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 10px 28px -18px rgba(0,0,0,.9); }
 @media (prefers-reduced-transparency:reduce) { html[data-scrolled] .cma-top { background:var(--bg-primary); -webkit-backdrop-filter:none; backdrop-filter:none; } }
+
+/* Small phones (320–360px): keep the date row on one line. */
+@media (max-width:360px) { .cma-date { font-size:11px; letter-spacing:.03em; } .cma-top-actions { gap:6px; } .cma-topline .cma-icon-button, .cma-streak-pill { height:36px; } .cma-avatar { width:40px; height:40px; } }

@@ -61,3 +61,6 @@ ui-debug.log
 /public/download/*.apk
 /android/app/build/
 /android 2/
+/android/keystore.properties
+*.jks
+*.keystore

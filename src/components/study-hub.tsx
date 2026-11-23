@@ -183,19 +183,34 @@ export function StudyHub() {
             setBusy(false);
         }
     };
+    const topline = (
+        <div className="cma-topline">
+        <span className="cma-date">{clock > 1e12 && new Date(clock).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}</span>
+        <div className="cma-top-actions">
+          {detail && <button type="button" className="cma-streak-pill" onClick={() => goToView("Progress")} aria-label={`${streak} day streak. See your progress`}><Flame size={17} weight="fill" aria-hidden="true" />{streak}</button>}
+          <button type="button" onClick={() => goToView("Syllabus")} className="cma-icon-button" title="ICMAI Syllabus 2022 Blueprint" aria-label="Syllabus"><GraduationCap size={18} /></button>
+          <Link href="/profile" className="cma-avatar" title="View & edit your CMA profile" aria-label="Your profile"><span>{(profile?.name ?? "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || <User size={20} />}</span></Link>
+        </div>
+      </div>
+    );
     return <div className="cma">
       <a href="#study-content" className="cma-skip">Skip to content</a>
       <main className="cma-main" id="study-content">
         {/* No app bar: just today's date with the streak and avatar, scrolling away with the page. */}
-        <div className="cma-topline">
-          <span className="cma-date">{clock > 1e12 && new Date(clock).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}</span>
-          <div className="cma-top-actions">
-            {detail && <button type="button" className="cma-streak-pill" onClick={() => goToView("Progress")} aria-label={`${streak} day streak. See your progress`}><Flame size={17} weight="fill" aria-hidden="true" />{streak}</button>}
-            <button type="button" onClick={() => goToView("Syllabus")} className="cma-icon-button" title="ICMAI Syllabus 2022 Blueprint" aria-label="Syllabus"><GraduationCap size={18} /></button>
-            <Link href="/profile" className="cma-avatar" title="View & edit your CMA profile" aria-label="Your profile"><span>{(profile?.name ?? "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || <User size={20} />}</span></Link>
-          </div>
-        </div>
-        <div className="cma-page-heading" data-hero={tab === "Overview" || undefined}><div><h1>{tab === "Overview" ? `Hi, ${profile?.name.split(" ")[0] ?? "there"}` : tab === "Library" ? "Study material" : tab === "Syllabus" ? "Syllabus" : tab === "Progress" ? "Your progress" : "Friends"}</h1>{tab === "Overview" && <HandNote text={goalPercent >= 100 ? "Goal done. Well done!" : "One day at a time."}/>}</div>{tab === "Overview" && <img className="cma-heading-art doodle" src={goalPercent >= 100 ? "/illustrations/surface/done.svg" : "/illustrations/surface/work-from-home.svg"} alt=""/>}</div>
+        {tab === "Overview" ? (
+          /* Home opens on a full-width green band: greeting on the left, a big illustration on the right. */
+          <section className="cma-hero">
+            {topline}
+            <div className="cma-hero-body">
+              <div>
+                <h1>Hi, {profile?.name.split(" ")[0] ?? "there"}</h1>
+                <HandNote text={goalPercent >= 100 ? "Goal done. Well done!" : "One day at a time."}/>
+                <p className="cma-hero-line">{!detail ? "" : goalPercent >= 100 ? "You hit today’s goal. Anything more is a bonus." : todaySeconds ? `${duration(goal*60 - todaySeconds)} more to hit today’s goal.` : `Today’s goal is ${duration(goal*60)}. Start with one paper.`}</p>
+              </div>
+              <img className="cma-hero-art" src={goalPercent >= 100 ? "/illustrations/surface/done.svg" : "/illustrations/surface/work-from-home.svg"} alt=""/>
+            </div>
+          </section>
+        ) : <>{topline}<div className="cma-page-heading"><div><h1>{tab === "Library" ? "Study material" : tab === "Syllabus" ? "Syllabus" : tab === "Progress" ? "Your progress" : "Friends"}</h1></div></div></>}
         <ErrorText>{error || materialsError}</ErrorText>
         {pendingInvite && <section className="cma-panel cma-invite"><div><h2>A friend invited you</h2><p>If you accept, you both see each other’s name, streak and study time.</p></div><div className="cma-actions"><button disabled={busy} className="cma-primary" onClick={accept}>Accept</button><button className="cma-secondary" onClick={() => {sessionStorage.removeItem("cma-invite");setPendingInvite("");}}>Dismiss</button></div></section>}
         {tab === "Overview" && <section className="cma-stats" aria-label="Study snapshot">{[{icon:Clock3,label:"This week",value:duration(weekSeconds),note:"Monday to Sunday"},{icon:Flame,label:"Streak",value:`${streak} ${streak === 1 ? "day" : "days"}`,note:"Days in a row you opened the app"},{icon:BookOpen,label:"Finished",value:String(Object.values(entries).filter(e=>e.done).length),note:"Videos and PDFs marked done"}].map(({icon:Icon,...s}) => <div key={s.label}><span className="cma-stat-icon"><Icon size={19}/></span><div><span>{s.label}</span><strong>{detail ? s.value : "—"}</strong><small>{s.note}</small></div></div>)}</section>}
