@@ -212,6 +212,7 @@
 .cma-footer-word span { color:var(--sun); }
 .cma .cma-footer-note { color:var(--brand); font-size:22px; }
 .cma-footer small { margin-top:4px; font-size:12px; letter-spacing:.02em; color:var(--cma-muted); }
+.cma-footer-credit { font-size:11px; color:var(--cma-muted); opacity:.7; }
 .cma-skip { position:fixed; left:20px; top:-80px; z-index:100; padding:12px; background:var(--cma-surface); }
 .cma-skip:focus { top:12px; }
 /* Library: subject cards → one subject → a list of videos and PDFs. */

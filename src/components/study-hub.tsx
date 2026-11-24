@@ -207,7 +207,7 @@ export function StudyHub() {
                 <HandNote text={goalPercent >= 100 ? "Goal done. Well done!" : "One day at a time."}/>
                 <p className="cma-hero-line">{!detail ? "" : goalPercent >= 100 ? "You hit today’s goal. Anything more is a bonus." : todaySeconds ? `${duration(goal*60 - todaySeconds)} more to hit today’s goal.` : `Today’s goal is ${duration(goal*60)}. Start with one paper.`}</p>
               </div>
-              <img className="cma-hero-art" src={goalPercent >= 100 ? "/illustrations/surface/done.svg" : "/illustrations/hero-study.svg"} alt=""/>
+              <img className="cma-hero-art" src={goalPercent >= 100 ? "/illustrations/surface/done.svg" : "/illustrations/hero-student.png"} alt=""/>
             </div>
           </section>
         ) : <>{topline}<div className="cma-page-heading"><div><h1>{tab === "Library" ? "Study material" : tab === "Syllabus" ? "Syllabus" : tab === "Progress" ? "Your progress" : "Friends"}</h1></div></div></>}
@@ -313,6 +313,8 @@ export function StudyHub() {
           <p className="cma-footer-word">abhyas<span>.</span></p>
           <HandNote text="Study a little every day." className="cma-footer-note"/>
           <small>Made in India for CMA Intermediate students</small>
+          {/* Icons8 free licence needs this link. */}
+          <a className="cma-footer-credit" href="https://icons8.com/illustrations" target="_blank" rel="noreferrer">Illustration by Icons8</a>
         </footer>
         <ProfileSetupModal
           isOpen={showSetupModal}
