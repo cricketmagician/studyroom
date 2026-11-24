@@ -17,27 +17,26 @@ const TARGETS = [
 ];
 
 function generateSvg(w, h, isLand) {
-  // Center is optically positioned
-  const cx = w / 2;
-  const cy = isLand ? h * 0.48 : h * 0.45;
+  // qlmanage renders a square thumbnail, so draw on a square canvas (side = the longer edge) and crop the middle w×h afterwards.
+  const S = Math.max(w, h);
+  const cx = S / 2;
+  const cy = S / 2 - h * (isLand ? 0.02 : 0.05); // slightly above centre reads as centred
 
-  // Scale emblem based on screen width/height
+  // Size everything from the shorter edge so small screens keep the same proportions.
   const minDim = Math.min(w, h);
   const scale = minDim / 1080;
-  const badgeSize = Math.round(180 * scale);
+  const badgeSize = Math.round(220 * scale);
   const badgeHalf = badgeSize / 2;
-  const badgeRadius = Math.round(badgeSize * 0.28);
 
-  const titleSize = Math.max(22, Math.round(68 * scale));
-  const titleY = badgeHalf + Math.round(72 * scale);
-  const subSize = Math.max(10, Math.round(19 * scale));
-  const subY = titleY + Math.round(36 * scale);
-  const letterSpacingSub = Math.max(3, Math.round(7 * scale));
+  const titleSize = Math.round(84 * scale);
+  const titleY = badgeHalf + Math.round(96 * scale);
+  const subSize = Math.round(22 * scale);
+  const subY = titleY + Math.round(48 * scale);
+  const letterSpacingSub = Math.max(1, Math.round(5 * scale));
 
-  const bottomY = h - Math.max(24, Math.round(60 * scale));
-  const bottomSize = Math.max(9, Math.round(15 * scale));
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+  const bottomY = S / 2 + h / 2 - Math.round(80 * scale);
+  const bottomSize = Math.round(18 * scale);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${S} ${S}" width="${S}" height="${S}">
   <defs>
     <radialGradient id="bgG" cx="50%" cy="42%" r="75%">
       <stop offset="0%" stop-color="#14A58D"/>
@@ -59,7 +58,7 @@ function generateSvg(w, h, isLand) {
   </defs>
 
   <!-- Background Canvas -->
-  <rect width="${w}" height="${h}" fill="url(#bgG)"/>
+  <rect width="${S}" height="${S}" fill="url(#bgG)"/>
 
   <!-- Center Branding Cluster: the Sunrise Book mark (public/brand/abhyas-mark.svg, 72-unit grid) scaled to badgeSize -->
   <g transform="translate(${cx}, ${cy})">
@@ -72,7 +71,7 @@ function generateSvg(w, h, isLand) {
     </g>
 
     <!-- Wordmark -->
-    <text x="0" y="${titleY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="${titleSize}" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="-1.5">abhyas<tspan fill="#FFB61D">.</tspan></text>
+    <text x="0" y="${titleY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="${titleSize}" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="${-Math.round(2 * scale)}">abhyas<tspan fill="#FFB61D">.</tspan></text>
 
     <!-- Subtitle -->
     <text x="0" y="${subY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="${subSize}" font-weight="700" fill="#64FCD9" text-anchor="middle" letter-spacing="${letterSpacingSub}">CMA INTERMEDIATE · DAILY PRACTICE</text>
@@ -80,7 +79,7 @@ function generateSvg(w, h, isLand) {
 
   <!-- Bottom Hallmark -->
   <g transform="translate(${cx}, ${bottomY})">
-    <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="${bottomSize}" font-weight="600" fill="#9FE9D6" text-anchor="middle" letter-spacing="${Math.max(2, Math.round(4 * scale))}">FOR CMA ASPIRANTS</text>
+    <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="${bottomSize}" font-weight="600" fill="#9FE9D6" text-anchor="middle" letter-spacing="${Math.max(1, Math.round(4 * scale))}">FOR CMA ASPIRANTS</text>
   </g>
 </svg>`;
 }
